@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Requirements from './pages/Requirements';
 import Research from './pages/Research';
@@ -19,6 +20,7 @@ function App() {
     <BrowserRouter>
       <div className="app">
         <Navbar />
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/requirements" element={<Requirements />} />

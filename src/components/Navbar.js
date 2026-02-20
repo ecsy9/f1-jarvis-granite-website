@@ -41,7 +41,7 @@ function Navbar() {
     <header className="navbar">
       <div className="navbar__container">
         <NavLink to="/" className="navbar__brand">
-          Project Report
+          F1 Jarvis
         </NavLink>
         <nav className="navbar__nav">
           {navItems.map(({ path, label }) => (
