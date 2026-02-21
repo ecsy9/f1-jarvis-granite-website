@@ -21,7 +21,7 @@ function Home() {
     <div>
       <div className="home-hero">
         <div className="home-hero__image-wrap">
-          <img src="/images/title_photo.png" alt="F1 Jarvis Granite platform" />
+          <img src={`${process.env.PUBLIC_URL}/images/title_photo.png`} alt="F1 Jarvis Granite platform" />
         </div>
         <div className="home-hero__inner">
           <p className="home-hero__label">UCL &middot; Team 17</p>
