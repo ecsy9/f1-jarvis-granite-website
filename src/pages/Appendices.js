@@ -4,7 +4,7 @@ import SectionPage from '../components/SectionPage';
 function Appendices() {
   return (
     <SectionPage title="Appendices">
-      <p>Supporting materials, documentation, and external resources for the F1 Jarvis TORCS project.</p>
+      <p>Supporting materials, documentation, and external resources for the F1 Jarvis Granite project.</p>
 
       <h2>Project Documents</h2>
       <div className="info-cards">
@@ -37,18 +37,18 @@ function Appendices() {
       <h2>GitHub Repositories</h2>
       <div className="info-cards">
         <div className="info-card">
-          <div className="info-card__label">Website Source</div>
+          <div className="info-card__label">AI Fine-tuning</div>
           <div className="info-card__value">
-            <a href="https://github.com/ecsy9/f1-jarvis-granite-website" target="_blank" rel="noopener noreferrer" style={{color:'#e85d04'}}>
-              f1-jarvis-granite-website ↗
+            <a href="https://github.com/athena-c-22/f1-fine-tuning" target="_blank" rel="noopener noreferrer" style={{color:'#e85d04'}}>
+              f1-fine-tuning ↗
             </a>
           </div>
         </div>
         <div className="info-card">
-          <div className="info-card__label">Main Platform</div>
+          <div className="info-card__label">Live Telemetry</div>
           <div className="info-card__value">
-            <a href="https://github.com/ecsy9/f1-jarvis-granite" target="_blank" rel="noopener noreferrer" style={{color:'#e85d04'}}>
-              f1-jarvis-granite ↗
+            <a href="https://github.com/eceokutan/f1-live-telemetry" target="_blank" rel="noopener noreferrer" style={{color:'#e85d04'}}>
+              f1-live-telemetry ↗
             </a>
           </div>
         </div>
@@ -59,7 +59,7 @@ function Appendices() {
         <tbody>
           <tr>
             <td><strong>Project Title</strong></td>
-            <td>F1 Jarvis TORCS — AI Enhanced Racing Telemetry Analysis Platform</td>
+            <td>F1 Jarvis Granite — AI Enhanced Racing Telemetry Analysis Platform</td>
           </tr>
           <tr>
             <td><strong>Module</strong></td>

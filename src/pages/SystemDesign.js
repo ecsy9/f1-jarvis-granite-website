@@ -4,7 +4,7 @@ function SystemDesign() {
   return (
     <SectionPage title="System Design">
       <p>
-        The F1 Jarvis TORCS platform uses a modular layered architecture enabling parallel
+        The F1 Jarvis Granite platform uses a modular layered architecture enabling parallel
         development across four tracks and future extensibility beyond the project deadline.
       </p>
 

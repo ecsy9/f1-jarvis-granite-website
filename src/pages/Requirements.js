@@ -4,41 +4,105 @@ function Requirements() {
   return (
     <SectionPage title="Requirements">
       <p>
-        Functional and non-functional requirements for the F1 Jarvis TORCS platform, derived from
-        stakeholder analysis with UCL Racing Formula Student, competitive sim racers, and the
-        project supervisors.
+        Requirements were gathered through a structured HCI process: semi-structured interviews,
+        persona construction, scenario-based design, low-fidelity sketches, and iterative prototype
+        evaluation. This pipeline ensured that system requirements reflect genuine user needs
+        rather than developer assumptions.
       </p>
 
-      <h2>Scope</h2>
-      <div className="scope-grid">
-        <div className="scope-box scope-box--in">
-          <div className="scope-box__title">In Scope</div>
-          <ul>
-            <li>CAN bus telemetry ingestion from UCL Racing vehicle</li>
-            <li>TORCS simulator live telemetry via UDP</li>
-            <li>Assetto Corsa integration via shared memory</li>
-            <li>2D real-time telemetry dashboard</li>
-            <li>Post-race replay and multi-lap comparison</li>
-            <li>InfluxDB time-series storage</li>
-            <li>FastAPI microservice architecture</li>
-            <li>IBM Granite LLM fine-tuning for motorsport</li>
-            <li>AI Race Engineer with vocal output</li>
-            <li>VR platform in Unreal Engine 5</li>
-          </ul>
+      <h2>Gathering User Requirements</h2>
+      <p>
+        Semi-structured interviews were selected as the primary requirements gathering technique
+        since they provide the optimal balance between structured data collection and exploratory
+        flexibility. [1] This approach allowed us to probe deeply into users' mental models while
+        maintaining consistency across interviews, following established HCI best practices for
+        understanding domain-specific user needs. Below are representative responses from two
+        user groups: a competitive racing simulation gamer and an F1 race engineer.
+      </p>
+
+      <div className="profile-cards">
+        <div className="profile-card">
+          <div className="profile-card__title">Competitive Gamer</div>
+          <div className="profile-card__body">
+            <p><strong>Do you use any AI-powered tools to analyse your race performance?</strong></p>
+            <p>"Not really. I've tried a few telemetry overlays in Assetto Corsa or F1 22, but they only give me lap times and a few charts. They don't tell me why I'm slower in certain corners. I'd love something that interprets the data for me — like having a virtual race engineer."</p>
+            <p><strong>What features do you look for?</strong></p>
+            <p>"Something interactive, like a replay where the AI pauses and explains my mistakes. It should adapt to me over time, noticing patterns in my driving. A clean UI is important — some telemetry tools are just messy spreadsheets. It should feel like working with an engineer who knows how to teach, not just show data."</p>
+          </div>
         </div>
-        <div className="scope-box scope-box--out">
-          <div className="scope-box__title">Out of Scope</div>
-          <ul>
-            <li>Integration with proprietary F1 data sources</li>
-            <li>Simulators beyond TORCS and Assetto Corsa</li>
-            <li>Real-time control commands to vehicles (read-only)</li>
-            <li>Commercial deployment or enterprise hardening</li>
-            <li>TORCS in-game overlay (future enhancement)</li>
-            <li>ThingSpeak cloud integration</li>
-            <li>Hardware development beyond sensor protocols</li>
-          </ul>
+        <div className="profile-card">
+          <div className="profile-card__title">F1 Race Engineer</div>
+          <div className="profile-card__body">
+            <p><strong>Do you use AI-powered tools in your race strategy or performance analysis?</strong></p>
+            <p>"Yes, our team already integrates ML models into telemetry analysis and pit-stop strategy predictions. But the process still feels fragmented — different tools for data visualisation, diagnostics, and communication. I'd like to see more unification."</p>
+            <p><strong>What would you look for in an improved platform?</strong></p>
+            <p>"Real-time collaboration between human engineers and the AI. A unified 'Jarvis-style' interface that aggregates telemetry, strategy models, and diagnostics in a single clear view. Compliance logging would also be great — we spend too much time writing reports after races."</p>
+          </div>
         </div>
       </div>
+
+      <h2>Personas</h2>
+      <p>
+        Having conducted the interviews, detailed personas were constructed to capture outlook,
+        motivations, and behavioural patterns in order to better identify goals and requirements.
+        Through persona-driven design, we avoid the critical error of self-referential design where
+        developers create systems for people like themselves. [2]
+      </p>
+
+      <div className="profile-cards">
+        <div className="profile-card">
+          <div className="profile-card__title">Persona — Competitive Gamer</div>
+          <div className="profile-card__body">
+            <p><strong>Alex Chen</strong> &mdash; Primary user, data-driven racer</p>
+            <p><em>"I don't just want to drive fast — I want to understand why I'm fast, or why I'm not."</em></p>
+            <p><strong>Motivations:</strong> Wants the realism and strategy of Formula 1 with cutting-edge AI. Feels satisfaction from measurable progress — lap time reduction, consistent braking zones.</p>
+            <p><strong>Goals:</strong> Learn and improve through AI-powered performance analysis and personalised coaching. Interact naturally with an AI race engineer for strategy and feedback mid-race.</p>
+            <p><strong>Pain points:</strong> Generic post-race summaries with no actionable advice. Static AI opponents that don't learn or adjust. Lack of immersive communication — traditional menus instead of conversational interfaces.</p>
+          </div>
+        </div>
+        <div className="profile-card">
+          <div className="profile-card__title">Persona — F1 Race Engineer</div>
+          <div className="profile-card__body">
+            <p><strong>Peter Capaldi</strong>, 47 &mdash; Lead engineer, performance &amp; strategy, F1 team</p>
+            <p><em>"I need real-time data and direct control, especially when milliseconds can decide the outcome."</em></p>
+            <p><strong>Motivations:</strong> Use live sensor data to improve race performance. Rely on AI models for instant strategy suggestions and pit decisions. Integrate hardware, software, and AI for a smoother workflow.</p>
+            <p><strong>Goals:</strong> Instantly access and act on car telemetry through the unified Jarvis interface. Automate regular tasks using smart firmware and AI. Maintain logs automatically for compliance and review.</p>
+            <p><strong>Pain points:</strong> Disconnected data sources slow decisions in real-time. Hard to align hardware, dashboard, and AI data under race pressure. Poor integration between platforms adds complexity and delays.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2>Scenarios</h2>
+      <p>
+        Scenario-based design adds to the interviews and personas by revealing context-based
+        requirements that they alone cannot capture. [3] By walking through detailed user journeys,
+        critical interaction needs were identified — Alex needs accessible real-time racing advice,
+        Peter needs fast-paced analysis — that informed specific design decisions.
+      </p>
+
+      <h3>Alex Chen — Competitive Gamer</h3>
+      <p>
+        On a quiet Saturday afternoon in his London flat, Alex sits before his triple-monitor setup,
+        ready to challenge the AI race bot in the F1 Race Car Simulator. After reviewing telemetry
+        with his AI engineer, Astra, they tweak the rear wing and tyre pressure. As the lights go out,
+        Alex makes a clean start while adaptive AI bots adjust to his driving. Mid-race, Astra notes
+        he is braking early and suggests delaying by a few metres, improving lap times. In the final
+        lap, Alex executes a perfect late apex at Blanchimont to overtake before the final chicane.
+        Post-race, Astra highlights throttle inconsistencies and proposes drills. Alex feels like a
+        professional driver, guided by an AI team that understands him.
+      </p>
+
+      <h3>Peter Capaldi — F1 Race Engineer</h3>
+      <p>
+        Lead Engineer Peter Capaldi needs to make a critical pit strategy decision. Previously, this
+        required manually integrating data from disconnected telemetry screens under significant time
+        pressure. Using the unified Jarvis/Granite AI dashboard, he has instant access to all live data
+        on one interface. Peter asks the AI to analyse the relevant telemetry and recommend a pit
+        strategy. Within seconds, the AI provides a clear, data-driven recommendation. Trusting the
+        analysis, Peter hits a single "CONFIRM PIT" button, which automatically alerts the driver,
+        notifies the pit crew, and logs the decision for compliance. The integrated system transformed
+        a complex, high-pressure data problem into a single, confident strategic command.
+      </p>
 
       <h2>Functional Requirements</h2>
       <table className="section-table">
@@ -176,20 +240,6 @@ function Requirements() {
         </tbody>
       </table>
 
-      <h2>Constraints & Assumptions</h2>
-      <h3>Constraints</h3>
-      <ul>
-        <li>Project deadline: 27th March 2026</li>
-        <li>Limited budget — free/academic tier APIs only</li>
-        <li>VR hardware availability on campus</li>
-        <li>Formula Student data access dependent on team cooperation and testing schedule alignment</li>
-      </ul>
-      <h3>Assumptions</h3>
-      <ul>
-        <li>TORCS and Assetto Corsa telemetry APIs remain accessible throughout development</li>
-        <li>IBM Granite available via academic programme</li>
-        <li>UCL Formula Student provides sample CAN bus and CAD data, or Proteus platform serves as substitute</li>
-      </ul>
     </SectionPage>
   );
 }

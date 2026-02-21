@@ -4,7 +4,7 @@ function Research() {
   return (
     <SectionPage title="Research">
       <p>
-        Background research informing the design of the F1 Jarvis TORCS platform, covering
+        Background research informing the design of the F1 Jarvis Granite platform, covering
         the problem space, existing solutions, and the gap this project addresses.
       </p>
 

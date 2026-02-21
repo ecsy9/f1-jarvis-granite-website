@@ -5,7 +5,7 @@ function Evaluation() {
     <SectionPage title="Evaluation">
       <p>
         Evaluation criteria, risk assessment, and ethical considerations for the
-        F1 Jarvis TORCS platform.
+        F1 Jarvis Granite platform.
       </p>
 
       <h2>Success Criteria</h2>

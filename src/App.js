@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Requirements from './pages/Requirements';
@@ -35,6 +36,7 @@ function App() {
           <Route path="/appendices/gdpr-privacy" element={<GDPRPrivacy />} />
           <Route path="/appendices/monthly-video" element={<MonthlyVideo />} />
         </Routes>
+        <Footer />
       </div>
     </BrowserRouter>
   );

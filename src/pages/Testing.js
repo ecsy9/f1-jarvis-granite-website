@@ -4,7 +4,7 @@ function Testing() {
   return (
     <SectionPage title="Testing">
       <p>
-        Testing strategy for the F1 Jarvis TORCS platform, covering unit tests, integration tests,
+        Testing strategy for the F1 Jarvis Granite platform, covering unit tests, integration tests,
         performance benchmarks, and user evaluation.
       </p>
 
