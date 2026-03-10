@@ -59,13 +59,9 @@ function GDPRPrivacy() {
 
       <h2>Third-party services</h2>
       <p>
-        When AI and voice features are enabled, some data is processed by third-party services:
+        When voice features are enabled, some data is processed by third-party services:
       </p>
       <ul>
-        <li>
-          IBM WatsonX large language model, which receives structured telemetry summaries and
-          driver questions in text form
-        </li>
         <li>
           IBM Watson Speech-to-Text and Text-to-Speech services, which receive short segments of
           audio to transcribe or to generate spoken responses
