@@ -240,6 +240,13 @@ function Requirements() {
         </tbody>
       </table>
 
+      <h2>References</h2>
+      <ol className="ref-list">
+        <li>[1] J. Preece, Y. Rogers and H. Sharp, <em>Interaction Design: Beyond Human-Computer Interaction</em>, 5th ed. Wiley, 2019.</li>
+        <li>[2] A. Cooper, <em>The Inmates Are Running the Asylum: Why High-Tech Products Drive Us Crazy and How to Restore the Sanity</em>. Sams, 1999.</li>
+        <li>[3] J. M. Carroll, <em>Making Use: Scenario-Based Design of Human-Computer Interactions</em>. MIT Press, 2000.</li>
+      </ol>
+
     </SectionPage>
   );
 }

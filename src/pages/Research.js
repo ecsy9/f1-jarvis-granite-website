@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import SectionPage from '../components/SectionPage';
 
 function Research() {
@@ -80,6 +81,18 @@ function Research() {
       <p>
         <strong>Critical Gap:</strong> No unified platform currently integrates real-time sensors,
         multiple simulators, and autonomous AI strategy generation with vocal output.
+      </p>
+
+      <h2>Machine Learning Approach</h2>
+      <p>
+        The core challenge was producing a model that sounds like a real race engineer — not
+        just one that knows F1 facts, but one that has internalised the tone, pacing, and
+        priorities of pit-wall communication. Fine-tuning on domain-specific telemetry data
+        achieves this by adjusting the model weights directly, rather than trying to steer
+        a generic model through prompts at each call. The platform uses two fine-tuned IBM
+        Granite instances via QLoRA: one for real-time radio-style commentary, and one for
+        structured post-race debriefs. For a full technical breakdown, see
+        the <Link to="/algorithms">Algorithms</Link> page.
       </p>
 
       <h2>References</h2>

@@ -5,6 +5,7 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Requirements from './pages/Requirements';
 import Research from './pages/Research';
+import Algorithms from './pages/Algorithms';
 import UIDesign from './pages/UIDesign';
 import SystemDesign from './pages/SystemDesign';
 import Implementation from './pages/Implementation';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/requirements" element={<Requirements />} />
           <Route path="/research" element={<Research />} />
+          <Route path="/algorithms" element={<Algorithms />} />
           <Route path="/ui-design" element={<UIDesign />} />
           <Route path="/system-design" element={<SystemDesign />} />
           <Route path="/implementation" element={<Implementation />} />

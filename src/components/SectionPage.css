@@ -321,3 +321,22 @@
 .ref-list a:hover {
   text-decoration: underline;
 }
+
+/* Code blocks */
+.code-block {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-left: 3px solid #e85d04;
+  border-radius: 6px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+}
+
+.code-block code {
+  font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: #c9d1d9;
+  white-space: pre;
+}
