@@ -340,3 +340,23 @@
   color: #c9d1d9;
   white-space: pre;
 }
+
+/* Page figures */
+.page-figure {
+  margin: 1.75rem 0;
+}
+
+.page-figure img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+  display: block;
+}
+
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 1.5;
+  text-align: center;
+}

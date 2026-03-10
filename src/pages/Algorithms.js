@@ -68,6 +68,17 @@ function Algorithms() {
         instances — each trained for a distinct inference context with different input formats,
         output styles, and latency requirements.
       </p>
+      <figure className="page-figure">
+        <img
+          src={`${process.env.PUBLIC_URL}/images/finetuning_comparison.png`}
+          alt="Comparison of base model vs fine-tuned model outputs for live race engineer and post-race analyst tasks"
+        />
+        <figcaption>
+          Base model vs fine-tuned model outputs for both tasks. The fine-tuned model gives
+          specific, structured responses; the base model gives generic ones.
+          Training: QLoRA on ~1,000 F1 examples per task.
+        </figcaption>
+      </figure>
 
       <h3>Live Race Engineer Model</h3>
       <p>

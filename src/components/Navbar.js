@@ -64,6 +64,7 @@ function Navbar() {
               className="nav-link navbar__dropdown-trigger"
               aria-expanded={appendicesOpen}
               aria-haspopup="true"
+              onClick={() => setAppendicesOpen(o => !o)}
             >
               Appendices
               <span className="navbar__dropdown-arrow" aria-hidden>▾</span>
