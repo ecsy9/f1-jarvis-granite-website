@@ -16,7 +16,11 @@ const navItems = [
 const appendicesItems = [
   { path: '/appendices/user-manual', label: 'User manual and deployment manual' },
   { path: '/appendices/gdpr-privacy', label: 'GDPR and Privacy of Data' },
-  { href: 'https://example.com/dev-blog', label: 'Development Blog', external: true },
+  {
+    href: 'https://www.linkedin.com/pulse/f1-jarvis-granite-ai-telemetry-analysis-platform-ibm-granite-okutan-yfgoe/?trackingId=mpz6Op2YTAO%2BrRpg5%2FtaXA%3D%3D',
+    label: 'Development Blog',
+    external: true,
+  },
   { path: '/appendices/monthly-video', label: 'Monthly Video' },
 ];
 
