@@ -212,3 +212,19 @@
   .home-content       { padding: 2.5rem 1.25rem 4rem; font-size: 1rem; }
   .home-content h2    { font-size: 1rem; }
 }
+
+/* ── Gantt Chart ─────────────────────────────────────────── */
+.gantt-chart-wrapper {
+  margin: 1.5rem 0 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f9fafb;
+  padding: 1rem;
+  border: 1px solid #e8eaed;
+}
+
+.gantt-chart-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}

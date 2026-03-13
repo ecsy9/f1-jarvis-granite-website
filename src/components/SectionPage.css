@@ -360,3 +360,47 @@
   line-height: 1.5;
   text-align: center;
 }
+
+/* Sketch grid — 3 images across */
+.sketch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.sketch-grid__item {
+  margin: 0;
+}
+
+.sketch-grid__item img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+  display: block;
+}
+
+.sketch-grid__item figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .sketch-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Design decision callout */
+.design-decision {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: #fff8f0;
+  border-left: 4px solid #e85d04;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.92rem;
+  color: #374151;
+  line-height: 1.65;
+}

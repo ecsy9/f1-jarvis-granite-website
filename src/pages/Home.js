@@ -95,6 +95,13 @@ function Home() {
         </div>
 
         <div className="fade-up">
+          <h2>Project Timeline</h2>
+          <div className="gantt-chart-wrapper">
+            <img src={`${process.env.PUBLIC_URL}/images/gantt_chart.png`} alt="Project Gantt Chart" className="gantt-chart-img" />
+          </div>
+        </div>
+
+        <div className="fade-up">
           <h2>Team</h2>
           <div className="info-cards">
             <div className="info-card">
