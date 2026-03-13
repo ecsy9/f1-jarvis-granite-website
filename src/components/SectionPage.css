@@ -361,6 +361,18 @@
   text-align: center;
 }
 
+/* Dark background for telemetry dashboard images */
+.page-figure--dark {
+  background: #000;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.page-figure--dark img {
+  border: none;
+  background: #000;
+}
+
 /* Sketch grid — 3 images across */
 .sketch-grid {
   display: grid;

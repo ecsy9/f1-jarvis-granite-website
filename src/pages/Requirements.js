@@ -242,9 +242,9 @@ function Requirements() {
 
       <h2>References</h2>
       <ol className="ref-list">
-        <li>[1] J. Preece, Y. Rogers and H. Sharp, <em>Interaction Design: Beyond Human-Computer Interaction</em>, 5th ed. Wiley, 2019.</li>
-        <li>[2] A. Cooper, <em>The Inmates Are Running the Asylum: Why High-Tech Products Drive Us Crazy and How to Restore the Sanity</em>. Sams, 1999.</li>
-        <li>[3] J. M. Carroll, <em>Making Use: Scenario-Based Design of Human-Computer Interactions</em>. MIT Press, 2000.</li>
+        <li>[1] DeJonckheere, M., & Vaughn, L. M. (2019). Semistructured interviewing in primary care research: A balance of relationship and rigour. <em>Family Medicine and Community Health</em>, 7(2), e000057. <a href="https://doi.org/10.1136/fmch-2018-000057" target="_blank" rel="noopener noreferrer">https://doi.org/10.1136/fmch-2018-000057</a></li>
+        <li>[2] Cooper, A., Reimann, R., Cronin, D., & Noessel, C. (2014). <em>About Face: The Essentials of Interaction Design</em> (4th ed.). John Wiley & Sons.</li>
+        <li>[3] Carroll, J. M. (2000). Five reasons for scenario-based design. <em>Interacting with Computers</em>, 13(1), 43–60. <a href="https://doi.org/10.1016/S0953-5438(00)00023-0" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/S0953-5438(00)00023-0</a></li>
       </ol>
 
     </SectionPage>
