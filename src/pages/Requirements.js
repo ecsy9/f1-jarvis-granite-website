@@ -3,14 +3,34 @@ import SectionPage from '../components/SectionPage';
 function Requirements() {
   return (
     <SectionPage title="Requirements">
+      <h2>Partner Introduction and Project Background</h2>
+      <p>
+        F1 Jarvis Granite is a research project developed in collaboration with IBM
+        and UCL to create an intelligent telemetry analysis and coaching system
+        for competitive racing simulations and real-world Formula Student applications. The project
+        bridges the gap between professional motorsport engineering tools and accessible AI-powered
+        performance coaching, enabling both amateur sim racers and professional engineers to extract
+        actionable insights from complex telemetry data.
+      </p>
+
+      <h2>Project Goals</h2>
+      <ul>
+        <li>Design and implement a unified platform that integrates telemetry from multiple racing simulators (TORCS, Assetto Corsa) and real-world sensors (CAN bus)</li>
+        <li>Develop an AI Race Engineer that provides real-time strategic recommendations and vocal coaching during active racing</li>
+        <li>Create an intuitive 2D telemetry dashboard for real-time and post-race performance analysis</li>
+        <li>Build an immersive VR platform using Unreal Engine 5 for interactive 3D telemetry exploration</li>
+        <li>Apply LLM fine-tuning methodologies to optimise Granite models for motorsport-specific terminology, strategic decision-making, and domain expertise.</li>
+        <li>Establish HCI best practices through iterative design and user-centered evaluation</li>
+        <li>Support both casual users and expert engineers through adaptive interface modes</li>
+      </ul>
+
+      <h2>Gathering User Requirements</h2>
       <p>
         Requirements were gathered through a structured HCI process: semi-structured interviews,
         persona construction, scenario-based design, low-fidelity sketches, and iterative prototype
         evaluation. This pipeline ensured that system requirements reflect genuine user needs
         rather than developer assumptions.
       </p>
-
-      <h2>Gathering User Requirements</h2>
       <p>
         Semi-structured interviews were selected as the primary requirements gathering technique
         since they provide the optimal balance between structured data collection and exploratory
@@ -103,6 +123,31 @@ function Requirements() {
         notifies the pit crew, and logs the decision for compliance. The integrated system transformed
         a complex, high-pressure data problem into a single, confident strategic command.
       </p>
+
+      <h2>Use Cases</h2>
+      <p>
+        Use cases define the core interactions between users and the system. The following key use
+        cases capture the primary functionality required to support both competitive gamers and
+        professional race engineers.
+      </p>
+      <figure className="page-figure">
+        <img
+          src={`${process.env.PUBLIC_URL}/images/use_case_diagram.png`}
+          alt="Use Case Diagram"
+        />
+        <figcaption>System use case diagram showing interactions between actors and the F1 Jarvis Granite platform</figcaption>
+      </figure>
+
+      <h3>Key Use Cases</h3>
+      <ul>
+        <li><strong>UC1 — Ingest Real-Time Telemetry</strong>: System reads vehicle sensor data (CAN bus) or simulator output (TORCS/AC) and streams it to the dashboard in real-time</li>
+        <li><strong>UC2 — Display Live Telemetry Dashboard</strong>: User views multi-channel graphs, vehicle position, and performance metrics on a 2D interface with ≥1 Hz refresh rate</li>
+        <li><strong>UC3 — Query AI Race Engineer</strong>: User asks the AI for strategy advice or performance analysis via natural language; receives vocal and visual recommendations</li>
+        <li><strong>UC4 — Generate Pit Strategy</strong>: System analyzes race conditions and recommends optimal pit timing; user confirms with one-click "PIT" button</li>
+        <li><strong>UC5 — Post-Race Replay</strong>: User scrubs through recorded telemetry, overlays multiple laps for comparison, and reviews AI-generated performance insights</li>
+        <li><strong>UC6 — Explore in VR</strong>: User loads 3D car model in VR headset and interactively visualizes telemetry hotspots on the vehicle in real-time</li>
+        <li><strong>UC7 — Customize Dashboard Layout</strong>: Expert user saves custom dashboard presets with preferred graph arrangements and metric displays</li>
+      </ul>
 
       <h2>Functional Requirements</h2>
       <table className="section-table">
