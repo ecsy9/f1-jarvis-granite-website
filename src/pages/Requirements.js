@@ -130,13 +130,6 @@ function Requirements() {
         cases capture the primary functionality required to support both competitive gamers and
         professional race engineers.
       </p>
-      <figure className="page-figure">
-        <img
-          src={`${process.env.PUBLIC_URL}/images/use_case_diagram.png`}
-          alt="Use Case Diagram"
-        />
-        <figcaption>System use case diagram showing interactions between actors and the F1 Jarvis Granite platform</figcaption>
-      </figure>
 
       <h3>Key Use Cases</h3>
       <ul>

@@ -56,15 +56,60 @@ function Algorithms() {
         </li>
       </ul>
       <p>
-        Together these techniques make fine-tuning IBM Granite feasible on a single
+        Together these techniques make fine-tuning specialist LLMs feasible on a single
         consumer-grade GPU. The resulting adapter is compact, loads on top of the frozen base
         at inference time, and delivers near full fine-tune quality at a fraction of the
         compute cost.
       </p>
 
+      <h2>LLM Selection</h2>
+      <p>
+        Three leading open-source foundation models were evaluated: IBM Granite, Llama 2/Mistral,
+        and closed-source alternatives like GPT-4. The choice of base model affects fine-tuning
+        cost, latency, and domain-specific output quality.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Key Strengths</th>
+            <th>Key Limitations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Granite 4.0 Micro (Selected)</strong></td>
+            <td>
+              Enterprise-grade; domain-optimised; built for QLoRA; compact size is hardware-friendly
+            </td>
+            <td>
+              Smaller than GPT-4; requires curated fine-tuning data
+            </td>
+          </tr>
+          <tr>
+            <td>ChatGPT / GPT-4</td>
+            <td>
+              State-of-the-art; minimal fine-tuning needed; robust across domains
+            </td>
+            <td>
+              Closed-source; expensive; limited fine-tuning control; licensing constraints
+            </td>
+          </tr>
+          <tr>
+            <td>Llama 2 / Mistral</td>
+            <td>
+              Open-source; large community; flexible; proven at scale
+            </td>
+            <td>
+              Not domain-optimised; higher memory for larger variants; community support only
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
       <h2>Two Specialised Models</h2>
       <p>
-        Rather than a single general-purpose model, the platform uses two fine-tuned IBM Granite
+        Rather than a single general-purpose model, the platform uses two fine-tuned Granite 4.0 Micro
         instances — each trained for a distinct inference context with different input formats,
         output styles, and latency requirements.
       </p>
