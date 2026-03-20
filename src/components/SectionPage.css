@@ -42,7 +42,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #9ca3af;
+  color: #666;
   margin: 0 0 0.75rem;
 }
 
@@ -58,21 +58,21 @@
 .section-toc__link {
   display: block;
   font-size: 0.82rem;
-  color: #6b7280;
+  color: #888;
   text-decoration: none;
   padding: 0.3rem 0.6rem;
-  border-left: 2px solid #e8eaed;
+  border-left: 2px solid #2a2a2a;
   transition: color 0.15s, border-color 0.15s;
   line-height: 1.4;
 }
 
 .section-toc__link:hover {
-  color: #1a1d29;
+  color: #f0f0f0;
 }
 
 .section-toc__link--active {
-  color: #e85d04;
-  border-left-color: #e85d04;
+  color: #DC0000;
+  border-left-color: #DC0000;
   font-weight: 600;
 }
 
@@ -83,16 +83,16 @@
 .section-page__title {
   font-size: 1.75rem;
   font-weight: 600;
-  color: #1a1d29;
+  color: #f0f0f0;
   margin: 0 0 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 3px solid #e85d04;
+  border-bottom: 3px solid #DC0000;
   letter-spacing: -0.02em;
   scroll-margin-top: 5.5rem;
 }
 
 .section-page__content {
-  color: #374151;
+  color: #c0c0c0;
   line-height: 1.7;
   font-size: 1rem;
 }
@@ -108,17 +108,17 @@
 .section-page__content h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a1d29;
+  color: #f0f0f0;
   margin: 2rem 0 0.75rem;
   padding-bottom: 0.4rem;
-  border-bottom: 2px solid #e8eaed;
+  border-bottom: 2px solid #2a2a2a;
   scroll-margin-top: 5.5rem;
 }
 
 .section-page__content h3 {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #374151;
+  color: #d0d0d0;
   margin: 1.5rem 0 0.5rem;
   scroll-margin-top: 5.5rem;
 }
@@ -142,8 +142,8 @@
 }
 
 .profile-card {
-  background: #fff;
-  border: 1px solid #e8eaed;
+  background: #161616;
+  border: 1px solid #2a2a2a;
   border-radius: 10px;
   padding: 1.5rem;
 }
@@ -153,24 +153,24 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #e85d04;
+  color: #DC0000;
   margin: 0 0 1rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px solid #e8eaed;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .profile-card__body p {
   font-size: 0.9rem;
-  color: #374151;
+  color: #b0b0b0;
   margin: 0 0 0.75rem;
   line-height: 1.65;
 }
 
 .profile-card__body p:last-child { margin-bottom: 0; }
 
-.profile-card__body strong { color: #1a1d29; }
+.profile-card__body strong { color: #f0f0f0; }
 
-.profile-card__body em { color: #6b7280; }
+.profile-card__body em { color: #888; }
 
 /* Tables */
 .section-table {
@@ -183,7 +183,7 @@
 }
 
 .section-table th {
-  background: #1a1d29;
+  background: #8B0000;
   color: #fff;
   padding: 0.6rem 0.75rem;
   text-align: left;
@@ -196,17 +196,17 @@
 
 .section-table td {
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid #e8eaed;
-  color: #374151;
+  border-bottom: 1px solid #2a2a2a;
+  color: #c0c0c0;
   vertical-align: top;
 }
 
 .section-table tr:nth-child(even) td {
-  background: #f8f9fb;
+  background: #161616;
 }
 
 .section-table tr:hover td {
-  background: #f0f4ff;
+  background: rgba(220, 0, 0, 0.08);
 }
 
 /* Priority badges */
@@ -218,9 +218,9 @@
   font-weight: 600;
 }
 
-.badge--high { background: #fee2e2; color: #b91c1c; }
-.badge--medium { background: #fef3c7; color: #92400e; }
-.badge--low { background: #d1fae5; color: #065f46; }
+.badge--high { background: rgba(220, 0, 0, 0.2); color: #ff6666; }
+.badge--medium { background: rgba(180, 120, 0, 0.2); color: #e6a817; }
+.badge--low { background: rgba(0, 120, 60, 0.2); color: #4ade80; }
 
 /* Info cards */
 .info-cards {
@@ -231,15 +231,15 @@
 }
 
 .info-card {
-  background: #fff;
-  border: 1px solid #e8eaed;
+  background: #161616;
+  border: 1px solid #2a2a2a;
   border-radius: 10px;
   padding: 1rem 1.1rem;
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .info-card:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px rgba(220, 0, 0, 0.15);
   transform: translateY(-2px);
 }
 
@@ -248,14 +248,14 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #e85d04;
+  color: #DC0000;
   margin-bottom: 0.35rem;
 }
 
 .info-card__value {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #1a1d29;
+  color: #f0f0f0;
 }
 
 /* Scope boxes */
@@ -277,13 +277,13 @@
 }
 
 .scope-box--in {
-  background: #f0fdf4;
-  border-color: #86efac;
+  background: rgba(0, 80, 30, 0.15);
+  border-color: rgba(74, 222, 128, 0.25);
 }
 
 .scope-box--out {
-  background: #fefce8;
-  border-color: #fde047;
+  background: rgba(100, 60, 0, 0.15);
+  border-color: rgba(230, 168, 23, 0.25);
 }
 
 .scope-box__title {
@@ -294,8 +294,8 @@
   margin-bottom: 0.5rem;
 }
 
-.scope-box--in .scope-box__title { color: #15803d; }
-.scope-box--out .scope-box__title { color: #854d0e; }
+.scope-box--in .scope-box__title { color: #4ade80; }
+.scope-box--out .scope-box__title { color: #e6a817; }
 
 .scope-box ul {
   margin: 0;
@@ -312,12 +312,12 @@
 
 .ref-list li {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e8eaed;
+  border-bottom: 1px solid #2a2a2a;
   font-size: 0.9rem;
 }
 
 .ref-list a {
-  color: #e85d04;
+  color: #DC0000;
   text-decoration: none;
 }
 
@@ -327,9 +327,9 @@
 
 /* Code blocks */
 .code-block {
-  background: #0d1117;
-  border: 1px solid #30363d;
-  border-left: 3px solid #e85d04;
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-left: 3px solid #DC0000;
   border-radius: 6px;
   padding: 1.25rem 1.5rem;
   margin: 1.25rem 0;
@@ -352,14 +352,14 @@
 .page-figure img {
   width: 100%;
   border-radius: 8px;
-  border: 1px solid #e8eaed;
+  border: 1px solid #2a2a2a;
   display: block;
 }
 
 .page-figure figcaption {
   margin-top: 0.6rem;
   font-size: 0.82rem;
-  color: #6b7280;
+  color: #888;
   line-height: 1.5;
   text-align: center;
 }
@@ -391,14 +391,14 @@
 .sketch-grid__item img {
   width: 100%;
   border-radius: 8px;
-  border: 1px solid #e8eaed;
+  border: 1px solid #2a2a2a;
   display: block;
 }
 
 .sketch-grid__item figcaption {
   margin-top: 0.5rem;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: #888;
   text-align: center;
 }
 
@@ -412,10 +412,10 @@
 .design-decision {
   margin: 1.5rem 0;
   padding: 1rem 1.25rem;
-  background: #fff8f0;
-  border-left: 4px solid #e85d04;
+  background: rgba(139, 0, 0, 0.12);
+  border-left: 4px solid #DC0000;
   border-radius: 0 6px 6px 0;
   font-size: 0.92rem;
-  color: #374151;
+  color: #c0c0c0;
   line-height: 1.65;
 }

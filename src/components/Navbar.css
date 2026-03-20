@@ -2,8 +2,9 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #1a1d29;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  background: #0d0d0d;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid #1e1e1e;
 }
 
 .navbar__container {
@@ -21,10 +22,19 @@
   color: #fff;
   text-decoration: none;
   letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 .navbar__brand:hover {
   color: #e8eaed;
+}
+
+.navbar__logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 .navbar__nav {
@@ -59,8 +69,8 @@
 
 .nav-link--active {
   color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 -2px 0 #e85d04;
+  background: rgba(220, 0, 0, 0.15);
+  box-shadow: inset 0 -2px 0 #DC0000;
 }
 
 .navbar__dropdown {
@@ -89,9 +99,10 @@
   margin: 4px 0 0;
   padding: 0.5rem 0;
   list-style: none;
-  background: #252836;
+  background: #161616;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid #2a2a2a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   z-index: 200;
   opacity: 0;
   visibility: hidden;
@@ -118,7 +129,7 @@
 
 .navbar__dropdown-item:hover,
 .navbar__dropdown-item--active {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(220, 0, 0, 0.12);
   color: #fff;
 }
 

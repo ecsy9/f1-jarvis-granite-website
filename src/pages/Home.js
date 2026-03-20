@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import logo from '../img/f1_jarvis_topdown_massive_tyres.svg';
 import './Home.css';
 
 function Home() {
@@ -24,6 +25,7 @@ function Home() {
           <img src={`${process.env.PUBLIC_URL}/images/title_photo.png`} alt="F1 Jarvis Granite platform" />
         </div>
         <div className="home-hero__inner">
+          <img src={logo} alt="F1 Jarvis Granite logo" className="home-hero__logo" />
           <p className="home-hero__label">UCL &middot; Team 17</p>
           <h1 className="home-hero__title">F1 Jarvis Granite</h1>
           <p className="home-hero__sub">AI-Enhanced Racing Telemetry Analysis Platform</p>
@@ -34,7 +36,7 @@ function Home() {
         <div className="fade-up">
           <h2>Problem Statement</h2>
           <p>
-            Current telemetry analysis tools in motorsport present a significant barrier to entry for educational teams and competitive sim racers. Professional Formula 1 teams employ sophisticated engineering systems with dedicated staff for real-time data interpretation, however these solutions are prohibitively expensive and complex. Formula Student teams often rely on basic data logging without intelligent analysis capabilities, while sim racers typically have limited access to the engineering insights that professional drivers receive during races.
+            Current telemetry analysis tools in motorsport present a significant barrier to entry for educational teams and competitive sim racers. Professional Formula 1 teams employ sophisticated engineering systems with dedicated staff for real-time data interpretation, however these solutions are prohibitively expensive and complex. As interpreting raw telemetry data is very difficult and has a steep learning curve, most simulation racers typically have limited access to the engineering insights that professional drivers receive during and after races.
           </p>
           <p>
             The challenge extends beyond mere data collection - the interpretation of high-frequency telemetry data requires domain expertise that many users lack. Without AI-assisted analysis, identifying optimal braking points, understanding tire degradation patterns, or making strategic pit stop decisions remains difficult for non-expert users.
@@ -99,23 +101,33 @@ function Home() {
           <div className="info-cards">
             <div className="info-card">
               <div className="info-card__label">Team Lead</div>
-              <div className="info-card__value">Ece Okutan</div>
+              <div className="info-card__value">
+                <a href="https://www.linkedin.com/in/eceokutan/" target="_blank" rel="noopener noreferrer" className="team-link">Ece Okutan ↗</a>
+              </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
-              <div className="info-card__value">Oltun Ozavci</div>
+              <div className="info-card__value">
+                <a href="https://www.linkedin.com/in/oltun-erim-ozavci-4254232a1/" target="_blank" rel="noopener noreferrer" className="team-link">Oltun Ozavci ↗</a>
+              </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
-              <div className="info-card__value">Athena Chong</div>
+              <div className="info-card__value">
+                <a href="https://www.linkedin.com/in/athena-chong/" target="_blank" rel="noopener noreferrer" className="team-link">Athena Chong ↗</a>
+              </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
-              <div className="info-card__value">Elinor Cheung</div>
+              <div className="info-card__value">
+                <a href="https://www.linkedin.com/in/elinor-cheung-93a2772a3/" target="_blank" rel="noopener noreferrer" className="team-link">Elinor Cheung ↗</a>
+              </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
-              <div className="info-card__value">Eima Miyasaka</div>
+              <div className="info-card__value">
+                <a href="https://www.linkedin.com/in/eima-miyasaka/" target="_blank" rel="noopener noreferrer" className="team-link">Eima Miyasaka ↗</a>
+              </div>
             </div>
           </div>
         </div>
@@ -140,7 +152,7 @@ function Home() {
             <div className="info-card">
               <div className="info-card__label">AI Fine-tuning</div>
               <div className="info-card__value">
-                <a href="https://github.com/athena-c-22/f1-fine-tuning" target="_blank" rel="noopener noreferrer" style={{color:'#e85d04'}}>
+                <a href="https://github.com/athena-c-22/f1-fine-tuning" target="_blank" rel="noopener noreferrer" style={{color:'#DC0000'}}>
                   f1-fine-tuning
                 </a>
               </div>
@@ -148,7 +160,7 @@ function Home() {
             <div className="info-card">
               <div className="info-card__label">Live Telemetry</div>
               <div className="info-card__value">
-                <a href="https://github.com/eceokutan/f1-live-telemetry" target="_blank" rel="noopener noreferrer" style={{color:'#e85d04'}}>
+                <a href="https://github.com/eceokutan/f1-live-telemetry" target="_blank" rel="noopener noreferrer" style={{color:'#DC0000'}}>
                   f1-live-telemetry
                 </a>
               </div>

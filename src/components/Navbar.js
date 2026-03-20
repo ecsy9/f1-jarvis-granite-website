@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import logo from '../img/f1_jarvis_topdown_massive_tyres.svg';
 import './Navbar.css';
 
 const navItems = [
@@ -46,6 +47,7 @@ function Navbar() {
     <header className="navbar">
       <div className="navbar__container">
         <NavLink to="/" className="navbar__brand">
+          <img src={logo} alt="" className="navbar__logo" aria-hidden="true" />
           F1 Jarvis Granite
         </NavLink>
         <nav className="navbar__nav">

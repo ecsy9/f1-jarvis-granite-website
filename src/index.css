@@ -14,8 +14,8 @@ body {
     'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #1a1d29;
-  background: #f8f9fb;
+  color: #f0f0f0;
+  background: #0d0d0d;
 }
 
 code {

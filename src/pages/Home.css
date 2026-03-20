@@ -24,7 +24,7 @@
 /* ── Hero ───────────────────────────────────────────────── */
 .home-hero {
   position: relative;
-  background-color: #090c11;
+  background-color: #0a0a0a;
   background-image:
     repeating-linear-gradient(
       -55deg,
@@ -33,7 +33,7 @@
       rgba(255,255,255,0.018) 28px,
       rgba(255,255,255,0.018) 29px
     );
-  border-top: 5px solid #e10600;
+  border-top: 5px solid #DC0000;
   padding: 5rem 1.5rem 5rem;
   text-align: left;
   overflow: hidden;
@@ -46,7 +46,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse 55% 70% at 25% 50%, rgba(232,93,4,0.13) 0%, transparent 65%);
+  background: radial-gradient(ellipse 55% 70% at 25% 50%, rgba(220,0,0,0.18) 0%, transparent 65%);
   pointer-events: none;
   z-index: 1;
 }
@@ -80,12 +80,20 @@
   opacity: 0.7;
 }
 
+.home-hero__logo {
+  width: 96px;
+  height: 96px;
+  display: block;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 18px rgba(220, 0, 0, 0.5));
+}
+
 .home-hero__label {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #e85d04;
+  color: #DC0000;
   margin: 0 0 1.25rem;
 }
 
@@ -111,7 +119,7 @@
   max-width: 860px;
   margin: 0 auto;
   padding: 4rem 1.5rem 6rem;
-  color: #374151;
+  color: #b0b0b0;
   line-height: 1.7;
   font-size: 1.05rem;
 }
@@ -119,7 +127,7 @@
 .home-content h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1a1d29;
+  color: #f0f0f0;
   margin: 3.5rem 0 1.25rem;
   display: flex;
   align-items: center;
@@ -132,7 +140,7 @@
   display: inline-block;
   width: 4px;
   height: 1.15em;
-  background: #e10600;
+  background: #DC0000;
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -149,23 +157,23 @@
 }
 
 .deliverable-card {
-  background: #fff;
-  border: 1px solid #e8eaed;
-  border-top: 3px solid #e10600;
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-top: 3px solid #DC0000;
   border-radius: 10px;
   padding: 1.25rem;
   transition: box-shadow 0.25s, transform 0.25s;
 }
 
 .deliverable-card:hover {
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 20px rgba(220, 0, 0, 0.2);
   transform: translateY(-3px);
 }
 
 .deliverable-card__num {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #e10600;
+  color: #DC0000;
   line-height: 1;
   margin-bottom: 0.5rem;
   letter-spacing: -0.03em;
@@ -174,13 +182,13 @@
 .deliverable-card__title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #1a1d29;
+  color: #f0f0f0;
   margin-bottom: 0.35rem;
 }
 
 .deliverable-card__desc {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: #888;
   line-height: 1.5;
 }
 
@@ -213,14 +221,25 @@
   .home-content h2    { font-size: 1rem; }
 }
 
+/* ── Team links ─────────────────────────────────────────── */
+.team-link {
+  color: #f0f0f0;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.team-link:hover {
+  color: #DC0000;
+}
+
 /* ── Gantt Chart ─────────────────────────────────────────── */
 .gantt-chart-wrapper {
   margin: 1.5rem 0 0;
   border-radius: 10px;
   overflow: hidden;
-  background: #f9fafb;
+  background: #161616;
   padding: 1rem;
-  border: 1px solid #e8eaed;
+  border: 1px solid #2a2a2a;
 }
 
 .gantt-chart-img {
