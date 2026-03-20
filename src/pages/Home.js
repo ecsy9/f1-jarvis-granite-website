@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../img/f1_jarvis_topdown_massive_tyres.svg';
 import './Home.css';
 
@@ -47,22 +48,18 @@ function Home() {
           <h2>Our Solution</h2>
           <p>
             The core innovation centres on an AI Race Engineer and Strategist powered by fine-tuned
-            IBM Granite LLM models. The AI communicates verbally
-            with drivers and gamers during races, providing real-time strategic decisions, performance
-            insights, and personalised coaching. The platform integrates live telemetry from the UCL
-            Racing Formula Student vehicle via CAN bus and from racing simulators (TORCS and Assetto
-            Corsa). A 2D visualisation dashboard (Python-based, MoTeC-inspired) serves as the
-            primary engineer interface, while an Unreal Engine 5 VR platform enables immersive
-            3D data exploration.
+            IBM Granite LLM models. The Live AI Race Engineer communicates verbally
+            with drivers during races, providing real-time strategic decisions, performance
+            insights, and warning critical situations. The platform integrates live telemetry from Assetto Corsa, the industry standard racing simulation. 2D visualisation dashboards, Jarvis Live and Jarvis Post, (Python-based, MoTeC-inspired) serve as the
+            primary insight interface, while an Unreal Engine 5 VR platform enables immersive learning about sim racing and Formula 1.
           </p>
         </div>
 
         <div className="fade-up">
           <h2>Achievement &amp; Impact</h2>
           <p>
-            The project delivers four integrated components: a real-time telemetry dashboard, TORCS
-            simulator integration, Assetto Corsa integration, and a VR visualisation environment.
-            Together they bridge the gap between raw sensor data and actionable insight for both
+            The project delivers three components: A real-time telemetry dashboard (Jarvis Live),  a post-race telemetry analysis dashboard (Jarvis Post), and a VR environment (Jarvis VR).
+            Together they bridge the gap between raw data and actionable insight for both
             professional motorsport engineers and amateur racers. By democratising AI-assisted race
             engineering through natural-language interaction, the platform lowers the barrier to
             high-quality performance coaching and advances the broader case for LLM integration in
@@ -71,27 +68,22 @@ function Home() {
         </div>
 
         <div className="fade-up">
-          <h2>Four Deliverables</h2>
+          <h2>The Three Deliverables</h2>
           <div className="deliverable-cards">
             <div className="deliverable-card fade-up delay-1">
               <div className="deliverable-card__num">01</div>
-              <div className="deliverable-card__title">2D Telemetry Dashboard</div>
-              <div className="deliverable-card__desc">Real-time and post-race analysis inspired by MoTeC/Atlas</div>
+              <div className="deliverable-card__title">Jarvis Live</div>
+              <div className="deliverable-card__desc">2D Real-time analysis platform inspired by Atlas</div>
             </div>
             <div className="deliverable-card fade-up delay-2">
               <div className="deliverable-card__num">02</div>
-              <div className="deliverable-card__title">TORCS Integration</div>
-              <div className="deliverable-card__desc">Live telemetry extraction via UDP data packets</div>
+              <div className="deliverable-card__title">Jarvis Post</div>
+              <div className="deliverable-card__desc">Customizable post-race analysis platform </div>
             </div>
             <div className="deliverable-card fade-up delay-3">
               <div className="deliverable-card__num">03</div>
-              <div className="deliverable-card__title">Assetto Corsa Integration</div>
-              <div className="deliverable-card__desc">Sim racing access via shared memory protocol</div>
-            </div>
-            <div className="deliverable-card fade-up delay-4">
-              <div className="deliverable-card__num">04</div>
-              <div className="deliverable-card__title">VR Platform</div>
-              <div className="deliverable-card__desc">Unreal Engine 5 immersive 3D data exploration</div>
+              <div className="deliverable-card__title">Jarvis VR</div>
+              <div className="deliverable-card__desc">Educational VR environment</div>
             </div>
           </div>
         </div>
@@ -102,31 +94,31 @@ function Home() {
             <div className="info-card">
               <div className="info-card__label">Team Lead</div>
               <div className="info-card__value">
-                <a href="https://www.linkedin.com/in/eceokutan/" target="_blank" rel="noopener noreferrer" className="team-link">Ece Okutan ↗</a>
+                <Link to="/team/ece-okutan" className="team-link">Ece Okutan ↗</Link>
               </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
               <div className="info-card__value">
-                <a href="https://www.linkedin.com/in/oltun-erim-ozavci-4254232a1/" target="_blank" rel="noopener noreferrer" className="team-link">Oltun Ozavci ↗</a>
+                <Link to="/team/oltun-ozavci" className="team-link">Oltun Ozavci ↗</Link>
               </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
               <div className="info-card__value">
-                <a href="https://www.linkedin.com/in/athena-chong/" target="_blank" rel="noopener noreferrer" className="team-link">Athena Chong ↗</a>
+                <Link to="/team/athena-chong" className="team-link">Athena Chong ↗</Link>
               </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
               <div className="info-card__value">
-                <a href="https://www.linkedin.com/in/elinor-cheung-93a2772a3/" target="_blank" rel="noopener noreferrer" className="team-link">Elinor Cheung ↗</a>
+                <Link to="/team/elinor-cheung" className="team-link">Elinor Cheung ↗</Link>
               </div>
             </div>
             <div className="info-card">
               <div className="info-card__label">Developer</div>
               <div className="info-card__value">
-                <a href="https://www.linkedin.com/in/eima-miyasaka/" target="_blank" rel="noopener noreferrer" className="team-link">Eima Miyasaka ↗</a>
+                <Link to="/team/eima-miyasaka" className="team-link">Eima Miyasaka ↗</Link>
               </div>
             </div>
           </div>

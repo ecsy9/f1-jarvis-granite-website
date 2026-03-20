@@ -12,9 +12,10 @@ import Implementation from './pages/Implementation';
 import Testing from './pages/Testing';
 import Evaluation from './pages/Evaluation';
 import Appendices from './pages/Appendices';
-import UserManual from './pages/appendices/UserManual';
+import DownloadSetup from './pages/DownloadSetup';
 import GDPRPrivacy from './pages/appendices/GDPRPrivacy';
 import MonthlyVideo from './pages/appendices/MonthlyVideo';
+import TeamMember from './pages/team/TeamMember';
 import './App.css';
 
 function App() {
@@ -34,9 +35,10 @@ function App() {
           <Route path="/testing" element={<Testing />} />
           <Route path="/evaluation" element={<Evaluation />} />
           <Route path="/appendices" element={<Appendices />} />
-          <Route path="/appendices/user-manual" element={<UserManual />} />
+          <Route path="/appendices/user-manual" element={<DownloadSetup />} />
           <Route path="/appendices/gdpr-privacy" element={<GDPRPrivacy />} />
           <Route path="/appendices/monthly-video" element={<MonthlyVideo />} />
+          <Route path="/team/:slug" element={<TeamMember />} />
         </Routes>
         <Footer />
       </div>

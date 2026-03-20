@@ -5,6 +5,7 @@ import './Navbar.css';
 
 const navItems = [
   { path: '/', label: 'Home' },
+  { path: '/appendices/user-manual', label: 'Download & Setup' },
   { path: '/requirements', label: 'Requirements' },
   { path: '/research', label: 'Research' },
   { path: '/algorithms', label: 'Algorithms' },
@@ -16,7 +17,6 @@ const navItems = [
 ];
 
 const appendicesItems = [
-  { path: '/appendices/user-manual', label: 'User manual and deployment manual' },
   { path: '/appendices/gdpr-privacy', label: 'GDPR and Privacy of Data' },
   {
     href: 'https://www.linkedin.com/pulse/f1-jarvis-granite-ai-telemetry-analysis-platform-ibm-granite-okutan-yfgoe/?trackingId=mpz6Op2YTAO%2BrRpg5%2FtaXA%3D%3D',
