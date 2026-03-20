@@ -4,6 +4,16 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+@keyframes speedSweep {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(220%); }
+}
+
 /* ── Scroll-triggered fade-up ───────────────────────────── */
 .fade-up {
   opacity: 0;
@@ -27,11 +37,11 @@
   background-color: #0a0a0a;
   background-image:
     repeating-linear-gradient(
-      -55deg,
+      -8deg,
       transparent,
-      transparent 28px,
-      rgba(255,255,255,0.018) 28px,
-      rgba(255,255,255,0.018) 29px
+      transparent 90px,
+      rgba(255,255,255,0.013) 90px,
+      rgba(255,255,255,0.013) 91px
     );
   border-top: 5px solid #DC0000;
   padding: 5rem 1.5rem 5rem;
@@ -42,13 +52,44 @@
   align-items: center;
 }
 
+/* Animated speed streaks */
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(220,0,0,0.6) 40%, rgba(220,0,0,0.9) 55%, transparent 100%);
+  animation: speedSweep 3.5s ease-in-out infinite;
+  animation-delay: 0s;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.home-hero__speed-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.4) 55%, transparent 100%);
+  animation: speedSweep 4.2s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.home-hero__speed-line:nth-child(1) { top: 32%; animation-delay: 0.8s; opacity: 0.5; }
+.home-hero__speed-line:nth-child(2) { top: 52%; animation-delay: 1.9s; opacity: 0.3; }
+.home-hero__speed-line:nth-child(3) { top: 68%; animation-delay: 0.3s; opacity: 0.2; }
+
 .home-hero::after {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse 55% 70% at 25% 50%, rgba(220,0,0,0.18) 0%, transparent 65%);
+  background: radial-gradient(ellipse 55% 70% at 25% 50%, rgba(220,0,0,0.22) 0%, transparent 65%);
   pointer-events: none;
   z-index: 1;
+  animation: glowPulse 4s ease-in-out infinite;
 }
 
 .home-hero__inner {
@@ -89,29 +130,45 @@
 }
 
 .home-hero__label {
-  font-size: 0.75rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: #DC0000;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.home-hero__label::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 2px;
+  background: #DC0000;
+  flex-shrink: 0;
 }
 
 .home-hero__title {
-  font-size: 4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 5.5rem;
   font-weight: 800;
+  text-transform: uppercase;
   color: #fff;
   margin: 0 0 1rem;
-  letter-spacing: -0.03em;
-  line-height: 1.0;
+  letter-spacing: 0.02em;
+  line-height: 0.92;
 }
 
 .home-hero__sub {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.65;
   font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 /* ── Content area ───────────────────────────────────────── */
@@ -125,24 +182,20 @@
 }
 
 .home-content h2 {
-  font-size: 1.1rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.5rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   color: #f0f0f0;
   margin: 3.5rem 0 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  letter-spacing: -0.01em;
+  padding: 0.25rem 0 0.25rem 0.85rem;
+  border-left: 3px solid #DC0000;
+  background: linear-gradient(90deg, rgba(220,0,0,0.06) 0%, transparent 60%);
 }
 
 .home-content h2::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 1.15em;
-  background: #DC0000;
-  border-radius: 2px;
-  flex-shrink: 0;
+  display: none;
 }
 
 .home-content h2:first-child { margin-top: 0; }
@@ -160,7 +213,7 @@
   background: #161616;
   border: 1px solid #2a2a2a;
   border-top: 3px solid #DC0000;
-  border-radius: 10px;
+  border-radius: 2px;
   padding: 1.25rem;
   transition: box-shadow 0.25s, transform 0.25s;
 }
@@ -235,7 +288,7 @@
 /* ── Gantt Chart ─────────────────────────────────────────── */
 .gantt-chart-wrapper {
   margin: 1.5rem 0 0;
-  border-radius: 10px;
+  border-radius: 2px;
   overflow: hidden;
   background: #161616;
   padding: 1rem;

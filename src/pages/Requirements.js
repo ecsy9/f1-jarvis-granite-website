@@ -2,7 +2,7 @@ import SectionPage from '../components/SectionPage';
 
 function Requirements() {
   return (
-    <SectionPage title="Requirements">
+    <SectionPage title="Project">
       <h2>Partner Introduction and Project Background</h2>
       <p>
         F1 Jarvis Granite is a research project developed in collaboration with IBM

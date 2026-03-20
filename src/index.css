@@ -18,6 +18,10 @@ body {
   background: #0d0d0d;
 }
 
+h1, h2, h3, h4 {
+  font-family: 'Barlow Condensed', 'Segoe UI', system-ui, sans-serif;
+}
+
 code {
   font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Monaco,
     Consolas, monospace;

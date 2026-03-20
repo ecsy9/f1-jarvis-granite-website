@@ -22,6 +22,9 @@ function Home() {
   return (
     <div>
       <div className="home-hero">
+        <div className="home-hero__speed-line" />
+        <div className="home-hero__speed-line" />
+        <div className="home-hero__speed-line" />
         <div className="home-hero__image-wrap">
           <img src={`${process.env.PUBLIC_URL}/images/title_photo.png`} alt="F1 Jarvis Granite platform" />
         </div>

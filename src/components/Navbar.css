@@ -3,8 +3,8 @@
   top: 0;
   z-index: 100;
   background: #0d0d0d;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
-  border-bottom: 1px solid #1e1e1e;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
+  border-bottom: 3px solid #DC0000;
 }
 
 .navbar__container {
@@ -17,18 +17,21 @@
 }
 
 .navbar__brand {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
   color: #fff;
   text-decoration: none;
-  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   gap: 0.55rem;
 }
 
 .navbar__brand:hover {
-  color: #e8eaed;
+  color: #DC0000;
+  transition: color 0.15s;
 }
 
 .navbar__logo {
@@ -48,29 +51,31 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.45rem 0.7rem;
-  color: rgba(255, 255, 255, 0.85);
+  padding: 0.45rem 0.65rem;
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-radius: 2px;
+  transition: color 0.15s, background 0.15s;
   border: none;
   background: none;
   cursor: pointer;
-  font-family: inherit;
   white-space: nowrap;
 }
 
 .nav-link:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .nav-link--active {
   color: #fff;
-  background: rgba(220, 0, 0, 0.15);
-  box-shadow: inset 0 -2px 0 #DC0000;
+  background: rgba(220, 0, 0, 0.12);
+  box-shadow: inset 0 -3px 0 #DC0000;
 }
 
 .navbar__dropdown {
@@ -99,10 +104,11 @@
   margin: 4px 0 0;
   padding: 0.5rem 0;
   list-style: none;
-  background: #161616;
-  border-radius: 8px;
+  background: #111;
+  border-radius: 2px;
   border: 1px solid #2a2a2a;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  border-top: 2px solid #DC0000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
   z-index: 200;
   opacity: 0;
   visibility: hidden;
@@ -121,9 +127,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   transition: background 0.15s, color 0.15s;
 }
 

@@ -6,7 +6,7 @@
   background: #161616;
   border: 1px solid #2a2a2a;
   border-left: 4px solid #DC0000;
-  border-radius: 10px;
+  border-radius: 2px;
   padding: 1.5rem 1.75rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
@@ -32,13 +32,16 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   background: #DC0000;
   color: #fff;
-  font-size: 0.9rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 2px;
   white-space: nowrap;
   transition: background 0.15s, transform 0.15s;
   flex-shrink: 0;
@@ -53,7 +56,7 @@
   background: #2a2a2a;
   color: #555;
   cursor: not-allowed;
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 0.75rem 1.5rem;
   font-size: 0.9rem;
   font-weight: 700;

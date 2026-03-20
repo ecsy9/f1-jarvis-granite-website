@@ -38,12 +38,15 @@
 }
 
 .section-toc__heading {
-  font-size: 0.65rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #666;
+  letter-spacing: 0.18em;
+  color: #DC0000;
   margin: 0 0 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .section-toc__list {
@@ -81,13 +84,18 @@
 }
 
 .section-page__title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #f0f0f0;
-  margin: 0 0 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 3px solid #DC0000;
-  letter-spacing: -0.02em;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fff;
+  margin: 0 0 2rem;
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  border-bottom: none;
+  border-left: 5px solid #DC0000;
+  background: linear-gradient(90deg, rgba(220,0,0,0.08) 0%, transparent 70%);
+  line-height: 1;
   scroll-margin-top: 5.5rem;
 }
 
@@ -106,20 +114,28 @@
 }
 
 .section-page__content h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: #f0f0f0;
-  margin: 2rem 0 0.75rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 2px solid #2a2a2a;
+  margin: 2.5rem 0 0.85rem;
+  padding: 0.3rem 0 0.3rem 0.85rem;
+  border-bottom: none;
+  border-left: 3px solid #DC0000;
+  background: linear-gradient(90deg, rgba(220,0,0,0.06) 0%, transparent 50%);
   scroll-margin-top: 5.5rem;
 }
 
 .section-page__content h3 {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: #d0d0d0;
-  margin: 1.5rem 0 0.5rem;
+  margin: 1.75rem 0 0.5rem;
   scroll-margin-top: 5.5rem;
 }
 
@@ -144,7 +160,7 @@
 .profile-card {
   background: #161616;
   border: 1px solid #2a2a2a;
-  border-radius: 10px;
+  border-radius: 2px;
   padding: 1.5rem;
 }
 
@@ -212,10 +228,13 @@
 /* Priority badges */
 .badge {
   display: inline-block;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 2px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .badge--high { background: rgba(220, 0, 0, 0.2); color: #ff6666; }
@@ -233,7 +252,7 @@
 .info-card {
   background: #161616;
   border: 1px solid #2a2a2a;
-  border-radius: 10px;
+  border-radius: 2px;
   padding: 1rem 1.1rem;
   transition: box-shadow 0.2s, transform 0.2s;
 }
@@ -271,7 +290,7 @@
 }
 
 .scope-box {
-  border-radius: 10px;
+  border-radius: 2px;
   padding: 1rem 1.1rem;
   border: 1px solid;
 }
