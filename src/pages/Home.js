@@ -143,11 +143,6 @@ function Home() {
           </p>
         </div>
 
-        <div className="fade-up">
-          <h2>Project Timeline</h2>
-          <GanttChart />
-        </div>
-
         <div className="fade-up deliverables-section">
           <h2>The Three Deliverables</h2>
           <div className="deliverable-rows">
@@ -243,6 +238,11 @@ function Home() {
               <div className="info-card__value">Prof. Stephen Hilton</div>
             </div>
           </div>
+        </div>
+
+        <div className="fade-up">
+          <h2>Project Timeline</h2>
+          <GanttChart />
         </div>
 
         <div className="fade-up">

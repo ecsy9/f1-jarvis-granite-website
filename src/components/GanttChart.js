@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import './GanttChart.css';
 
-const TOTAL_WEEKS   = 21;
+const TOTAL_WEEKS   = 22;
 const LABEL_W       = 180;
 const PROJECT_START = new Date('2025-11-03');
 
@@ -12,87 +12,122 @@ const MONTHS = [
   { name: 'Dec', weeks: 5 },
   { name: 'Jan', weeks: 4 },
   { name: 'Feb', weeks: 5 },
-  { name: 'Mar', weeks: 3 },
+  { name: 'Mar', weeks: 4 },
 ];
 
 const MEMBERS = {
-  ece:    { name: 'Ece Okutan',    role: 'Team Lead',  initials: 'EO', color: '#c1121f', photo: '/images/team/ece-okutan.jpg',    path: '/team/ece-okutan'    },
-  oltun:  { name: 'Oltun Ozavci',  role: 'Developer',  initials: 'OO', color: '#669bbc', photo: '/images/team/oltun-ozavci.jpg',   path: '/team/oltun-ozavci'  },
-  athena: { name: 'Athena Chong',  role: 'Developer',  initials: 'AC', color: '#e85d04', photo: '/images/team/athena-chong.jpg',   path: '/team/athena-chong'  },
-  elinor: { name: 'Elinor Cheung', role: 'Developer',  initials: 'EC', color: '#4a9e6b', photo: '/images/team/elinor-cheung.jpg',  path: '/team/elinor-cheung' },
-  eima:   { name: 'Eima Miyasaka', role: 'Developer',  initials: 'EM', color: '#8b6fd4', photo: '/images/team/eima-miyasaka.jpg',  path: '/team/eima-miyasaka' },
+  ece:    { name: 'Ece Okutan',    role: 'Team Lead',  photo: '/images/team/ece-okutan.jpg',    path: '/team/ece-okutan'    },
+  oltun:  { name: 'Oltun Ozavci',  role: 'Developer',  photo: '/images/team/oltun-ozavci.jpg',   path: '/team/oltun-ozavci'  },
+  athena: { name: 'Athena Chong',  role: 'Developer',  photo: '/images/team/athena-chong.jpg',   path: '/team/athena-chong'  },
+  elinor: { name: 'Elinor Cheung', role: 'Developer',  photo: '/images/team/elinor-cheung.jpg',  path: '/team/elinor-cheung' },
+  eima:   { name: 'Eima Miyasaka', role: 'Developer',  photo: '/images/team/eima-miyasaka.jpg',  path: '/team/eima-miyasaka' },
 };
 
 const TASKS = [
   {
-    id: 1, name: 'Planning & Design', start: 1, end: 3, cat: 'planning',
+    id: 1, name: 'Planning & Design', start: 1, end: 3, cat: 'all',
     deliverable: 'All',
     desc: 'Requirements gathering, system architecture design, UI/UX wireframes, and project scope definition across all three deliverables.',
-    members: [],
+    members: ['ece','eima','elinor','athena','oltun'],
   },
   {
-    id: 2, name: 'Assetto Corsa Data Integration', start: 4, end: 8, cat: 'dev',
+    id: 2, name: 'Sim Data Integration', start: 4, end: 6, cat: 'jarvis-live',
     deliverable: 'Jarvis Live',
-    desc: 'Windows shared memory interface reading 50+ telemetry channels at ~60 Hz — speed, RPM, throttle, brake, tire temps/pressures, suspension travel, camber, fuel, and damage.',
-    members: [],
+    desc: 'Windows shared memory interface reading 50+ telemetry channels at ~60 Hz — speed, RPM, throttle, brake, tire temps/pressures, suspension travel, camber, fuel, damage, and more',
+    members: ['ece', 'elinor'],
   },
   {
-    id: 3, name: '2D Live Telemetry Dashboard', start: 4, end: 13, cat: 'dev',
+    id: 3, name: '2D Live Telemetry Dashboard', start: 4, end: 11, cat: 'jarvis-live',
     deliverable: 'Jarvis Live',
     desc: 'PyQt5 + Matplotlib real-time dashboard displaying live telemetry, track map, lap delta, tire state, sector times, and AI race engineer commentary feed.',
     members: ['ece'],
   },
   {
-    id: 4, name: 'Race Engineer Fine-Tuning', start: 7, end: 13, cat: 'ai',
+    id: 4, name: '2D Post Telemetry Dashboard', start: 7, end: 14, cat: 'jarvis-post',
+    deliverable: 'Jarvis Post',
+    desc: 'PyQt5 + Matplotlib post-race dashboard displaying post-race telemetry graphs. Users can choose which graphs to show from a selection of 14 graphs, scroll through the timestamped race data',
+    members: ['ece'],
+  },
+  {
+    id: 5, name: 'Setting up STT-LLM-TTS Pipeline', start: 6, end: 12, cat: 'ai',
+    deliverable: 'Jarvis Live',
+    desc: '',
+    members: ['eima'],
+  },
+  {
+    id: 6, name: 'Integrating AI Pipeline to Dashboards', start: 7, end: 15, cat: 'both',
+    deliverable: 'Jarvis Live & Jarvis Post',
+    desc: '',
+    members: ['ece', 'eima'],
+  },
+  {
+    id: 7, name: 'Race Engineer Fine-Tuning', start: 7, end: 13, cat: 'ai',
     deliverable: 'Jarvis Live',
     desc: 'QLoRA fine-tuning of Granite 3B on 1,258 filtered F1 telemetry–radio pairs. Produces terse radio-style instructions (≤48 tokens) from live telemetry snapshots.',
-    members: [],
+    members: ['elinor', 'athena'],
   },
   {
-    id: 5, name: 'Post-Race Analyst Fine-Tuning', start: 12, end: 18, cat: 'ai',
+    id: 8, name: 'Post-Race Analyst Fine-Tuning', start: 12, end: 18, cat: 'ai',
     deliverable: 'Jarvis Post',
     desc: 'Knowledge distillation from Gemini onto Granite 4.0 Micro using 1,360 FastF1 examples. Generates structured 9-section engineering debriefs from telemetry JSON.',
-    members: [],
+    members: ['elinor', 'athena'],
   },
   {
-    id: 6, name: 'Unreal Engine Setup', start: 7, end: 13, cat: 'vr',
+    id: 9, name: 'Unreal Engine Environment Development', start: 6, end: 16, cat: 'vr',
     deliverable: 'Jarvis VR',
     desc: 'UE5 project scaffolding, SteamVR / Meta Quest integration, Blueprint architecture, and F1 cockpit environment asset pipeline.',
-    members: [],
-  },
-  {
-    id: 7, name: 'User Interaction in VR', start: 11, end: 18, cat: 'vr',
-    deliverable: 'Jarvis VR',
-    desc: 'Immersive F1 cockpit with telemetry visualisation panels, interactive pit-wall displays, and AI race engineer voice interaction in VR.',
     members: ['oltun'],
   },
   {
-    id: 8, name: 'Integration', start: 15, end: 18, cat: 'dev',
-    deliverable: 'All',
-    desc: 'End-to-end assembly: shared memory → SQLite → AI inference pipeline → PyQt5 UI → voice I/O. Packaged as a single PyInstaller executable.',
-    members: [],
+    id: 10, name: 'User Interaction in VR', start: 14, end: 18, cat: 'vr',
+    deliverable: 'Jarvis VR',
+    desc: 'Immersive F1 cockpit with telemetry visualisation panels, interactive pit-wall displays, and AI race engineer voice interaction in VR.',
+    members: ['oltun','eima'],
   },
   {
-    id: 9, name: 'Testing', start: 15, end: 18, cat: 'dev',
+    id: 11, name: 'Integrating finetuned models into pipeline', start: 15, end: 18, cat: 'both',
+    deliverable: 'All',
+    desc: '',
+    members: ['eima'],
+  },
+  {
+    id: 12, name: 'Testing', start: 14, end: 17, cat: 'all',
     deliverable: 'All',
     desc: 'Unit testing of telemetry ingestion, AI inference latency benchmarking, VR frame-rate profiling, and full end-to-end session validation.',
-    members: [],
+    members: ['ece','eima','elinor','athena','oltun'],
   },
   {
-    id: 10, name: 'Documentation & Finalisation', start: 18, end: 21, cat: 'docs',
+    id: 13, name: 'Interviews with Sim Racers & UCLR Engineers', start: 16, end: 18, cat: 'all',
+    deliverable: 'All',
+    desc: '',
+    members: ['ece','eima'],
+  },
+  {
+    id: 14, name: 'Dashboard & AI Improvements After Feedback', start: 16, end: 19, cat: 'both',
+    deliverable: 'All',
+    desc: '',
+    members: ['ece','eima'],
+  },
+  {
+    id: 15, name: 'Packaging', start: 19, end: 20, cat: 'jarvis-live',
+    deliverable: 'All',
+    desc: '',
+    members: ['ece'],
+  },
+  {
+    id: 17, name: 'Website', start: 18, end: 21, cat: 'all',
+    deliverable: 'All',
+    desc: '',
+    members: ['ece','athena','elinor'],
+  },
+  {
+    id: 18, name: 'Documentation & Finalisation', start: 18, end: 21, cat: 'other',
     deliverable: 'All',
     desc: 'User & deployment manual, GDPR statement, project website, demonstration video, and final report submission.',
-    members: [],
+    members: ['ece','eima','elinor','athena','oltun'],
   },
 ];
 
-const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-function weekToDate(week) {
-  const d = new Date(PROJECT_START);
-  d.setDate(d.getDate() + (week - 1) * 7);
-  return `${d.getDate()} ${SHORT_MONTHS[d.getMonth()]} '${String(d.getFullYear()).slice(2)}`;
-}
 
 function GanttInner() {
   const [hoveredId, setHoveredId] = useState(null);
@@ -174,8 +209,10 @@ function GanttInner() {
                   )}
                   {task.members.length > 0 && (
                     <div className="gc__bar-avatars">
-                      {task.members.map(key => {
+                      {task.members.map((key, i) => {
                         const m = MEMBERS[key];
+                        const total = task.members.length;
+                        const overlap = total >= 4 ? -13 : -8;
                         return (
                           <Link
                             key={key}
@@ -183,6 +220,7 @@ function GanttInner() {
                             className="gc__avatar"
                             title={`${m.name} — click to view profile`}
                             onClick={e => e.stopPropagation()}
+                            style={i < total - 1 ? { marginLeft: overlap } : {}}
                           >
                             <img src={m.photo} alt={m.name} className="gc__avatar-img" />
                           </Link>
@@ -209,8 +247,7 @@ function GanttInner() {
                     </div>
                     <p className="gc__tooltip-desc">{task.desc}</p>
                     <div className="gc__tooltip-meta">
-                      <span>{weekToDate(task.start)} → {weekToDate(task.end)}</span>
-                      <span>Wks {task.start}–{task.end} · {barWeeks}w</span>
+                      <span>Wk {task.start} → Wk {task.end} · {barWeeks}w</span>
                     </div>
                     {task.members.length > 0 && (
                       <div className="gc__tooltip-members">
@@ -240,11 +277,13 @@ function GanttInner() {
       {/* ── Legend ── */}
       <div className="gc__legend">
         {[
-          ['planning', 'Planning'],
-          ['dev',      'Development'],
-          ['ai',       'AI / ML'],
-          ['vr',       'VR'],
-          ['docs',     'Documentation'],
+          ['all',         'All'],
+          ['jarvis-live', 'Jarvis Live'],
+          ['jarvis-post', 'Jarvis Post'],
+          ['both',        'Both Dashboards'],
+          ['ai',          'AI / ML'],
+          ['vr',          'VR'],
+          ['other',       'Other'],
         ].map(([cat, label]) => (
           <div key={cat} className="gc__legend-item">
             <span className={`gc__legend-dot gc__legend-dot--${cat}`} />
