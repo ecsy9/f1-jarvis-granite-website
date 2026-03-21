@@ -4,7 +4,7 @@ const teamMembers = [
     name: 'Ece Okutan',
     role: 'Team Lead',
     description:
-      'Ece leads the F1 Jarvis Granite project, overseeing architecture, integration, and delivery across all three deliverables. She is responsible for the telemetry pipeline and creations of the Dashboards.',
+      'Hello! I\’m Ece and I\'m a Computer Science student at UCL. I\’m interested in automation, robotic systems and data science, especially how they manifest in motorsport!',
     linkedin: 'https://www.linkedin.com/in/eceokutan/',
     github: 'https://github.com/eceokutan',
     email: 'ece.okutan.24@ucl.ac.uk',
@@ -15,7 +15,7 @@ const teamMembers = [
     name: 'Eima Miyasaka',
     role: 'Developer',
     description:
-      'Eima is a developer on the team, contributing to the visualisation and user interface components of the Jarvis platform.',
+      'Hello, I\’m Eima, studying computer science at UCL. My interests are in motorsports and autonomous systems, especially perception for robotics!',
     linkedin: 'https://www.linkedin.com/in/eima-miyasaka/',
     github: 'https://github.com/eimamiyasaka',
     email: 'eima.miyasaka.24@ucl.ac.uk',
@@ -26,7 +26,7 @@ const teamMembers = [
     name: 'Oltun Ozavci',
     role: 'Developer',
     description:
-      'Oltun is a developer on the team, contributing to the core platform infrastructure and integration work across the project deliverables.',
+      'Hello, I\’m Oltun, a second-year Computer Science Student at UCL. I\’m especially interested in immersive tech, data-driven systems, and using software to make complex information easier to understand.',
     linkedin: 'https://www.linkedin.com/in/oltun-erim-ozavci-4254232a1/',
     github: 'https://github.com/oltun',
     email: 'oltun.ozavci.24@ucl.ac.uk',
@@ -37,7 +37,7 @@ const teamMembers = [
     name: 'Athena Chong',
     role: 'Developer',
     description:
-      'Athena leads the AI fine-tuning work, developing and training the IBM Granite LLM models that power the race engineer intelligence at the heart of the platform.',
+      'Hi, I\’m Athena, a CS student at UCL. I love exploring AI, software, and how technology can transform racing data into actionable insights.',
     linkedin: 'https://www.linkedin.com/in/athena-chong/',
     github: 'https://github.com/athena-c-22',
     email: 'athena.chong.24@ucl.ac.uk',
@@ -48,7 +48,7 @@ const teamMembers = [
     name: 'Elinor Cheung',
     role: 'Developer',
     description:
-      'Elinor is a developer on the team, working on key components of the Jarvis platform and contributing to the overall system design and implementation.',
+      'Hi, I\'m Elinor, a second-year Computer Science student at UCL with an interest in AI and machine learning — I\'ve worked on fine-tuning IBM\’s Granite models in this project. Outside of coding, I also enjoy anime and video games.',
     linkedin: 'https://www.linkedin.com/in/elinor-cheung-93a2772a3/',
     github: 'https://github.com/ecsy9',
     email: 'elinor.cheung.24@ucl.ac.uk',
