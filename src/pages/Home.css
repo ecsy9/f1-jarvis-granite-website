@@ -231,48 +231,99 @@
 .home-content h2:first-child { margin-top: 0; }
 .home-content p { margin: 0 0 1.1rem; }
 
-/* ── Deliverable cards ──────────────────────────────────── */
-.deliverable-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 1rem;
+/* ── Deliverable rows ──────────────────────────────────── */
+.deliverables-section {
+  margin-top: 3rem;
+}
+
+.deliverable-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   margin: 0 0 1.5rem;
 }
 
-.deliverable-card {
+.deliverable-row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
   background: #161616;
   border: 1px solid #2a2a2a;
-  border-top: 3px solid #DC0000;
   border-radius: 2px;
-  padding: 1.25rem;
-  transition: box-shadow 0.25s, transform 0.25s;
+  overflow: hidden;
+  min-height: 160px;
+  transition: box-shadow 0.25s;
 }
 
-.deliverable-card:hover {
-  box-shadow: 0 6px 20px rgba(220, 0, 0, 0.2);
-  transform: translateY(-3px);
+.deliverable-row:hover {
+  box-shadow: 0 6px 28px rgba(220, 0, 0, 0.18);
 }
 
-.deliverable-card__num {
-  font-size: 1.75rem;
+.deliverable-row__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.75rem 1.5rem;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.deliverable-row__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: #DC0000;
+}
+
+.deliverable-row__num {
+  font-size: 2.5rem;
   font-weight: 800;
   color: #DC0000;
   line-height: 1;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.deliverable-card__title {
-  font-size: 0.95rem;
-  font-weight: 600;
+.deliverable-row__text {
+  min-width: 0;
+}
+
+.deliverable-row__title {
+  font-size: 1.1rem;
+  font-weight: 700;
   color: #f0f0f0;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
 }
 
-.deliverable-card__desc {
+.deliverable-row__desc {
   font-size: 0.85rem;
   color: #888;
-  line-height: 1.5;
+  line-height: 1.6;
+  max-width: 520px;
+}
+
+/* Image on the right — fades in from the edge */
+.deliverable-row__img-wrap {
+  flex-shrink: 0;
+  width: 340px;
+  position: relative;
+  overflow: hidden;
+}
+
+.deliverable-row__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+  display: block;
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, #000 70%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.6) 30%, #000 70%);
 }
 
 /* ── Responsive ─────────────────────────────────────────── */

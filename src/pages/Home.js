@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
+import GanttChart from '../components/GanttChart';
 
 const logo     = '/images/jarvis-logo.svg';
 const carImage = '/images/sf26-overhead.png';
@@ -143,22 +144,53 @@ function Home() {
         </div>
 
         <div className="fade-up">
+          <h2>Project Timeline</h2>
+          <GanttChart />
+        </div>
+
+        <div className="fade-up deliverables-section">
           <h2>The Three Deliverables</h2>
-          <div className="deliverable-cards">
-            <div className="deliverable-card fade-up delay-1">
-              <div className="deliverable-card__num">01</div>
-              <div className="deliverable-card__title">Jarvis Live</div>
-              <div className="deliverable-card__desc">2D Real-time analysis platform inspired by Atlas</div>
+          <div className="deliverable-rows">
+            <div className="deliverable-row fade-up delay-1">
+              <div className="deliverable-row__body">
+                <div className="deliverable-row__accent" />
+                <div className="deliverable-row__num">01</div>
+                <div className="deliverable-row__text">
+                  <div className="deliverable-row__title">Jarvis Live</div>
+                  <div className="deliverable-row__desc">2D real-time telemetry analysis platform inspired by Atlas. Live speed, RPM, throttle, brake, tire state, lap delta, and AI race engineer commentary — all updated at 60 Hz during your session.</div>
+                </div>
+              </div>
+              <div className="deliverable-row__img-wrap">
+                <img src="/images/deliverables/jarvis-live.png" alt="Jarvis Live screenshot" className="deliverable-row__img" />
+              </div>
             </div>
-            <div className="deliverable-card fade-up delay-2">
-              <div className="deliverable-card__num">02</div>
-              <div className="deliverable-card__title">Jarvis Post</div>
-              <div className="deliverable-card__desc">Customizable post-race analysis platform </div>
+
+            <div className="deliverable-row fade-up delay-2">
+              <div className="deliverable-row__body">
+                <div className="deliverable-row__accent" />
+                <div className="deliverable-row__num">02</div>
+                <div className="deliverable-row__text">
+                  <div className="deliverable-row__title">Jarvis Post</div>
+                  <div className="deliverable-row__desc">Post-race debrief powered by Granite 4.0 Micro. Generates a structured 9-section engineering debrief from session telemetry — sector breakdowns, tire wear, fuel strategy, and actionable coaching notes.</div>
+                </div>
+              </div>
+              <div className="deliverable-row__img-wrap">
+                <img src="/images/deliverables/jarvis-post.png" alt="Jarvis Post screenshot" className="deliverable-row__img" />
+              </div>
             </div>
-            <div className="deliverable-card fade-up delay-3">
-              <div className="deliverable-card__num">03</div>
-              <div className="deliverable-card__title">Jarvis VR</div>
-              <div className="deliverable-card__desc">Educational VR environment</div>
+
+            <div className="deliverable-row fade-up delay-3">
+              <div className="deliverable-row__body">
+                <div className="deliverable-row__accent" />
+                <div className="deliverable-row__num">03</div>
+                <div className="deliverable-row__text">
+                  <div className="deliverable-row__title">Jarvis VR</div>
+                  <div className="deliverable-row__desc">Immersive Unreal Engine 5 VR cockpit with interactive telemetry panels, pit-wall displays, and AI race engineer voice interaction — bridging simulation and real-world F1 engineering.</div>
+                </div>
+              </div>
+              <div className="deliverable-row__img-wrap">
+                <img src="/images/deliverables/jarvis-vr.png" alt="Jarvis VR screenshot" className="deliverable-row__img" />
+              </div>
             </div>
           </div>
         </div>
