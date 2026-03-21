@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../img/f1_jarvis_topdown_massive_tyres.svg';
-import carImage from '../img/sf26-overhead.png';
-import logoIBM from '../img/logos/ibmlogo.png';
-import logoAC from '../img/logos/aclogo copy.png';
-import logoUE from '../img/logos/ucl-logo.png';
-import logoFS from '../img/logos/FS_Logo_B_CL.png';
-import logoCM from '../img/logos/contentmanagerlogo.webp';
+const logo   = '/images/jarvis-logo.svg';
+const carImage = '/images/sf26-overhead.png';
+const logoIBM = '/images/logos/ibm.png';
+const logoAC  = '/images/logos/assetto-corsa.png';
+const logoUE  = '/images/logos/ucl.png';
+const logoFS  = '/images/logos/formula-student.png';
+const logoCM  = '/images/logos/content-manager.webp';
 import './Home.css';
 
 function Home() {

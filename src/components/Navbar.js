@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import logo from '../img/f1_jarvis_topdown_massive_tyres.svg';
+const logo = '/images/jarvis-logo.svg';
 import './Navbar.css';
 
 const navItems = [
