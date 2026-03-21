@@ -296,13 +296,13 @@
 }
 
 .scope-box--in {
-  background: rgba(0, 80, 30, 0.15);
-  border-color: rgba(74, 222, 128, 0.25);
+  background: rgba(220, 0, 0, 0.1);
+  border-color: rgba(220, 0, 0, 0.35);
 }
 
 .scope-box--out {
-  background: rgba(100, 60, 0, 0.15);
-  border-color: rgba(230, 168, 23, 0.25);
+  background: rgba(140, 0, 0, 0.08);
+  border-color: rgba(160, 20, 20, 0.3);
 }
 
 .scope-box__title {
@@ -313,8 +313,8 @@
   margin-bottom: 0.5rem;
 }
 
-.scope-box--in .scope-box__title { color: #4ade80; }
-.scope-box--out .scope-box__title { color: #e6a817; }
+.scope-box--in .scope-box__title { color: #DC0000; }
+.scope-box--out .scope-box__title { color: #a83232; }
 
 .scope-box ul {
   margin: 0;

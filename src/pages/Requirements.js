@@ -9,26 +9,31 @@ function Requirements() {
         and UCL to create an intelligent telemetry analysis and coaching system
         for competitive racing simulations and real-world Formula Student applications. The project
         bridges the gap between professional motorsport engineering tools and accessible AI-powered
-        performance coaching, enabling both amateur sim racers and professional engineers to extract
+        performance coaching, enabling both sim racers and engineers to extract
         actionable insights from complex telemetry data.
       </p>
 
       <h2>Project Goals</h2>
       <ul>
-        <li>Design and implement a unified platform that integrates telemetry from multiple racing simulators (TORCS, Assetto Corsa) and real-world sensors (CAN bus)</li>
-        <li>Develop an AI Race Engineer that provides real-time strategic recommendations and vocal coaching during active racing</li>
-        <li>Create an intuitive 2D telemetry dashboard for real-time and post-race performance analysis</li>
-        <li>Build an immersive VR platform using Unreal Engine 5 for interactive 3D telemetry exploration</li>
+        <li>Design and implement a unified platform that integrates telemetry from racing simulators </li>
+        <li>Develop an AI Race Engineer that provides real-time strategic recommendations and vocal coaching during active racing based on real-time data</li>
+        <li>Create an intuitive 2D telemetry dashboards for real-time and post-race performance data plotting and analysis</li>
+        <li>Build an immersive VR platform using Unreal Engine 5 for educational motorsports exploration</li>
         <li>Apply LLM fine-tuning methodologies to optimise Granite models for motorsport-specific terminology, strategic decision-making, and domain expertise.</li>
         <li>Establish HCI best practices through iterative design and user-centered evaluation</li>
-        <li>Support both casual users and expert engineers through adaptive interface modes</li>
+        <li>Support both casual and expert users through adaptive interface modes</li>
       </ul>
 
       <h2>Gathering User Requirements</h2>
       <p>
         Requirements were gathered through a structured HCI process: semi-structured interviews,
         persona construction, scenario-based design, low-fidelity sketches, and iterative prototype
-        evaluation. This pipeline ensured that system requirements reflect genuine user needs
+        evaluation. Two professional-grade sim racers were interviewed to talk about necessities and what could be done to make the experience enhanced. While the development continued, these sim-racers were contacted for feedback. 
+        
+      </p>
+      <p>
+        The UCL Racing Formula Student Team's engineers were also contacted to gather information about what plots would be useful for them to see to understand car performance. Our team created a modded Assetto Corsa car with the help of the Formula Student team, mimicing their designed car to a very high accuracy in the simulation environment (AC). By contacting both sim racers and vehicle design engineers we made the platform useful for both use cases.
+        This pipeline ensured that system requirements reflect genuine user needs
         rather than developer assumptions.
       </p>
       <p>
@@ -51,10 +56,10 @@ function Requirements() {
           </div>
         </div>
         <div className="profile-card">
-          <div className="profile-card__title">F1 Race Engineer</div>
+          <div className="profile-card__title">Vehicle Design Engineer</div>
           <div className="profile-card__body">
             <p><strong>Do you use AI-powered tools in your race strategy or performance analysis?</strong></p>
-            <p>"Yes, our team already integrates ML models into telemetry analysis and pit-stop strategy predictions. But the process still feels fragmented — different tools for data visualisation, diagnostics, and communication. I'd like to see more unification."</p>
+            <p>"Yes, our team already integrates ML models into telemetry analysis. But the process still feels fragmented — different tools for data visualisation, diagnostics, and communication. I'd like to see more unification."</p>
             <p><strong>What would you look for in an improved platform?</strong></p>
             <p>"Real-time collaboration between human engineers and the AI. A unified 'Jarvis-style' interface that aggregates telemetry, strategy models, and diagnostics in a single clear view. Compliance logging would also be great — we spend too much time writing reports after races."</p>
           </div>
@@ -133,7 +138,7 @@ function Requirements() {
 
       <h3>Key Use Cases</h3>
       <ul>
-        <li><strong>UC1 — Ingest Real-Time Telemetry</strong>: System reads vehicle sensor data (CAN bus) or simulator output (TORCS/AC) and streams it to the dashboard in real-time</li>
+        <li><strong>UC1 — Ingest Real-Time Telemetry</strong>: System reads vehicle simulator output (Assetto Corsa) and streams it to the dashboard in real-time</li>
         <li><strong>UC2 — Display Live Telemetry Dashboard</strong>: User views multi-channel graphs, vehicle position, and performance metrics on a 2D interface with ≥1 Hz refresh rate</li>
         <li><strong>UC3 — Query AI Race Engineer</strong>: User asks the AI for strategy advice or performance analysis via natural language; receives vocal and visual recommendations</li>
         <li><strong>UC4 — Generate Pit Strategy</strong>: System analyzes race conditions and recommends optimal pit timing; user confirms with one-click "PIT" button</li>

@@ -1,9 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../img/f1_jarvis_topdown_massive_tyres.svg';
+import carImage from '../img/sf26-overhead.png';
+import logoIBM from '../img/logos/ibmlogo.png';
+import logoAC from '../img/logos/aclogo copy.png';
+import logoUE from '../img/logos/ucl-logo.png';
+import logoFS from '../img/logos/FS_Logo_B_CL.png';
+import logoCM from '../img/logos/contentmanagerlogo.webp';
 import './Home.css';
 
 function Home() {
+  const carRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (carRef.current) {
+        carRef.current.style.transform = `translateX(${window.scrollY * 0.8}px)`;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -25,8 +43,11 @@ function Home() {
         <div className="home-hero__speed-line" />
         <div className="home-hero__speed-line" />
         <div className="home-hero__speed-line" />
-        <div className="home-hero__image-wrap">
-          <img src={`${process.env.PUBLIC_URL}/images/title_photo.png`} alt="F1 Jarvis Granite platform" />
+        <div className="home-hero__speed-line" />
+        <div className="home-hero__speed-line" />
+        <div className="home-hero__speed-line" />
+        <div className="home-hero__image-wrap" ref={carRef}>
+          <img src={carImage} alt="F1 car overhead view" />
         </div>
         <div className="home-hero__inner">
           <img src={logo} alt="F1 Jarvis Granite logo" className="home-hero__logo" />
@@ -34,6 +55,32 @@ function Home() {
           <h1 className="home-hero__title">F1 Jarvis Granite</h1>
           <p className="home-hero__sub">AI-Enhanced Racing Telemetry Analysis Platform</p>
         </div>
+      </div>
+
+      <div className="home-partners">
+        <div className="home-partners__row">
+          <span className="home-partners__label">Supervised by</span>
+          <div className="home-partners__logos">
+            <div className="home-partners__logo-wrap"><img src={logoIBM} alt="IBM" className="home-partners__logo" /></div>
+            <div className="home-partners__logo-wrap home-partners__logo-wrap--lg"><img src={logoUE}  alt="UCL" className="home-partners__logo" /></div>
+          </div>
+        </div>
+        <div className="home-partners__divider" />
+        <div className="home-partners__row">
+          <span className="home-partners__label">Built with</span>
+          <div className="home-partners__logos">
+            <div className="home-partners__logo-wrap"><img src={logoAC}  alt="Assetto Corsa" className="home-partners__logo" /></div>
+            <div className="home-partners__logo-wrap"><img src={logoFS}  alt="Formula Student" className="home-partners__logo" /></div>
+            <div className="home-partners__logo-wrap"><img src={logoCM}  alt="Content Manager" className="home-partners__logo" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="home-cta">
+        <Link to="/appendices/user-manual" className="home-cta__btn">
+          <img src={logo} alt="" className="home-cta__logo" />
+          Go To Download
+        </Link>
       </div>
 
       <div className="home-content">

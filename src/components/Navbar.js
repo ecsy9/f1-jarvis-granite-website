@@ -5,7 +5,7 @@ import './Navbar.css';
 
 const navItems = [
   { path: '/', label: 'Home' },
-  { path: '/appendices/user-manual', label: 'Download & Setup' },
+  { path: '/appendices/user-manual', label: 'Download' },
   { path: '/requirements', label: 'Requirements' },
   { path: '/research', label: 'Research' },
   { path: '/algorithms', label: 'Algorithms' },
