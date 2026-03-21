@@ -63,7 +63,7 @@ function Algorithms() {
         compute cost.
       </p>
 
-      <h3>LoRA Hyperparameters</h3>
+      <h3>QLoRA Configuration</h3>
       <table className="section-table">
         <thead>
           <tr>
@@ -74,13 +74,23 @@ function Algorithms() {
         </thead>
         <tbody>
           <tr>
+            <td>Quantisation</td>
+            <td>4-bit NF4 with double quantisation</td>
+            <td>Reduces base model memory by ~75%; double quantisation further compresses quantisation constants</td>
+          </tr>
+          <tr>
+            <td>Compute Dtype</td>
+            <td>float16</td>
+            <td>Half-precision for adapter computations during training</td>
+          </tr>
+          <tr>
             <td>LoRA Rank (r)</td>
-            <td>8</td>
+            <td>16</td>
             <td>Dimensionality of the low-rank decomposition — controls adapter capacity</td>
           </tr>
           <tr>
             <td>LoRA Alpha</td>
-            <td>16</td>
+            <td>32</td>
             <td>Scaling factor applied to adapter outputs (alpha/r = 2x scaling)</td>
           </tr>
           <tr>
@@ -90,8 +100,8 @@ function Algorithms() {
           </tr>
           <tr>
             <td>Target Modules</td>
-            <td>q_proj, k_proj, v_proj, o_proj</td>
-            <td>All four attention projection matrices — captures query, key, value, and output transformations</td>
+            <td>q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj</td>
+            <td>All attention projections plus MLP gate/up/down projections</td>
           </tr>
         </tbody>
       </table>
@@ -152,7 +162,7 @@ function Algorithms() {
 
       <h2>Two Specialised Models</h2>
       <p>
-        Rather than a single general-purpose model, the platform uses two fine-tuned Granite 4.0 Micro
+        Rather than a single general-purpose model, the platform uses two fine-tuned Granite
         instances — each trained for a distinct inference context with different input formats,
         output styles, and latency requirements.
       </p>
@@ -242,65 +252,200 @@ Output: "### 1. Overall Performance and Result
 
       <h2>Data</h2>
 
-      <h3>Dataset</h3>
+      <h3>Training Hyperparameters</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Live Race Engineer</th>
+            <th>Post-Race Analyst</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Base Model</td>
+            <td>ibm-granite/granite-3b-code-instruct-128k</td>
+            <td>ibm-granite/granite-4.0-micro</td>
+          </tr>
+          <tr>
+            <td>Epochs</td>
+            <td>3</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td>Batch Size</td>
+            <td>4</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>Gradient Accumulation Steps</td>
+            <td>4</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>Effective Batch Size</td>
+            <td>16</td>
+            <td>16</td>
+          </tr>
+          <tr>
+            <td>Learning Rate</td>
+            <td>2e-4</td>
+            <td>2e-4</td>
+          </tr>
+          <tr>
+            <td>Warmup Steps</td>
+            <td>50</td>
+            <td>50</td>
+          </tr>
+          <tr>
+            <td>Scheduler</td>
+            <td>Linear with warmup</td>
+            <td>Linear with warmup</td>
+          </tr>
+          <tr>
+            <td>Optimiser</td>
+            <td>paged_adamw_8bit</td>
+            <td>paged_adamw_8bit</td>
+          </tr>
+          <tr>
+            <td>Precision</td>
+            <td>fp16</td>
+            <td>fp16</td>
+          </tr>
+          <tr>
+            <td>Max Sequence Length</td>
+            <td>512 tokens</td>
+            <td>2,048 tokens</td>
+          </tr>
+          <tr>
+            <td>Train/Validation Split</td>
+            <td>90/10 (seed=42)</td>
+            <td>90/10 (seed=42)</td>
+          </tr>
+          <tr>
+            <td>Best Model Selection</td>
+            <td>Lowest eval_loss</td>
+            <td>Lowest eval_loss</td>
+          </tr>
+        </tbody>
+      </table>
       <p>
-        Both models were fine-tuned on approximately 1,000 curated training examples per task,
-        constructed from real F1 race data. Each example pairs a telemetry input with an
-        expert-style response:
+        The post-race model uses a longer sequence length (2,048 vs 512) to accommodate the structured
+        JSON telemetry input and multi-section debrief output. The live model's shorter context reflects
+        the brevity of radio-style exchanges.
+      </p>
+
+      <h3>Dataset</h3>
+
+      <h4>Live Race Engineer Dataset</h4>
+      <p>
+        The live model was trained on <strong>1,258 filtered examples</strong> sourced from real
+        F1 telemetry and team radio recordings across the 2023, 2024, and 2025 seasons.
       </p>
       <ul>
         <li>
-          <strong>Live Race Engineer dataset:</strong> ~1,000 prompt–completion pairs mapping
-          telemetry snapshots (speed, RPM, throttle, brake, tire data, fuel levels) to concise
-          radio-style instructions. Examples were written to reflect the communication patterns
-          of real F1 team radio — terse, data-specific, and prioritised by urgency.
+          <strong>Telemetry source:</strong> OpenF1 API — a 30-second telemetry window before
+          each radio message is averaged into key metrics (speed, RPM, throttle, brake).
         </li>
         <li>
-          <strong>Post-Race Analyst dataset:</strong> ~1,000 structured JSON–to–debrief pairs.
-          Each input contains a full session summary (race result, lap-by-lap times, stint
-          breakdowns, pit stop data, telemetry samples) and each output is a multi-section
-          engineering report following a consistent 9-section format.
+          <strong>Radio transcription:</strong> Team radio audio clips are transcribed locally
+          using OpenAI Whisper, then paired with the corresponding telemetry snapshot.
+        </li>
+        <li>
+          <strong>Format:</strong> JSONL with <code>prompt</code>/<code>completion</code> fields.
+          Each prompt contains a telemetry summary; each completion is the engineer's radio message.
+        </li>
+      </ul>
+
+      <h4>Post-Race Analyst Dataset</h4>
+      <p>
+        The post-race model was trained on <strong>1,360 examples</strong> across the 2023, 2024,
+        and 2025 seasons, generated using a knowledge distillation approach.
+      </p>
+      <ul>
+        <li>
+          <strong>Telemetry source:</strong> FastF1 library — provides lap times, positions,
+          pit stops, stint data, and high-frequency car telemetry for every driver in every session.
+        </li>
+        <li>
+          <strong>Teacher model:</strong> Google Gemini (<code>gemini-3-flash-preview</code>) receives
+          both telemetry data and race event context (safety cars, incidents, weather) to generate
+          rich 9-section engineering debriefs.
+        </li>
+        <li>
+          <strong>Knowledge distillation:</strong> The fine-tuned Granite model only receives
+          telemetry data at inference time — not the race events that Gemini used. This forces
+          the model to learn to infer strategic insights from telemetry patterns alone, rather
+          than relying on event descriptions.
+        </li>
+        <li>
+          <strong>Hallucination prevention:</strong> Gemini's prompt explicitly forbids referencing
+          race events directly, ensuring the generated debriefs are grounded in telemetry data.
+        </li>
+        <li>
+          <strong>Format:</strong> JSONL with <code>input</code>/<code>output</code>/<code>metadata</code>{' '}
+          fields. Inputs average ~13,400 characters raw, compressed to ~1,391 characters for training.
         </li>
       </ul>
 
       <h3>Data Preprocessing</h3>
+
+      <h4>Live Race Engineer Data Filtering</h4>
       <p>
-        Raw telemetry data undergoes several preprocessing steps before being presented to the
-        models:
+        Raw telemetry–radio pairs undergo automated quality filtering to remove unusable examples:
       </p>
       <ul>
         <li>
-          <strong>Lap time validation:</strong> Invalid and negative lap times are filtered out
-          to prevent the model from learning on corrupted data.
+          <strong>Gibberish detection:</strong> Messages with low ASCII character ratio or low
+          letter-to-character ratio are removed (Whisper transcription artefacts).
         </li>
         <li>
-          <strong>Fuel consumption tracking:</strong> Per-lap fuel usage is calculated by
-          comparing fuel levels at lap start and end. Pit stops are detected when fuel increases
-          by more than 2 litres between consecutive laps — indicating a refuel event.
+          <strong>Language filtering:</strong> Non-English messages are detected and removed
+          using the langid library, as the model targets English-language output.
         </li>
         <li>
-          <strong>Stint detection:</strong> Sessions are automatically segmented into stints
-          based on detected pit stops, providing the model with strategic context about
-          compound changes and stint lengths.
+          <strong>Conversational filtering:</strong> Purely conversational messages lacking
+          technical F1 keywords (e.g., "thank you", "well done") are removed to keep the
+          dataset focused on engineering-relevant communication.
         </li>
         <li>
-          <strong>Telemetry aggregation:</strong> High-frequency telemetry (~60Hz) is maintained
-          in a rolling 60-second buffer of 600 samples. For prompt construction, this is
-          summarised into key statistics (averages, peaks, trends) to fit within the model's
-          context window.
-        </li>
-        <li>
-          <strong>Prompt truncation:</strong> Inputs exceeding 1,024 tokens are truncated to
-          ensure the model has sufficient context window remaining for response generation
-          within the 2,048-token context limit.
+          <strong>Filtering impact:</strong> Of 826 raw examples (2023 + 2024), 106 were removed
+          (~13% rejection rate), yielding 721 filtered examples from those two seasons.
         </li>
       </ul>
 
+      <h4>Post-Race Data Compression</h4>
+      <p>
+        Raw FastF1 telemetry inputs are too large for the model's context window. A compression
+        step reduces input size by ~90%:
+      </p>
+      <ul>
+        <li>
+          <strong>Telemetry resampling:</strong> High-frequency car data is resampled to 1 row
+          per 5 seconds, reducing thousands of rows to a manageable summary.
+        </li>
+        <li>
+          <strong>Array-of-arrays format:</strong> Column headers are stored once, with data rows
+          as compact arrays rather than repeated key-value objects.
+        </li>
+        <li>
+          <strong>Result:</strong> Average input size drops from ~2,800 tokens to ~600 tokens,
+          fitting within the 2,048-token context window alongside the model's response.
+        </li>
+      </ul>
+
+      <h4>Label Masking</h4>
+      <p>
+        The post-race training script masks prompt tokens by setting their labels to <code>-100</code>,
+        so the training loss is computed only on the model's response — not the input JSON. This
+        prevents the model from wasting capacity learning to reproduce telemetry inputs and focuses
+        all learning on generating high-quality analysis outputs.
+      </p>
+
       <h3>Training</h3>
       <p>
-        Both models were trained using the same QLoRA configuration on the Granite 4.0 Micro
-        base. After training, a three-stage conversion pipeline produces the final deployable
-        models:
+        Both models were trained using the same QLoRA configuration on their respective Granite base
+        models. After training, a three-stage conversion pipeline produces the final deployable models:
       </p>
       <ol>
         <li>
@@ -397,7 +542,7 @@ Output: "### 1. Overall Performance and Result
           </tr>
           <tr>
             <td>Gap Change</td>
-            <td colspan="2">≥ 1.0s change (ahead or behind)</td>
+            <td colSpan="2">≥ 1.0s change (ahead or behind)</td>
             <td>—</td>
           </tr>
         </tbody>
