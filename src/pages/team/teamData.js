@@ -4,11 +4,22 @@ const teamMembers = [
     name: 'Ece Okutan',
     role: 'Team Lead',
     description:
-      'Ece leads the F1 Jarvis Granite project, overseeing architecture, integration, and delivery across all three deliverables. She is responsible for the live telemetry pipeline and AI race engineer voice interface.',
+      'Ece leads the F1 Jarvis Granite project, overseeing architecture, integration, and delivery across all three deliverables. She is responsible for the telemetry pipeline and creations of the Dashboards.',
     linkedin: 'https://www.linkedin.com/in/eceokutan/',
     github: 'https://github.com/eceokutan',
     email: 'ece.okutan.24@ucl.ac.uk',
     photo: '/images/team/ece-okutan.jpg',
+  },
+  {
+    slug: 'eima-miyasaka',
+    name: 'Eima Miyasaka',
+    role: 'Developer',
+    description:
+      'Eima is a developer on the team, contributing to the visualisation and user interface components of the Jarvis platform.',
+    linkedin: 'https://www.linkedin.com/in/eima-miyasaka/',
+    github: 'https://github.com/eimamiyasaka',
+    email: 'eima.miyasaka.24@ucl.ac.uk',
+    photo: '/images/team/eima-miyasaka.jpg',
   },
   {
     slug: 'oltun-ozavci',
@@ -42,17 +53,6 @@ const teamMembers = [
     github: 'https://github.com/ecsy9',
     email: 'elinor.cheung.24@ucl.ac.uk',
     photo: '/images/team/elinor-cheung.jpg',
-  },
-  {
-    slug: 'eima-miyasaka',
-    name: 'Eima Miyasaka',
-    role: 'Developer',
-    description:
-      'Eima is a developer on the team, contributing to the visualisation and user interface components of the Jarvis platform.',
-    linkedin: 'https://www.linkedin.com/in/eima-miyasaka/',
-    github: 'https://github.com/eimamiyasaka',
-    email: 'eima.miyasaka.24@ucl.ac.uk',
-    photo: '/images/team/eima-miyasaka.jpg',
   },
 ];
 

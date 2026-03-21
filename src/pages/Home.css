@@ -355,6 +355,63 @@
   .home-content h2    { font-size: 1rem; }
 }
 
+/* ── Team person cards ──────────────────────────────────── */
+.info-cards--team {
+  column-gap: 1.5rem;
+  row-gap: 1.25rem;
+}
+
+/* Double-class for specificity over .info-card in SectionPage.css */
+.info-card.info-card--person {
+  position: relative;
+  overflow: visible;
+  border-radius: 999px;
+  padding: 1rem 1.4rem 1rem 100px; /* 88px photo + 12px gap */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 88px; /* applied border-radius = 44px = photo radius → tangent connection */
+}
+
+.info-card__photo {
+  position: absolute;
+  left: 0;           /* photo left edge = pill left edge; center at x=44px = applied radius */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 3px solid #2a2a2a;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  z-index: 2;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.info-card.info-card--person:hover .info-card__photo {
+  border-color: #DC0000;
+  box-shadow: 0 4px 20px rgba(220, 0, 0, 0.4);
+}
+
+/* Supervisor cards — pill shape, no photo */
+.info-card.info-card--supervisor {
+  border-radius: 999px;
+  padding: 1rem 1.75rem;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: pointer;
+}
+.info-card.info-card--supervisor .info-card__value {
+  color: #f0f0f0;
+  transition: color 0.15s;
+}
+.info-card.info-card--supervisor:hover .info-card__value {
+  color: #DC0000;
+}
+
 /* ── Team links ─────────────────────────────────────────── */
 .team-link {
   color: #f0f0f0;

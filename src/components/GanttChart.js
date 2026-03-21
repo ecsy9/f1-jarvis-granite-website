@@ -103,13 +103,13 @@ const TASKS = [
     members: ['ece','eima'],
   },
   {
-    id: 14, name: 'Dashboard & AI Improvements After Feedback', start: 16, end: 19, cat: 'integration',
+    id: 14, name: 'Dashboard & AI Improvements After Feedback', start: 16, end: 19, cat: 'dev',
     deliverable: 'Both Dashboards',
     desc: '',
     members: ['ece','eima'],
   },
   {
-    id: 15, name: 'Packaging & Distribution', start: 18, end: 20, cat: 'other',
+    id: 15, name: 'Packaging & Distribution', start: 18, end: 20, cat: 'dev',
     deliverable: 'Both Dashboards',
     desc: 'Connected all subsystems and the dataflow between them. Created a main page and settings page, making sure that the user would have a smooth experience navigating the app with all functionalities',
     members: ['ece'],
@@ -308,11 +308,13 @@ function GanttInner() {
             <div
               key={task.id}
               className={`gc__row${hov ? ' gc__row--hov' : ''}`}
-              onMouseEnter={() => handleRowEnter(task.id)}
-              onMouseLeave={handleRowLeave}
             >
               <div className="gc__task-label">{task.name}</div>
-              <div className="gc__track">
+              <div
+                className="gc__track"
+                onMouseEnter={() => handleRowEnter(task.id)}
+                onMouseLeave={handleRowLeave}
+              >
                 <div
                   className={[
                     'gc__bar',

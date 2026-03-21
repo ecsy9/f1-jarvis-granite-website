@@ -119,30 +119,6 @@ function Home() {
           </p>
         </div>
 
-        <div className="fade-up">
-          <h2>Motivation</h2>
-          <h3>Educational Value</h3>
-          <p>
-            Formula Student teams need accessible tools to analyse vehicle performance data and make
-            data-driven design decisions. By providing AI-guided insights, the platform allows access
-            to sophisticated telemetry analysis without requiring deep domain expertise.
-          </p>
-          <h3>Competitive Enhancement</h3>
-          <p>
-            The competitive sim racing community has grown substantially, yet most racers lack the
-            real-time engineering support that professional drivers receive. An AI race engineer
-            providing live feedback and strategy recommendations can significantly improve both
-            performance and the immersive racing experience.
-          </p>
-          <h3>Technology Demonstration</h3>
-          <p>
-            This project showcases practical applications of IBM's Granite foundation models in
-            real-time data analysis, conversational AI, and decision support systems — use cases
-            extending far beyond motorsport to industrial IoT, manufacturing optimisation, and
-            remote monitoring applications.
-          </p>
-        </div>
-
         <div className="fade-up deliverables-section">
           <h2>The Three Deliverables</h2>
           <div className="deliverable-rows">
@@ -192,57 +168,73 @@ function Home() {
 
         <div className="fade-up">
           <h2>Team</h2>
-          <div className="info-cards">
-            <div className="info-card">
-              <div className="info-card__label">Team Lead</div>
-              <div className="info-card__value">
-                <Link to="/team/ece-okutan" className="team-link">Ece Okutan ↗</Link>
+          <div className="info-cards info-cards--team">
+            {[
+              { label: 'Team Lead', name: 'Ece Okutan',    path: '/team/ece-okutan',    photo: '/images/team/ece-okutan.jpg'    },
+              { label: 'Developer', name: 'Oltun Ozavci',  path: '/team/oltun-ozavci',  photo: '/images/team/oltun-ozavci.jpg'  },
+              { label: 'Developer', name: 'Athena Chong',  path: '/team/athena-chong',  photo: '/images/team/athena-chong.jpg'  },
+              { label: 'Developer', name: 'Elinor Cheung', path: '/team/elinor-cheung', photo: '/images/team/elinor-cheung.jpg' },
+              { label: 'Developer', name: 'Eima Miyasaka', path: '/team/eima-miyasaka', photo: '/images/team/eima-miyasaka.jpg' },
+            ].map(m => (
+              <div key={m.path} className="info-card info-card--person">
+                <img src={m.photo} alt={m.name} className="info-card__photo" />
+                <div className="info-card__label">{m.label}</div>
+                <div className="info-card__value">
+                  <Link to={m.path} className="team-link">{m.name} ↗</Link>
+                </div>
               </div>
-            </div>
-            <div className="info-card">
-              <div className="info-card__label">Developer</div>
-              <div className="info-card__value">
-                <Link to="/team/oltun-ozavci" className="team-link">Oltun Ozavci ↗</Link>
-              </div>
-            </div>
-            <div className="info-card">
-              <div className="info-card__label">Developer</div>
-              <div className="info-card__value">
-                <Link to="/team/athena-chong" className="team-link">Athena Chong ↗</Link>
-              </div>
-            </div>
-            <div className="info-card">
-              <div className="info-card__label">Developer</div>
-              <div className="info-card__value">
-                <Link to="/team/elinor-cheung" className="team-link">Elinor Cheung ↗</Link>
-              </div>
-            </div>
-            <div className="info-card">
-              <div className="info-card__label">Developer</div>
-              <div className="info-card__value">
-                <Link to="/team/eima-miyasaka" className="team-link">Eima Miyasaka ↗</Link>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
         <div className="fade-up">
           <h2>Supervisors</h2>
           <div className="info-cards">
-            <div className="info-card">
-              <div className="info-card__label">Supervisor</div>
-              <div className="info-card__value">Prof. John McNamara</div>
-            </div>
-            <div className="info-card">
-              <div className="info-card__label">Supervisor</div>
-              <div className="info-card__value">Prof. Stephen Hilton</div>
-            </div>
+            {[
+              { name: 'Prof. John McNamara',  label: 'IBM',                     linkedin: 'https://www.linkedin.com/in/jonmcnamara/'  },
+              { name: 'Prof. Stephen Hilton', label: 'UCL School of Pharmacy', linkedin: 'https://www.linkedin.com/in/hiltonlab/'    },
+            ].map(s => (
+              <a
+                key={s.name}
+                href={s.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="info-card info-card--supervisor"
+              >
+                <div className="info-card__label">{s.label}</div>
+                <div className="info-card__value">{s.name} ↗</div>
+              </a>
+            ))}
           </div>
         </div>
 
         <div className="fade-up">
           <h2>Project Timeline</h2>
           <GanttChart />
+        </div>
+
+        <div className="fade-up" style={{paddingTop: '3.5rem'}}>
+          <h2>Motivation</h2>
+          <h3>Educational Value</h3>
+          <p>
+            Formula Student teams need accessible tools to analyse vehicle performance data and make
+            data-driven design decisions. By providing AI-guided insights, the platform allows access
+            to sophisticated telemetry analysis without requiring deep domain expertise.
+          </p>
+          <h3>Competitive Enhancement</h3>
+          <p>
+            The competitive sim racing community has grown substantially, yet most racers lack the
+            real-time engineering support that professional drivers receive. An AI race engineer
+            providing live feedback and strategy recommendations can significantly improve both
+            performance and the immersive racing experience.
+          </p>
+          <h3>Technology Demonstration</h3>
+          <p>
+            This project showcases practical applications of IBM's Granite foundation models in
+            real-time data analysis, conversational AI, and decision support systems — use cases
+            extending far beyond motorsport to industrial IoT, manufacturing optimisation, and
+            remote monitoring applications.
+          </p>
         </div>
 
         <div className="fade-up">
