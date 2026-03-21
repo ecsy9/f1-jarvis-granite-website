@@ -5,47 +5,65 @@ function Research() {
   return (
     <SectionPage title="Research">
 
-      <h2>Existing Solutions & Limitations</h2>
-      <table className="section-table">
-        <thead>
-          <tr>
-            <th>Solution</th>
-            <th>Type</th>
-            <th>Limitation</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>MoTeC / Atlas</td>
-            <td>Professional telemetry</td>
-            <td>Prohibitive cost; requires specialist operators</td>
-          </tr>
-          <tr>
-            <td>RaceLab</td>
-            <td>Sim racing overlay</td>
-            <td>Display-only; no AI analysis or strategy</td>
-          </tr>
-          <tr>
-            <td>FastF1</td>
-            <td>Python analysis library</td>
-            <td>Post-race only; no real-time or vocal output</td>
-          </tr>
-          <tr>
-            <td>CAN bus loggers</td>
-            <td>Hardware data logging</td>
-            <td>Raw data only; requires manual analysis</td>
-          </tr>
-        </tbody>
-      </table>
-      <p>
-        <strong>Critical Gap:</strong> No unified platform currently integrates real-time sensors,
-        multiple simulators, and autonomous AI strategy generation with vocal output.
-      </p>
+    <h2>Existing Solutions & Limitations</h2>
+    <table className="section-table">
+      <thead>
+        <tr>
+          <th>Solution</th>
+          <th>Type</th>
+          <th>Key Strength</th>
+          <th>Limitation</th>
+          <th>Influence on F1 Jarvis Granite</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>MoTeC / Atlas</strong></td>
+          <td>Professional telemetry suite</td>
+          <td>Industry-standard data acquisition & visualisation</td>
+          <td>Prohibitive licensing cost; requires dedicated specialist operators; inaccessible to amateur or sim racing contexts</td>
+          <td>Our 2D dashboard is explicitly inspired by MoTeC's layout — clarity over data density, with AI guidance reducing the need for specialist operators</td>
+        </tr>
+        <tr>
+          <td><strong>RaceLab</strong> [2]</td>
+          <td>Sim racing overlay</td>
+          <td>Polished real-time HUD for iRacing & ACC</td>
+          <td>Display-only; no AI-driven analysis, strategy recommendations, or vocal feedback</td>
+          <td>Validated the value of real-time overlays; informed our design principle that overlays must be non-intrusive and context-aware across both 2D and VR environments</td>
+        </tr>
+        <tr>
+          <td><strong>FastF1</strong> [1]</td>
+          <td>Python telemetry library</td>
+          <td>Rich historical F1 data via the Ergast & F1 Live APIs</td>
+          <td>Post-race analysis only; no real-time ingestion, live strategy output, or voice interface</td>
+          <td>Demonstrated scalable telemetry data structures and replay architectures; we extend this foundation with live ingestion and AI-driven strategy</td>
+        </tr>
+        <tr>
+          <td><strong>Crew Chief</strong></td>
+          <td>Rule-Based race engineer (sim)</td>
+          <td>Voice-based spotter & engineer for iRacing / ACC</td>
+          <td>Rule-based scripted responses; no generative AI or multi-simulator sensor fusion</td>
+          <td>Established user appetite for a vocal race engineer; we replace scripted logic with a generative AI backend capable of dynamic, context-aware strategy</td>
+        </tr>
+        <tr>
+          <td><strong>Custom Python scripts</strong></td>
+          <td>Ad-hoc telemetry tooling</td>
+          <td>Flexible & low-cost</td>
+          <td>No standardised interface; single-simulator; no AI layer or vocal output</td>
+          <td>Highlighted the need for a unified, simulator-agnostic platform — a core architectural goal of F1 Jarvis Granite</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      <strong>Critical Gap:</strong> No existing solution unifies real-time multi-simulator telemetry
+      ingestion, physical sensor integration, and autonomous AI strategy generation with a natural
+      language vocal interface — the combination that <em>F1 Jarvis Granite</em> is built to deliver.
+    </p>
 
       <h2>Machine Learning Approach</h2>
       <p>
-        The core challenge was producing a model that sounds like a real race engineer — not
-        just one that knows F1 facts, but one that has internalised the tone, pacing, and
+        The core challenge was producing a model that behaves like a real race engineer — not
+        just one that knows some F1 facts, but one that has internalised the pacing and
         priorities of pit-wall communication. Fine-tuning on domain-specific telemetry data
         achieves this by adjusting the model weights directly, rather than trying to steer
         a generic model through prompts at each call. The platform uses two fine-tuned Granite 4.0 Micro
@@ -53,55 +71,6 @@ function Research() {
         structured post-race debriefs. For a full technical breakdown, see
         the <Link to="/algorithms">Algorithms</Link> page.
       </p>
-
-      <h2>Related Projects Review</h2>
-      <table className="section-table">
-        <thead>
-          <tr>
-            <th>Project Name</th>
-            <th>Main Features</th>
-            <th>Learnings for F1 Jarvis Granite</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>FastF1</strong> [1]</td>
-            <td>
-              Python library for post-race Formula 1 telemetry analysis; data visualization;
-              lap comparison; session replay
-            </td>
-            <td>
-              Demonstrates scalable post-race replay architectures and telemetry data structures.
-              However, FastF1 is limited to post-race analysis without real-time or AI features.
-              Our project extends this by adding live analysis and AI-driven strategy recommendations.
-            </td>
-          </tr>
-          <tr>
-            <td><strong>RaceLab</strong> [2]</td>
-            <td>
-              Real-time sim racing overlay; lap time tracking; performance metrics; visual dashboard overlay
-            </td>
-            <td>
-              Shows the value of real-time overlays for sim racing engagement. RaceLab lacks AI analysis
-              and conversational interface. We learned that overlays must be non-intrusive and context-aware —
-              design principles applied to both our 2D dashboard and VR environments.
-            </td>
-          </tr>
-          <tr>
-            <td><strong>MoTeC / Atlas</strong></td>
-            <td>
-              Professional telemetry system; real-time data visualization; post-race analysis;
-              multi-car telemetry comparison; advanced signal processing
-            </td>
-            <td>
-              Industry gold standard for telemetry visualisation. Our 2D dashboard is explicitly inspired
-              by MoTeC's layout and interaction patterns. Key insight: professional systems prioritise
-              clarity over data density. We adopted this principle while reducing complexity through AI guidance.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
       <h2>Technology Review</h2>
 
       <h3>AI Solutions: LLM Selection</h3>
@@ -113,140 +82,264 @@ function Research() {
       <p>
         For technical details on QLoRA, parameter-efficient fine-tuning, and model training, see the <Link to="/algorithms">Algorithms</Link> page.
       </p>
+      <h3>Simulator Selection</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Simulator</th>
+            <th>Strengths</th>
+            <th>Weaknesses</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Assetto Corsa ✓</strong></td>
+            <td>
+              Highly realistic physics engine; extensive shared memory API exposing 50+ telemetry channels;
+              large active community; affordable price point; deep modding support allows custom cars with accurate
+              physics models; widely used as a testing simulator by motorsport teams
+            </td>
+            <td>Shared memory is Windows-only; ageing graphics engine (2014)</td>
+          </tr>
+          <tr>
+            <td>EA F1 Series</td>
+            <td>Official F1 licence; large casual player base; UDP telemetry API</td>
+            <td>
+              Simplified physics model prioritising accessibility over realism; limited telemetry depth;
+              no modding support; cannot replicate custom car physics; annual release cycle with breaking API changes
+            </td>
+          </tr>
+          <tr>
+            <td>iRacing</td>
+            <td>Professional-grade physics; large competitive community; good telemetry API</td>
+            <td>
+              Expensive subscription model (~£13/month + per-track/car purchases); no modding or custom car support;
+              closed ecosystem unsuitable for Formula Student car replication
+            </td>
+          </tr>
+          <tr>
+            <td>Assetto Corsa Competizione</td>
+            <td>Modern graphics; official GT3/GT4 licence; UDP broadcasting API</td>
+            <td>
+              Broadcasting API provides very limited telemetry (no RPM, throttle, brake, fuel, tire data);
+              no modding support; locked to GT racing categories; cannot import custom car models
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>Decision:</strong> Assetto Corsa was selected as the primary platform for three reasons.
+        First, its shared memory API provides the richest telemetry data of any consumer sim — over 50 channels
+        at ~60Hz including tire temperatures, pressures, suspension travel, camber, fuel, and damage.
+        Second, its modding ecosystem allows custom cars with fully configurable physics parameters, which is
+        critical for our partnership with the UCLR Formula Student team. By modelling their actual car's physics
+        in AC, the team can use Jarvis as a virtual testing environment to evaluate car performance, validate
+        setup changes, and iterate on vehicle design before physical testing. Third, AC's large user base and
+        low price point ensure accessibility for both professional and hobbyist users.
+      </p>
 
-      <h3>Data Integration Technologies</h3>
+      <h3>Telemetry Data Sourcing</h3>
       <table className="section-table">
         <thead>
           <tr>
             <th>Technology</th>
             <th>Use Case</th>
-            <th>Alternative</th>
+            <th>Alternatives Considered</th>
             <th>Why Chosen</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>CAN Bus (ISO 11898)</strong> [3] [4]</td>
-            <td>Vehicle telemetry from Formula Student car via ECU</td>
-            <td>OBD-II (simpler but lower frequency); custom wireless (complex)</td>
+            <td><strong>Windows Shared Memory (AC)</strong></td>
+            <td>Primary telemetry source from Assetto Corsa</td>
+            <td>UDP networking (higher latency); file-based logging (not real-time)</td>
             <td>
-              Industry standard in automotive/motorsport; high-frequency support (1+ kHz); reliable;
-              proven in safety-critical systems
-            </td>
-          </tr>
-          <tr>
-            <td><strong>UDP for TORCS</strong> [5]</td>
-            <td>Real-time simulator telemetry extraction</td>
-            <td>TCP (more reliable but higher latency); shared memory (TORCS-specific)</td>
-            <td>
-              Minimises latency; stateless; TORCS natively supports UDP output; simple protocol
-            </td>
-          </tr>
-          <tr>
-            <td><strong>Shared Memory for Assetto Corsa</strong></td>
-            <td>Live data from Assetto Corsa simulator</td>
-            <td>UDP or network streaming</td>
-            <td>
-              Assetto Corsa's native protocol; lowest latency; reliable on same OS; industry standard for sim racing
-            </td>
-          </tr>
-          <tr>
-            <td><strong>InfluxDB (Time-Series DB)</strong> [6]</td>
-            <td>Persistent storage of all telemetry sessions</td>
-            <td>PostgreSQL (relational); MongoDB (document-oriented); Prometheus (metrics-focused)</td>
-            <td>
-              Optimised for high-frequency sensor data; columnar compression; tag-based indexing;
-              sub-500ms query performance at scale
+              AC's native telemetry protocol; zero network overhead; lowest possible latency;
+              provides full telemetry — speed, RPM, throttle, brake, tire temps/pressures, suspension, camber, fuel, damage
             </td>
           </tr>
         </tbody>
       </table>
 
-      <h3>Programming Stack & Frameworks</h3>
+      <h3>Data Storage</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Use Case</th>
+            <th>Alternatives Considered</th>
+            <th>Why Chosen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>SQLite</strong></td>
+            <td>Persistent storage of telemetry sessions, laps, AI commentary</td>
+            <td>InfluxDB (time-series optimised but heavy dependency); PostgreSQL (requires server); JSON files (no query capability)</td>
+            <td>
+              Zero-config embedded database; no server process required; portable single-file storage;
+              works well with PyInstaller distribution; sufficient performance with batch inserts at 60 samples/sec
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>AI &amp; Speech Technologies</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Use Case</th>
+            <th>Alternatives Considered</th>
+            <th>Why Chosen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>llama-cpp-python (GGUF)</strong></td>
+            <td>Local LLM inference for race engineer and post-race analyst</td>
+            <td>Hugging Face Transformers (higher VRAM); cloud APIs like OpenAI (requires internet, adds latency); ONNX Runtime (less model support)</td>
+            <td>
+              Runs quantised models on consumer CPUs; no GPU required; fully offline after first download;
+              Q4_K_M quantisation balances quality and performance (~2GB per model)
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Faster-Whisper</strong></td>
+            <td>Speech-to-text for driver voice queries</td>
+            <td>OpenAI Whisper API (requires internet); Google Speech-to-Text (cloud dependency); Vosk (lower accuracy)</td>
+            <td>
+              Runs entirely locally; no API keys needed; CTranslate2 backend for fast inference;
+              custom initial prompt seeded with F1/racing vocabulary for domain-specific accuracy
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Kokoro TTS</strong></td>
+            <td>Text-to-speech for AI race engineer audio output</td>
+            <td>Piper TTS (lighter but lower quality); cloud TTS services (latency, internet required); eSpeak (robotic quality)</td>
+            <td>
+              Natural-sounding local speech synthesis; no API keys; low latency; configurable voice selection
+            </td>
+          </tr>
+          <tr>
+            <td><strong>WebRTC VAD</strong></td>
+            <td>Voice activity detection for push-to-talk and hands-free modes</td>
+            <td>Energy-based VAD (simple but noisy); Silero VAD (heavier model); always-on recording (wastes resources)</td>
+            <td>
+              Lightweight C library; low CPU overhead; reliable speech/silence classification;
+              enables auto-pause during TTS playback to prevent echo
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Programming Stack &amp; Frameworks</h3>
       <table className="section-table">
         <thead>
           <tr>
             <th>Component</th>
             <th>Technology</th>
+            <th>Alternatives Considered</th>
             <th>Rationale</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Backend API</td>
-            <td><strong>Python + FastAPI</strong></td>
+            <td>Application Framework</td>
+            <td><strong>Python + PyQt5</strong></td>
+            <td>Electron (heavier, web-based); Tkinter (limited widgets); C++ Qt (faster but slower development)</td>
             <td>
-              Fast async web framework; native integration with Python ML ecosystem;
-              type hints for robustness; built-in WebSocket support for real-time streaming
+              Native desktop widgets; multi-threaded via QThread; direct integration with Python ML/AI libraries;
+              Matplotlib embedding for telemetry graphs; cross-platform toolkit
             </td>
           </tr>
           <tr>
-            <td>2D Dashboard</td>
-            <td><strong>Python (Matplotlib / PyQt)</strong></td>
+            <td>Telemetry Visualisation</td>
+            <td><strong>Matplotlib</strong></td>
+            <td>PyQtGraph (faster but less flexible); Plotly (web-focused); custom OpenGL (complex)</td>
             <td>
-              MoTeC-inspired visualisations easily constructed; tight integration with backend;
-              real-time rendering at 60+ FPS feasible
+              Rich plotting API; easy PyQt5 embedding via FigureCanvas; supports track maps, time-series,
+              multi-line tire plots, and XY scatter (camber gain); sufficient performance at 12Hz update rate
+            </td>
+          </tr>
+          <tr>
+            <td>Data Validation</td>
+            <td><strong>Pydantic</strong></td>
+            <td>dataclasses (no validation); marshmallow (less Pythonic); manual validation (error-prone)</td>
+            <td>
+              Type-safe telemetry models with field validation; automatic range checking on tire temps,
+              pressures, and wear; clean schema definitions for AI pipeline
             </td>
           </tr>
           <tr>
             <td>VR Platform</td>
-            <td><strong>Unreal Engine 5 (C++)</strong> [7]</td>
+            <td><strong>Unreal Engine 5 (C++)</strong></td>
+            <td>Unity (C#, smaller community for VR); Godot (less VR tooling); WebXR (limited performance)</td>
             <td>
-              Industry-standard VR tooling; native SteamVR / Meta Quest support; performance optimisation
-              for VR (90+ FPS); 3D CAD model integration; Blueprint scripting for rapid iteration
+              Industry-standard VR tooling; native SteamVR / Meta Quest support;
+              performance optimisation for VR (90+ FPS); Blueprint scripting for rapid iteration
             </td>
           </tr>
           <tr>
-            <td>Multi-Agent Orchestration</td>
-            <td><strong>Jarvis</strong></td>
+            <td>Distribution</td>
+            <td><strong>PyInstaller</strong></td>
+            <td>cx_Freeze (less community support); Nuitka (compilation complexity); pip install (requires Python)</td>
             <td>
-              Specialised multi-agent framework; fault isolation between AI components;
-              independent scaling of telemetry, strategy, and conversation agents
+              Bundles Python runtime and all dependencies into single executable;
+              end users need no Python installation; .spec file for reproducible builds
             </td>
           </tr>
           <tr>
             <td>Version Control</td>
             <td><strong>Git / GitHub</strong></td>
+            <td>GitLab (self-hosted option); SVN (centralised); Bitbucket (smaller ecosystem)</td>
             <td>
-              Distributed VCS; CI/CD integration ready; team collaboration; academic free tier
+              Distributed VCS; pull request workflow for team collaboration; GitHub Actions for CI/CD
             </td>
           </tr>
         </tbody>
       </table>
 
+
       <h2>Summary of Technical Decisions</h2>
       <p>
-        The F1 Jarvis Granite platform consolidates multiple technical domains—AI/ML, real-time data integration,
-        database systems, and immersive interfaces—into a cohesive architecture. Key decisions reflect constraints
+        The Jarvis platform consolidates multiple technical domains—AI/ML, real-time data integration,
+        local inference, and immersive interfaces—into a cohesive architecture. Key decisions reflect constraints
         of academic development, computational resources, and the motorsport domain:
       </p>
       <ul>
         <li>
           <strong>Granite 4.0 Micro + QLoRA for AI:</strong> Prioritises domain specialisation and resource efficiency
           over raw model scale. QLoRA enables practical fine-tuning within academic GPU budgets while maintaining
-          motorsport terminology and strategy generation quality.
+          motorsport terminology and strategy generation quality. Models quantised to Q4_K_M GGUF for consumer CPU inference.
         </li>
         <li>
-          <strong>Multi-source data integration (CAN bus, TORCS, Assetto Corsa):</strong> Reflects the project's
-          dual focus on professional (Formula Student) and consumer (sim racing) audiences. Separate integration
-          pipelines accept the complexity trade-off for breadth of telemetry sources.
+          <strong>Assetto Corsa shared memory for telemetry:</strong> Provides the richest available telemetry data
+          at ~60Hz with zero network overhead — speed, RPM, tire temps/pressures, suspension travel, camber, fuel,
+          and damage zones. The lowest-latency option for sim racing integration.
         </li>
         <li>
-          <strong>InfluxDB for telemetry storage:</strong> High-frequency sensor data demands time-series optimisation.
-          InfluxDB's columnar compression and tag-based indexing enable efficient storage and sub-500ms queries
-          critical for both real-time dashboards and post-race analysis.
+          <strong>SQLite for session storage:</strong> Embedded database requires no server process or configuration,
+          making it ideal for single-executable distribution. Batch inserts handle 60 samples/sec without blocking the UI,
+          and the portable single-file format enables .jsession export/import for sharing sessions between users.
         </li>
         <li>
-          <strong>Python backend (FastAPI) + Unreal Engine 5 VR:</strong> Decouples data/AI services (Python ecosystem)
-          from immersive rendering (UE5 expertise and performance). Fast iteration on backend logic while leveraging
-          industry-standard VR tooling.
+          <strong>Fully offline AI pipeline:</strong> Local LLM inference via llama-cpp-python, local speech-to-text
+          via Faster-Whisper, and local TTS via Kokoro. No cloud dependencies or API keys required during sessions,
+          ensuring consistent performance regardless of internet connectivity.
+        </li>
+        <li>
+          <strong>Python + PyQt5 desktop application:</strong> Tight integration between the AI/ML ecosystem and native
+          desktop UI. QThread-based architecture isolates telemetry reading, AI inference, voice input, and TTS output
+          into independent threads. PyInstaller bundles everything into a single executable requiring no Python installation.
         </li>
         <li>
           <strong>MoTeC-inspired 2D dashboard:</strong> Professional motorsport systems prioritise clarity over
-          comprehensive data density. Our dashboard borrows proven UX patterns from MoTeC while reducing cognitive
+          comprehensive data density. The dashboard borrows proven UX patterns from MoTeC while reducing cognitive
           load through AI-guided insights, making professional-grade telemetry accessible to non-experts.
         </li>
       </ul>
+
 
       <h2>References</h2>
       <ol className="ref-list">
