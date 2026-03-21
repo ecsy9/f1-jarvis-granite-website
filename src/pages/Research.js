@@ -34,12 +34,12 @@ function Research() {
         <tr>
           <td><strong>FastF1</strong> [1]</td>
           <td>Python telemetry library</td>
-          <td>Rich historical F1 data via the Ergast & F1 Live APIs</td>
+          <td>Rich historical F1 data via the Ergast &amp; F1 Live APIs</td>
           <td>Post-race analysis only; no real-time ingestion, live strategy output, or voice interface</td>
           <td>Demonstrated scalable telemetry data structures and replay architectures; we extend this foundation with live ingestion and AI-driven strategy</td>
         </tr>
         <tr>
-          <td><strong>Crew Chief</strong></td>
+          <td><strong>Crew Chief</strong> [3]</td>
           <td>Rule-Based race engineer (sim)</td>
           <td>Voice-based spotter & engineer for iRacing / ACC</td>
           <td>Rule-based scripted responses; no generative AI or multi-simulator sensor fusion</td>
@@ -66,8 +66,8 @@ function Research() {
         just one that knows some F1 facts, but one that has internalised the pacing and
         priorities of pit-wall communication. Fine-tuning on domain-specific telemetry data
         achieves this by adjusting the model weights directly, rather than trying to steer
-        a generic model through prompts at each call. The platform uses two fine-tuned Granite 4.0 Micro
-        instances via QLoRA: one for real-time radio-style commentary, and one for
+        a generic model through prompts at each call. The platform uses two fine-tuned Granite 4.0 Micro [4]
+        instances via QLoRA [5]: one for real-time radio-style commentary, and one for
         structured post-race debriefs. For a full technical breakdown, see
         the <Link to="/algorithms">Algorithms</Link> page.
       </p>
@@ -173,9 +173,9 @@ function Research() {
         </thead>
         <tbody>
           <tr>
-            <td><strong>SQLite</strong></td>
+            <td><strong>SQLite</strong> [10]</td>
             <td>Persistent storage of telemetry sessions, laps, AI commentary</td>
-            <td>InfluxDB (time-series optimised but heavy dependency); PostgreSQL (requires server); JSON files (no query capability)</td>
+            <td>InfluxDB [11] (time-series optimised but heavy dependency); PostgreSQL (requires server); JSON files (no query capability)</td>
             <td>
               Zero-config embedded database; no server process required; portable single-file storage;
               works well with PyInstaller distribution; sufficient performance with batch inserts at 60 samples/sec
@@ -196,7 +196,7 @@ function Research() {
         </thead>
         <tbody>
           <tr>
-            <td><strong>llama-cpp-python (GGUF)</strong></td>
+            <td><strong>llama-cpp-python (GGUF)</strong> [6]</td>
             <td>Local LLM inference for race engineer and post-race analyst</td>
             <td>Hugging Face Transformers (higher VRAM); cloud APIs like OpenAI (requires internet, adds latency); ONNX Runtime (less model support)</td>
             <td>
@@ -205,7 +205,7 @@ function Research() {
             </td>
           </tr>
           <tr>
-            <td><strong>Faster-Whisper</strong></td>
+            <td><strong>Faster-Whisper</strong> [7]</td>
             <td>Speech-to-text for driver voice queries</td>
             <td>OpenAI Whisper API (requires internet); Google Speech-to-Text (cloud dependency); Vosk (lower accuracy)</td>
             <td>
@@ -214,7 +214,7 @@ function Research() {
             </td>
           </tr>
           <tr>
-            <td><strong>Kokoro TTS</strong></td>
+            <td><strong>Kokoro TTS</strong> [8]</td>
             <td>Text-to-speech for AI race engineer audio output</td>
             <td>Piper TTS (lighter but lower quality); cloud TTS services (latency, internet required); eSpeak (robotic quality)</td>
             <td>
@@ -222,7 +222,7 @@ function Research() {
             </td>
           </tr>
           <tr>
-            <td><strong>WebRTC VAD</strong></td>
+            <td><strong>WebRTC VAD</strong> [9]</td>
             <td>Voice activity detection for push-to-talk and hands-free modes</td>
             <td>Energy-based VAD (simple but noisy); Silero VAD (heavier model); always-on recording (wastes resources)</td>
             <td>
@@ -273,7 +273,7 @@ function Research() {
           </tr>
           <tr>
             <td>VR Platform</td>
-            <td><strong>Unreal Engine 5 (C++)</strong></td>
+            <td><strong>Unreal Engine 5 (C++)</strong> [12]</td>
             <td>Unity (C#, smaller community for VR); Godot (less VR tooling); WebXR (limited performance)</td>
             <td>
               Industry-standard VR tooling; native SteamVR / Meta Quest support;
@@ -344,9 +344,9 @@ function Research() {
       <h2>References</h2>
       <ol className="ref-list">
         <li>
-          [1] GitHub — <em>formula1-telemetry-tool</em> (2022):{' '}
-          <a href="https://github.com/hynesconnor/formula1-telemetry-tool" target="_blank" rel="noopener noreferrer">
-            https://github.com/hynesconnor/formula1-telemetry-tool
+          [1] Schaefer, P. — <em>Fast-F1: A Python package for accessing and analysing Formula 1 results, schedules, timing data and telemetry</em> (GitHub, 2024):{' '}
+          <a href="https://github.com/theOehrly/Fast-F1" target="_blank" rel="noopener noreferrer">
+            https://github.com/theOehrly/Fast-F1
           </a>
         </li>
         <li>
@@ -356,31 +356,61 @@ function Research() {
           </a>
         </li>
         <li>
-          [3] EMQX — <em>CAN Bus: How It Works, Pros and Cons</em> (2025):{' '}
-          <a href="https://www.emqx.com/en/blog/can-bus-how-it-works-pros-and-cons" target="_blank" rel="noopener noreferrer">
-            https://www.emqx.com/en/blog/can-bus-how-it-works-pros-and-cons
+          [3] JB418 — <em>CrewChiefV4: A race engineer app for multiple racing simulations</em> (GitHub, 2024):{' '}
+          <a href="https://github.com/mrbelowski/CrewChiefV4" target="_blank" rel="noopener noreferrer">
+            https://github.com/mrbelowski/CrewChiefV4
           </a>
         </li>
         <li>
-          [4] AutoPi — <em>How to Read CAN Bus Data</em> (2025):{' '}
-          <a href="https://www.autopi.io/blog/how-to-read-can-bus-data/" target="_blank" rel="noopener noreferrer">
-            https://www.autopi.io/blog/how-to-read-can-bus-data/
+          [4] IBM Research — <em>Granite 4.0: IBM's Compact Foundation Model Family</em> (2025):{' '}
+          <a href="https://huggingface.co/collections/ibm-granite/granite-40-language-models-6822f6f92c8e5e62d3b59f25" target="_blank" rel="noopener noreferrer">
+            https://huggingface.co/collections/ibm-granite/granite-40-language-models
           </a>
         </li>
         <li>
-          [5] Missouri State Computer Science — <em>TORCS Simulated Car Racing Championship Competition Software Manual</em>:{' '}
-          <a href="https://computerscience.missouristate.edu/SAIL/_Files/Simulated-Car-Racing-Championship-Competition-Software-Manual.pdf" target="_blank" rel="noopener noreferrer">
-            https://computerscience.missouristate.edu/SAIL/_Files/Simulated-Car-Racing-Championship-Competition-Software-Manual.pdf
+          [5] Dettmers, T. et al. — <em>QLoRA: Efficient Finetuning of Quantized LLMs</em> (NeurIPS 2023):{' '}
+          <a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2305.14314
           </a>
         </li>
         <li>
-          [6] InfluxDB Documentation — <em>InfluxDB v2.6 Documentation</em>:{' '}
+          [6] Abella, A. — <em>llama-cpp-python: Python bindings for llama.cpp</em> (GitHub, 2024):{' '}
+          <a href="https://github.com/abetlen/llama-cpp-python" target="_blank" rel="noopener noreferrer">
+            https://github.com/abetlen/llama-cpp-python
+          </a>
+        </li>
+        <li>
+          [7] SYSTRAN — <em>faster-whisper: Faster Whisper transcription with CTranslate2</em> (GitHub, 2024):{' '}
+          <a href="https://github.com/SYSTRAN/faster-whisper" target="_blank" rel="noopener noreferrer">
+            https://github.com/SYSTRAN/faster-whisper
+          </a>
+        </li>
+        <li>
+          [8] hexgrad — <em>Kokoro: A lightweight TTS model</em> (GitHub, 2025):{' '}
+          <a href="https://github.com/hexgrad/kokoro" target="_blank" rel="noopener noreferrer">
+            https://github.com/hexgrad/kokoro
+          </a>
+        </li>
+        <li>
+          [9] Wiseman, J. — <em>py-webrtcvad: Python interface to the WebRTC Voice Activity Detector</em> (GitHub, 2022):{' '}
+          <a href="https://github.com/wiseman/py-webrtcvad" target="_blank" rel="noopener noreferrer">
+            https://github.com/wiseman/py-webrtcvad
+          </a>
+        </li>
+        <li>
+          [10] SQLite Consortium — <em>SQLite: A C-language library that implements a small, fast, self-contained SQL database engine</em>:{' '}
+          <a href="https://www.sqlite.org" target="_blank" rel="noopener noreferrer">
+            https://www.sqlite.org
+          </a>
+        </li>
+        <li>
+          [11] InfluxData — <em>InfluxDB v2.6 Documentation</em>:{' '}
           <a href="https://docs.influxdata.com/influxdb/v2.6/" target="_blank" rel="noopener noreferrer">
             https://docs.influxdata.com/influxdb/v2.6/
           </a>
         </li>
         <li>
-          [7] Epic Games — <em>Unreal Engine 5 VR Development Documentation</em>:{' '}
+          [12] Epic Games — <em>Unreal Engine 5 VR Development Documentation</em>:{' '}
           <a href="https://docs.unrealengine.com/5.3/en-US/unreal-engine-vr-development/" target="_blank" rel="noopener noreferrer">
             https://docs.unrealengine.com/5.3/en-US/unreal-engine-vr-development/
           </a>
