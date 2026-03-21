@@ -25,25 +25,25 @@ const MEMBERS = {
 
 const TASKS = [
   {
-    id: 1, name: 'Planning & Design', start: 1, end: 3, cat: 'all',
+    id: 1, name: 'Planning & Design', start: 1, end: 3, cat: 'other',
     deliverable: 'All',
     desc: 'Requirements gathering, system architecture design, UI/UX wireframes, and project scope definition across all three deliverables.',
     members: ['ece','eima','elinor','athena','oltun'],
   },
   {
-    id: 2, name: 'Sim Data Integration', start: 4, end: 6, cat: 'jarvis-live',
-    deliverable: 'Jarvis Live',
+    id: 2, name: 'Sim Data Integration', start: 4, end: 6, cat: 'integration',
+    deliverable: 'Both Dashboards',
     desc: 'Windows shared memory interface reading 50+ telemetry channels at ~60 Hz — speed, RPM, throttle, brake, tire temps/pressures, suspension travel, camber, fuel, damage, and more',
     members: ['ece', 'elinor'],
   },
   {
-    id: 3, name: '2D Live Telemetry Dashboard', start: 4, end: 11, cat: 'jarvis-live',
+    id: 3, name: '2D Live Telemetry Dashboard', start: 4, end: 11, cat: 'dev',
     deliverable: 'Jarvis Live',
     desc: 'PyQt5 + Matplotlib real-time dashboard displaying live telemetry, track map, lap delta, tire state, sector times, and AI race engineer commentary feed.',
     members: ['ece'],
   },
   {
-    id: 4, name: '2D Post Telemetry Dashboard', start: 7, end: 14, cat: 'jarvis-post',
+    id: 4, name: '2D Post Telemetry Dashboard', start: 7, end: 14, cat: 'dev',
     deliverable: 'Jarvis Post',
     desc: 'PyQt5 + Matplotlib post-race dashboard displaying post-race telemetry graphs. Users can choose which graphs to show from a selection of 14 graphs, scroll through the timestamped race data',
     members: ['ece'],
@@ -55,8 +55,8 @@ const TASKS = [
     members: ['eima'],
   },
   {
-    id: 6, name: 'Integrating AI Pipeline to Dashboards', start: 7, end: 15, cat: 'both',
-    deliverable: 'Jarvis Live & Jarvis Post',
+    id: 6, name: 'Integrating AI Pipeline to Dashboards', start: 7, end: 15, cat: 'integration',
+    deliverable: 'Both Dashboards',
     desc: '',
     members: ['ece', 'eima'],
   },
@@ -85,37 +85,37 @@ const TASKS = [
     members: ['oltun','eima'],
   },
   {
-    id: 11, name: 'Integrating finetuned models into pipeline', start: 15, end: 18, cat: 'both',
-    deliverable: 'All',
+    id: 11, name: 'Integrating finetuned models into pipeline', start: 15, end: 18, cat: 'integration',
+    deliverable: 'Both Dashboards',
     desc: '',
     members: ['eima'],
   },
   {
-    id: 12, name: 'Testing', start: 14, end: 17, cat: 'all',
+    id: 12, name: 'Testing', start: 14, end: 17, cat: 'other',
     deliverable: 'All',
     desc: 'Unit testing of telemetry ingestion, AI inference latency benchmarking, VR frame-rate profiling, and full end-to-end session validation.',
     members: ['ece','eima','elinor','athena','oltun'],
   },
   {
-    id: 13, name: 'Interviews with Sim Racers & UCLR Engineers', start: 16, end: 18, cat: 'all',
-    deliverable: 'All',
+    id: 13, name: 'Interviews with Sim Racers & UCLR Engineers', start: 16, end: 18, cat: 'other',
+    deliverable: 'Both Dashboards',
     desc: '',
     members: ['ece','eima'],
   },
   {
-    id: 14, name: 'Dashboard & AI Improvements After Feedback', start: 16, end: 19, cat: 'both',
-    deliverable: 'All',
+    id: 14, name: 'Dashboard & AI Improvements After Feedback', start: 16, end: 19, cat: 'integration',
+    deliverable: 'Both Dashboards',
     desc: '',
     members: ['ece','eima'],
   },
   {
-    id: 15, name: 'Packaging', start: 19, end: 20, cat: 'jarvis-live',
-    deliverable: 'All',
-    desc: '',
+    id: 15, name: 'Packaging & Distribution', start: 18, end: 20, cat: 'other',
+    deliverable: 'Both Dashboards',
+    desc: 'Connected all subsystems and the dataflow between them. Created a main page and settings page, making sure that the user would have a smooth experience navigating the app with all functionalities',
     members: ['ece'],
   },
   {
-    id: 17, name: 'Website', start: 18, end: 21, cat: 'all',
+    id: 17, name: 'Website', start: 18, end: 21, cat: 'other',
     deliverable: 'All',
     desc: '',
     members: ['ece','athena','elinor'],
@@ -129,12 +129,64 @@ const TASKS = [
 ];
 
 
+const DELIVERABLES = ['Jarvis Live', 'Jarvis Post', 'Jarvis VR', 'Both Dashboards', 'All'];
+const TAGS = [
+  ['dev',         'Development'],
+  ['ai',          'AI'],
+  ['integration', 'Integration'],
+  ['vr',          'VR'],
+  ['other',       'Other'],
+];
+
 function GanttInner() {
-  const [hoveredId, setHoveredId] = useState(null);
+  const [hoveredId, setHoveredId]   = useState(null);
+  const [filterType, setFilterType] = useState('default');
+  const [filterVal,  setFilterVal]  = useState(null);
+  const [menuOpen,   setMenuOpen]   = useState(null);
   const leaveTimer = useRef(null);
+  const menuTimer  = useRef(null);
 
   const elapsed   = (Date.now() - PROJECT_START.getTime()) / (7 * 24 * 60 * 60 * 1000);
   const todayWeek = Math.min(Math.max(elapsed, 0), TOTAL_WEEKS);
+
+  const setFilter = useCallback((type, val) => {
+    if (filterType === type && filterVal === val) {
+      setFilterType('default');
+      setFilterVal(null);
+    } else {
+      setFilterType(type);
+      setFilterVal(val);
+    }
+    setMenuOpen(null);
+  }, [filterType, filterVal]);
+
+  const openMenu = useCallback((name) => {
+    clearTimeout(menuTimer.current);
+    setMenuOpen(name);
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    menuTimer.current = setTimeout(() => setMenuOpen(null), 200);
+  }, []);
+
+  const cancelClose = useCallback(() => {
+    clearTimeout(menuTimer.current);
+  }, []);
+
+  const visibleTasks = TASKS.filter(task => {
+    if (filterType === 'default') return true;
+    if (filterType === 'person') return task.members.includes(filterVal);
+    if (filterType === 'deliverable') {
+      if (filterVal === 'All') return true;
+      if (task.deliverable === 'All') return true;
+      if (task.deliverable === filterVal) return true;
+      if (filterVal === 'Both Dashboards') return task.deliverable === 'Jarvis Live' || task.deliverable === 'Jarvis Post';
+      if (task.deliverable === 'Both Dashboards') return filterVal === 'Jarvis Live' || filterVal === 'Jarvis Post';
+      return false;
+    }
+    if (filterType === 'tag') return task.cat === filterVal;
+    return true;
+  });
 
   const handleRowEnter = useCallback((id) => {
     clearTimeout(leaveTimer.current);
@@ -155,6 +207,73 @@ function GanttInner() {
 
   return (
     <>
+      {/* ── Filters ── */}
+      <div className="gc__filters">
+        <span className="gc__filter-label">Filter:</span>
+
+        <button
+          className={`gc__filter-tab${filterType === 'default' ? ' gc__filter-tab--active' : ''}`}
+          onClick={() => { setFilterType('default'); setFilterVal(null); }}
+        >All</button>
+
+        <span className="gc__filter-sep" />
+
+        {[
+          { key: 'person',      label: 'By Person',      active: filterType === 'person' },
+          { key: 'deliverable', label: 'By Deliverable', active: filterType === 'deliverable' },
+          { key: 'tag',         label: 'By Tag',         active: filterType === 'tag' },
+        ].map(({ key, label, active }) => (
+          <div
+            key={key}
+            className="gc__filter-menu"
+            onMouseEnter={() => openMenu(key)}
+            onMouseLeave={closeMenu}
+          >
+            <button className={`gc__filter-tab${active ? ' gc__filter-tab--active' : ''}`}>
+              {label}
+              {active && filterVal && (
+                <span className="gc__filter-tab-val">
+                  {key === 'person' ? MEMBERS[filterVal].name.split(' ')[0] : filterVal}
+                </span>
+              )}
+              <span className="gc__filter-tab-arrow">▾</span>
+            </button>
+
+            {menuOpen === key && (
+              <div className="gc__filter-dropdown" onMouseEnter={cancelClose} onMouseLeave={closeMenu}>
+                {key === 'person' && Object.entries(MEMBERS).map(([mKey, m]) => (
+                  <button
+                    key={mKey}
+                    className={`gc__filter-pill gc__filter-pill--avatar${filterType === 'person' && filterVal === mKey ? ' gc__filter-pill--active' : ''}`}
+                    onClick={() => setFilter('person', mKey)}
+                  >
+                    <img src={m.photo} alt={m.name} className="gc__filter-avatar" />
+                    <span>{m.name.split(' ')[0]}</span>
+                  </button>
+                ))}
+                {key === 'deliverable' && DELIVERABLES.map(d => (
+                  <button
+                    key={d}
+                    className={`gc__filter-pill${filterType === 'deliverable' && filterVal === d ? ' gc__filter-pill--active' : ''}`}
+                    onClick={() => setFilter('deliverable', d)}
+                  >{d}</button>
+                ))}
+                {key === 'tag' && TAGS.map(([cat, tagLabel]) => (
+                  <button
+                    key={cat}
+                    className={`gc__filter-pill gc__filter-pill--tag${filterType === 'tag' && filterVal === cat ? ' gc__filter-pill--active' : ''}`}
+                    onClick={() => setFilter('tag', cat)}
+                  >
+                    <span className="gc__filter-tag-dot" style={{ background: `var(--cat-${cat})` }} />
+                    {tagLabel}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
       {/* ── Header ── */}
       <div className="gc__head">
         <div className="gc__head-corner">Task</div>
@@ -174,7 +293,7 @@ function GanttInner() {
 
       {/* ── Body ── */}
       <div className="gc__body">
-        {TASKS.map(task => {
+        {visibleTasks.map(task => {
           const barWeeks = task.end - task.start + 1;
           const barLeft  = `${((task.start - 1) / TOTAL_WEEKS) * 100}%`;
           const barWidth = `${(barWeeks / TOTAL_WEEKS) * 100}%`;
@@ -276,15 +395,7 @@ function GanttInner() {
 
       {/* ── Legend ── */}
       <div className="gc__legend">
-        {[
-          ['all',         'All'],
-          ['jarvis-live', 'Jarvis Live'],
-          ['jarvis-post', 'Jarvis Post'],
-          ['both',        'Both Dashboards'],
-          ['ai',          'AI / ML'],
-          ['vr',          'VR'],
-          ['other',       'Other'],
-        ].map(([cat, label]) => (
+        {TAGS.map(([cat, label]) => (
           <div key={cat} className="gc__legend-item">
             <span className={`gc__legend-dot gc__legend-dot--${cat}`} />
             {label}
