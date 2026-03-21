@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-const logo = '/images/jarvis-logo.svg';
 import './Navbar.css';
+
+const logo = '/images/jarvis-logo.svg';
 
 const navItems = [
   { path: '/', label: 'Home' },

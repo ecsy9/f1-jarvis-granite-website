@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-const logo   = '/images/jarvis-logo.svg';
-const carImage = '/images/sf26-overhead.png';
-const logoIBM = '/images/logos/ibm.png';
-const logoAC  = '/images/logos/assetto-corsa.png';
-const logoUE  = '/images/logos/ucl.png';
-const logoFS  = '/images/logos/formula-student.png';
-const logoCM  = '/images/logos/content-manager.webp';
 import './Home.css';
+
+const logo     = '/images/jarvis-logo.svg';
+const carImage = '/images/sf26-overhead.png';
+const logoIBM  = '/images/logos/ibm.png';
+const logoAC   = '/images/logos/assetto-corsa.png';
+const logoUE   = '/images/logos/ucl.png';
+const logoFS   = '/images/logos/formula-student.png';
+const logoCM   = '/images/logos/content-manager.webp';
 
 function Home() {
   const carRef = useRef(null);
