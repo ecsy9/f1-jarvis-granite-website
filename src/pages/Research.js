@@ -4,27 +4,6 @@ import SectionPage from '../components/SectionPage';
 function Research() {
   return (
     <SectionPage title="Research">
-      <h2>Motivation</h2>
-      <h3>Educational Value</h3>
-      <p>
-        Formula Student teams need accessible tools to analyse vehicle performance data and make
-        data-driven design decisions. By providing AI-guided insights, the platform allows access
-        to sophisticated telemetry analysis without requiring deep domain expertise.
-      </p>
-      <h3>Competitive Enhancement</h3>
-      <p>
-        The competitive sim racing community has grown substantially, yet most racers lack the
-        real-time engineering support that professional drivers receive. An AI race engineer
-        providing live feedback and strategy recommendations can significantly improve both
-        performance and the immersive racing experience.
-      </p>
-      <h3>Technology Demonstration</h3>
-      <p>
-        This project showcases practical applications of IBM's Granite foundation models in
-        real-time data analysis, conversational AI, and decision support systems — use cases
-        extending far beyond motorsport to industrial IoT, manufacturing optimisation, and
-        remote monitoring applications.
-      </p>
 
       <h2>Existing Solutions & Limitations</h2>
       <table className="section-table">
