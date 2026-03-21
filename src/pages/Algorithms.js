@@ -264,8 +264,8 @@ Output: "### 1. Overall Performance and Result
         <tbody>
           <tr>
             <td>Base Model</td>
-            <td>ibm-granite/granite-3b-code-instruct-128k</td>
-            <td>ibm-granite/granite-4.0-micro</td>
+            <td>ibm-granite/granite-3b-code-instruct-128k [4]</td>
+            <td>ibm-granite/granite-4.0-micro [3]</td>
           </tr>
           <tr>
             <td>Epochs</td>
@@ -344,12 +344,12 @@ Output: "### 1. Overall Performance and Result
       </p>
       <ul>
         <li>
-          <strong>Telemetry source:</strong> OpenF1 API — a 30-second telemetry window before
+          <strong>Telemetry source:</strong> OpenF1 API [5] — a 30-second telemetry window before
           each radio message is averaged into key metrics (speed, RPM, throttle, brake).
         </li>
         <li>
           <strong>Radio transcription:</strong> Team radio audio clips are transcribed locally
-          using OpenAI Whisper, then paired with the corresponding telemetry snapshot.
+          using OpenAI Whisper [6], then paired with the corresponding telemetry snapshot.
         </li>
         <li>
           <strong>Format:</strong> JSONL with <code>prompt</code>/<code>completion</code> fields.
@@ -364,11 +364,11 @@ Output: "### 1. Overall Performance and Result
       </p>
       <ul>
         <li>
-          <strong>Telemetry source:</strong> FastF1 library — provides lap times, positions,
+          <strong>Telemetry source:</strong> FastF1 library [7] — provides lap times, positions,
           pit stops, stint data, and high-frequency car telemetry for every driver in every session.
         </li>
         <li>
-          <strong>Teacher model:</strong> Google Gemini (<code>gemini-3-flash-preview</code>) receives
+          <strong>Teacher model:</strong> Google Gemini [8] (<code>gemini-3-flash-preview</code>) receives
           both telemetry data and race event context (safety cars, incidents, weather) to generate
           rich 9-section engineering debriefs.
         </li>
@@ -401,7 +401,7 @@ Output: "### 1. Overall Performance and Result
         </li>
         <li>
           <strong>Language filtering:</strong> Non-English messages are detected and removed
-          using the langid library, as the model targets English-language output.
+          using the langid library [10], as the model targets English-language output.
         </li>
         <li>
           <strong>Conversational filtering:</strong> Purely conversational messages lacking
@@ -454,7 +454,7 @@ Output: "### 1. Overall Performance and Result
         </li>
         <li>
           <strong>Convert:</strong> The merged model is converted to GGUF format (f16
-          intermediate) using llama.cpp tooling.
+          intermediate) using llama.cpp tooling [9].
         </li>
         <li>
           <strong>Quantise:</strong> The f16 GGUF is quantised to Q4_K_M — a medium quantisation
@@ -650,9 +650,63 @@ Output: "### 1. Overall Performance and Result
       <h2>References</h2>
       <ol className="ref-list">
         <li>
-          Hugging Face — QLoRA: Efficient Finetuning of Quantized LLMs (2023):{' '}
+          [1] Dettmers, T. et al. — <em>QLoRA: Efficient Finetuning of Quantized LLMs</em> (NeurIPS 2023):{' '}
+          <a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2305.14314
+          </a>
+        </li>
+        <li>
+          [2] Hugging Face — <em>QLoRA: Efficient Finetuning of Quantized LLMs</em> (blog, 2023):{' '}
           <a href="https://huggingface.co/blog/qlora" target="_blank" rel="noopener noreferrer">
-            QLoRA Blog Post
+            https://huggingface.co/blog/qlora
+          </a>
+        </li>
+        <li>
+          [3] IBM Research — <em>Granite 4.0 Micro (ibm-granite/granite-4.0-micro)</em> (Hugging Face, 2025):{' '}
+          <a href="https://huggingface.co/ibm-granite/granite-4.0-micro-instruct" target="_blank" rel="noopener noreferrer">
+            https://huggingface.co/ibm-granite/granite-4.0-micro-instruct
+          </a>
+        </li>
+        <li>
+          [4] IBM Research — <em>Granite 3B Code Instruct 128k (ibm-granite/granite-3b-code-instruct-128k)</em> (Hugging Face, 2024):{' '}
+          <a href="https://huggingface.co/ibm-granite/granite-3b-code-instruct-128k" target="_blank" rel="noopener noreferrer">
+            https://huggingface.co/ibm-granite/granite-3b-code-instruct-128k
+          </a>
+        </li>
+        <li>
+          [5] Jacint, B. — <em>OpenF1: A free and open-source API providing real-time and historical Formula 1 data</em> (2024):{' '}
+          <a href="https://openf1.org" target="_blank" rel="noopener noreferrer">
+            https://openf1.org
+          </a>
+        </li>
+        <li>
+          [6] Radford, A. et al. — <em>Robust Speech Recognition via Large-Scale Weak Supervision</em> (OpenAI / ICML 2023):{' '}
+          <a href="https://arxiv.org/abs/2212.04356" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2212.04356
+          </a>
+        </li>
+        <li>
+          [7] Schaefer, P. — <em>Fast-F1: A Python package for accessing and analysing Formula 1 results, schedules, timing data and telemetry</em> (GitHub, 2024):{' '}
+          <a href="https://github.com/theOehrly/Fast-F1" target="_blank" rel="noopener noreferrer">
+            https://github.com/theOehrly/Fast-F1
+          </a>
+        </li>
+        <li>
+          [8] Google DeepMind — <em>Gemini: A Family of Highly Capable Multimodal Models</em> (2023):{' '}
+          <a href="https://arxiv.org/abs/2312.11805" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2312.11805
+          </a>
+        </li>
+        <li>
+          [9] Gerganov, G. — <em>llama.cpp: LLM inference in C/C++</em> (GitHub, 2024):{' '}
+          <a href="https://github.com/ggerganov/llama.cpp" target="_blank" rel="noopener noreferrer">
+            https://github.com/ggerganov/llama.cpp
+          </a>
+        </li>
+        <li>
+          [10] Lui, M. &amp; Baldwin, T. — <em>langid.py: An Off-the-shelf Language Identification Tool</em> (ACL 2012 / GitHub):{' '}
+          <a href="https://github.com/saffsd/langid.py" target="_blank" rel="noopener noreferrer">
+            https://github.com/saffsd/langid.py
           </a>
         </li>
       </ol>
