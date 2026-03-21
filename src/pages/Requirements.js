@@ -2,11 +2,11 @@ import SectionPage from '../components/SectionPage';
 
 function Requirements() {
   return (
-    <SectionPage title="Project">
+    <SectionPage title="Project Requirements">
       <h2>Partner Introduction and Project Background</h2>
       <p>
         F1 Jarvis Granite is a research project developed in collaboration with IBM
-        and UCL to create an intelligent telemetry analysis and coaching system
+        and UCL School Of Pharmacy to create an intelligent telemetry analysis and coaching system
         for competitive racing simulations and real-world Formula Student applications. The project
         bridges the gap between professional motorsport engineering tools and accessible AI-powered
         performance coaching, enabling both sim racers and engineers to extract
@@ -136,15 +136,27 @@ function Requirements() {
         professional race engineers.
       </p>
 
+      <h3>Actors</h3>
+      <ul>
+        <li><strong>Driver</strong>: Primary User</li>
+        <li><strong>Assetto Corsa</strong>: External simulation environment providing telemetry data</li>
+        <li><strong>Local LLM</strong>: AI System</li>
+        <li><strong>Jarvis Post and Jarvis Live</strong>: 2D platforms that display data and graphs</li>
+        <li><strong>Jarvis VR</strong>: Educational VR environment</li>
+      </ul>
+
       <h3>Key Use Cases</h3>
       <ul>
-        <li><strong>UC1 — Ingest Real-Time Telemetry</strong>: System reads vehicle simulator output (Assetto Corsa) and streams it to the dashboard in real-time</li>
-        <li><strong>UC2 — Display Live Telemetry Dashboard</strong>: User views multi-channel graphs, vehicle position, and performance metrics on a 2D interface with ≥1 Hz refresh rate</li>
-        <li><strong>UC3 — Query AI Race Engineer</strong>: User asks the AI for strategy advice or performance analysis via natural language; receives vocal and visual recommendations</li>
-        <li><strong>UC4 — Generate Pit Strategy</strong>: System analyzes race conditions and recommends optimal pit timing; user confirms with one-click "PIT" button</li>
-        <li><strong>UC5 — Post-Race Replay</strong>: User scrubs through recorded telemetry, overlays multiple laps for comparison, and reviews AI-generated performance insights</li>
-        <li><strong>UC6 — Explore in VR</strong>: User loads 3D car model in VR headset and interactively visualizes telemetry hotspots on the vehicle in real-time</li>
-        <li><strong>UC7 — Customize Dashboard Layout</strong>: Expert user saves custom dashboard presets with preferred graph arrangements and metric displays</li>
+        <li><strong>UC1 — View Live Telemetry</strong>: Driver launches Jarvis Live, connects to AC, and sees real-time speed, RPM, gear, brake, tire data, track map</li>
+        <li><strong>UC2 — Complete a Lap</strong>: System detects lap completion, records lap time, updates lap table</li>
+        <li><strong>UC3 — Receive Race Engineer Warnings</strong>: AI proactively alerts driver about tire temps, fuel, wheel slip, gap changes during a session</li>
+        <li><strong>UC4 — Ask AI a Question via Voice</strong>:  Driver speaks a question (e.g., "how are my tires?"), AI responds with audio</li>
+        <li><strong>UC5 — Compare Lap Times</strong>: Driver views delta-to-best-lap in real-time while driving, seeing where they are losing and gaining time compared to their best lap</li>
+        <li><strong>UC6 — Review Post-Race Analysis</strong>:  Driver opens Jarvis Post, selects a recorded session, reviews lap-by-lap telemetry and AI analysis and coaching</li>
+        <li><strong>UC7 — Post-Race Coach Chatbot</strong>:  Driver can ask post-race coach AI questions about their session and ask for specific areas of improvement through a chatbot</li>
+        <li><strong>UC8 — Customize Dashboard Layout</strong>: Expert user saves custom dashboard presets with preferred graph arrangements and metric displays</li>
+        <li><strong>UC9 — Export/Import Session Data</strong>: Driver exports/imports recorded session telemetry</li>
+        <li><strong>UC10 — Browse Session History</strong>:  Driver views list of past sessions with track, car, lap count, best time</li>
       </ul>
 
       <h2>Functional Requirements</h2>
@@ -153,76 +165,100 @@ function Requirements() {
           <tr>
             <th>ID</th>
             <th>Requirement</th>
-            <th>Priority</th>
+            <th>MoSCoW</th>
             <th>Acceptance Criteria</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>FR1</td>
-            <td>Ingest real-time CAN bus data from Formula Student sensors</td>
-            <td><span className="badge badge--high">High</span></td>
-            <td>Parse CAN messages; validate data integrity; ≥99% frame reception</td>
+            <td>Extract live telemetry from Assetto Corsa via shared memory</td>
+            <td><span className="badge badge--must">Must</span></td>
+            <td>All 7 data fields (speed, RPM, gear, throttle, brake, fuel, tire temps) read without error; sampling rate ≥60Hz sustained over a 30-min session with 0 dropped frames</td>
           </tr>
           <tr>
             <td>FR2</td>
-            <td>Extract telemetry from TORCS simulator during live sessions</td>
-            <td><span className="badge badge--high">High</span></td>
-            <td>Extract vehicle telemetry; accuracy &gt;95%; latency &lt;200ms</td>
+            <td>2D dashboard displays real-time telemetry graphs and track map</td>
+            <td><span className="badge badge--must">Must</span></td>
+            <td>≥6 graphs render and update at ≥12Hz; track map re-draws each lap colored by speed; no visible lag at 60Hz input rate</td>
           </tr>
           <tr>
             <td>FR3</td>
-            <td>Extract telemetry from Assetto Corsa via network protocol</td>
-            <td><span className="badge badge--high">High</span></td>
-            <td>Decode AC protocol; extract core metrics; support multi-car scenarios</td>
+            <td>Detect lap completion and record lap times</td>
+            <td><span className="badge badge--must">Must</span></td>
+            <td>Start/finish crossing detected within 1 data frame; lap time displayed to ±1ms accuracy; all completed laps appear in lap table by session end</td>
           </tr>
           <tr>
             <td>FR4</td>
-            <td>Normalise heterogeneous telemetry sources into unified schema</td>
-            <td><span className="badge badge--medium">Medium</span></td>
-            <td>Parse TORCS, AC, CAN formats into common structure</td>
+            <td>Generate proactive strategic alerts based on data</td>
+            <td><span className="badge badge--must">Must</span></td>
+            <td>≥4 alert types triggered correctly (fuel, tire temp, wheel slip, gap change) across a test session; AI response generated and delivered within ≤2s of trigger event</td>
           </tr>
           <tr>
             <td>FR5</td>
-            <td>Store telemetry in time-series database with efficient indexing</td>
-            <td><span className="badge badge--medium">Medium</span></td>
-            <td>Ingest ≥1000 data points/sec; query performance &lt;100ms</td>
+            <td>AI Race Engineer delivers responses via text-to-speech</td>
+            <td><span className="badge badge--must">Must</span></td>
+            <td>TTS audio begins playing within ≤1s of AI response completion; speech is intelligible at default system volume on a standard headset</td>
           </tr>
           <tr>
             <td>FR6</td>
-            <td>2D dashboard displays real-time telemetry with live refresh</td>
-            <td><span className="badge badge--high">High</span></td>
-            <td>All metrics visible; refresh rate ≥1 Hz; &lt;500ms latency</td>
+            <td>Voice input for driver queries to AI</td>
+            <td><span className="badge badge--should">Should</span></td>
+            <td>Voice activity detected within ≤0.5s; Whisper transcription completes locally within ≤3s; spoken AI response returned within ≤5s of query end; push-to-talk and continuous modes both functional</td>
           </tr>
           <tr>
             <td>FR7</td>
-            <td>Post-race replay with scrubbing and multi-lap comparison</td>
-            <td><span className="badge badge--medium">Medium</span></td>
-            <td>Playback sessions; overlay multiple laps for comparison</td>
+            <td>Record all session telemetry to local database</td>
+            <td><span className="badge badge--must">Must</span></td>
+            <td>0 telemetry samples dropped at 60Hz over a 30-min session; all lap stats, AI commentary and voice queries present in SQLite DB on session close; DB readable after app restart</td>
           </tr>
           <tr>
             <td>FR8</td>
-            <td>AI Race Engineer generates strategic recommendations</td>
-            <td><span className="badge badge--high">High</span></td>
-            <td>Recommendations aligned with race situation; contextually relevant</td>
+            <td>Post-race replay with timeline scrubbing and graph selection</td>
+            <td><span className="badge badge--should">Should</span></td>
+            <td>Any recorded session loads within ≤3s; timeline scrubbing updates graphs within ≤200ms per step; user can select any combination of up to 6 from 14 available metrics</td>
           </tr>
           <tr>
             <td>FR9</td>
-            <td>AI Race Engineer provides real-time vocal output</td>
-            <td><span className="badge badge--high">High</span></td>
-            <td>Natural speech; &lt;2 sec latency</td>
+            <td>Delta-to-best-lap comparison in real-time</td>
+            <td><span className="badge badge--should">Should</span></td>
+            <td>Delta graph updates every data frame; correctly shows green when ahead and red when behind best lap; delta value matches manual calculation to ±50ms</td>
           </tr>
           <tr>
             <td>FR10</td>
-            <td>Conversational telemetry query interface</td>
-            <td><span className="badge badge--medium">Medium</span></td>
-            <td>Accept open-ended questions; generate accurate responses; &gt;85% accuracy</td>
+            <td>Export and import session data as .jsession bundles</td>
+            <td><span className="badge badge--could">Could</span></td>
+            <td>Exported .jsession file contains all metadata, laps and telemetry samples; file imports successfully on a different machine and loads correctly in Jarvis Post</td>
           </tr>
           <tr>
             <td>FR11</td>
             <td>VR platform renders interactive 3D car model</td>
-            <td><span className="badge badge--high">High</span></td>
-            <td>Load 3D CAD model; render at &gt;60 FPS</td>
+            <td><span className="badge badge--should">Should</span></td>
+            <td>3D car model loads without error; sustained ≥60 FPS in VR headset; ≥3 telemetry values displayed and updating live in the VR environment</td>
+          </tr>
+          <tr>
+            <td>FR12</td>
+            <td>VR platform provides educational information</td>
+            <td><span className="badge badge--must">Must</span></td>
+            <td>User can interact with ≥3 labelled telemetry or car-component elements; each element displays a readable explanation; navigable without external instruction</td>
+          </tr>
+          <tr>
+            <td>FR13</td>
+            <td>Auto-download AI models on first launch</td>
+            <td><span className="badge badge--could">Could</span></td>
+            <td>Both GGUF models download from Hugging Face Hub on first run; progress dialog shown with % complete; models cached locally and not re-downloaded on subsequent launches</td>
+          </tr>
+          <tr>
+            <td>FR14</td>
+            <td>Main Menu UI for unified navigation</td>
+            <td><span className="badge badge--could">Could</span></td>
+            <td>User can launch Jarvis Live, Jarvis Post and Settings from a single menu without manual file management; sessions recorded in Live are immediately available in Post without user intervention</td>
+          </tr>
+          <tr>
+            <td>FR15</td>
+            <td>Ingest real-time CAN bus data from Formula Student sensors</td>
+            <td><span className="badge badge--wont">Won't</span></td>
+            <td>Out of scope for current version; no implementation planned</td>
           </tr>
         </tbody>
       </table>
@@ -238,47 +274,106 @@ function Requirements() {
           </tr>
         </thead>
         <tbody>
+          {/* ── Performance ── */}
           <tr>
             <td>NFR1</td>
-            <td>End-to-end latency from sensor to visualisation</td>
-            <td>Performance</td>
-            <td>&lt;500ms for CAN/TORCS</td>
+            <td>End-to-end latency from shared memory to dashboard</td>
+            <td><span className="badge badge--cat-performance">Performance</span></td>
+            <td>Telemetry read at ~60Hz; UI graphs update at ~12Hz; &lt;100ms perceived latency</td>
           </tr>
           <tr>
             <td>NFR2</td>
-            <td>Data throughput capacity</td>
-            <td>Performance</td>
-            <td>≥1000 telemetry samples/sec</td>
+            <td>AI Race Engineer response latency</td>
+            <td><span className="badge badge--cat-performance">Performance</span></td>
+            <td>Rule-based event detection &lt;50ms; LLM response generation &lt;3s</td>
           </tr>
           <tr>
             <td>NFR3</td>
-            <td>VR platform frame rate minimum</td>
-            <td>Performance</td>
-            <td>&gt;60 FPS standard; &gt;90 FPS for VR headsets</td>
+            <td>TTS audio output latency</td>
+            <td><span className="badge badge--cat-performance">Performance</span></td>
+            <td>Speech playback begins within 500ms of AI response</td>
           </tr>
           <tr>
             <td>NFR4</td>
-            <td>AI response latency</td>
-            <td>Performance</td>
-            <td>&lt;3 sec for recommendations</td>
+            <td>VR platform frame rate</td>
+            <td><span className="badge badge--cat-performance">Performance</span></td>
+            <td>&gt;60 FPS standard; &gt;90 FPS for VR headsets</td>
           </tr>
           <tr>
             <td>NFR5</td>
-            <td>UI intuitiveness for non-technical users</td>
-            <td>Usability</td>
-            <td>&gt;85% task completion; SUS score &gt;70</td>
+            <td>Database write performance under continuous telemetry</td>
+            <td><span className="badge badge--cat-performance">Performance</span></td>
+            <td>Batch insert 60 samples/sec to SQLite without blocking UI thread</td>
           </tr>
           <tr>
             <td>NFR6</td>
-            <td>System modularity and extensibility</td>
-            <td>Maintainability</td>
-            <td>Component replacement without full redesign</td>
+            <td>AI model quantisation for consumer hardware</td>
+            <td><span className="badge badge--cat-performance">Performance</span></td>
+            <td>LLM models quantised to Q4_K_M GGUF format (~2GB each); runs on consumer CPUs without dedicated GPU</td>
           </tr>
+          {/* ── Reliability ── */}
           <tr>
             <td>NFR7</td>
-            <td>Code quality and documentation</td>
-            <td>Maintainability</td>
-            <td>Minimum 80% test coverage; comprehensive documentation</td>
+            <td>Application runs without internet after first launch</td>
+            <td><span className="badge badge--cat-reliability">Reliability</span></td>
+            <td>AI models cached locally; all inference runs offline; no external API dependencies during sessions</td>
+          </tr>
+          <tr>
+            <td>NFR8</td>
+            <td>Automatic reconnection on game restart</td>
+            <td><span className="badge badge--cat-reliability">Reliability</span></td>
+            <td>Detect stale shared memory; release handles; reconnect when AC restarts without manual intervention</td>
+          </tr>
+          <tr>
+            <td>NFR9</td>
+            <td>AI output sanitisation before TTS</td>
+            <td><span className="badge badge--cat-reliability">Reliability</span></td>
+            <td>LLM responses cleaned of markdown, asterisks, and formatting artefacts before text-to-speech playback</td>
+          </tr>
+          <tr>
+            <td>NFR10</td>
+            <td>LLM inference timeout with graceful fallback</td>
+            <td><span className="badge badge--cat-reliability">Reliability</span></td>
+            <td>12-second timeout on LLM inference; system recovers to ready state without UI hang or crash</td>
+          </tr>
+          {/* ── Usability ── */}
+          <tr>
+            <td>NFR11</td>
+            <td>No Python installation required for end users</td>
+            <td><span className="badge badge--cat-usability">Usability</span></td>
+            <td>PyInstaller bundles all dependencies; single executable distribution</td>
+          </tr>
+          <tr>
+            <td>NFR12</td>
+            <td>UI intuitiveness for non-technical users</td>
+            <td><span className="badge badge--cat-usability">Usability</span></td>
+            <td>Launcher with clear mode selection; no command-line knowledge required; dark themed dashboard</td>
+          </tr>
+          <tr>
+            <td>NFR13</td>
+            <td>Transparent first-launch download progress</td>
+            <td><span className="badge badge--cat-usability">Usability</span></td>
+            <td>Progress dialog displays model name and download status during first-run AI model downloads; user is never left on a frozen screen</td>
+          </tr>
+          {/* ── Maintainability ── */}
+          <tr>
+            <td>NFR14</td>
+            <td>Modular backend architecture</td>
+            <td><span className="badge badge--cat-maintainability">Maintainability</span></td>
+            <td>New sim backends can be added by implementing a QThread subclass with defined signals; no changes to UI required</td>
+          </tr>
+          <tr>
+            <td>NFR15</td>
+            <td>AI pipeline modularity</td>
+            <td><span className="badge badge--cat-maintainability">Maintainability</span></td>
+            <td>Telemetry agent (rule-based) and race engineer agent (LLM) are independently replaceable; prompt templates separated from logic</td>
+          </tr>
+          {/* ── Interoperability ── */}
+          <tr>
+            <td>NFR16</td>
+            <td>Session data portability</td>
+            <td><span className="badge badge--cat-interoperability">Interoperability</span></td>
+            <td>Sessions exportable as .jsession bundles; importable on another machine with no data loss</td>
           </tr>
         </tbody>
       </table>

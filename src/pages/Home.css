@@ -5,7 +5,7 @@
 }
 
 @keyframes glowPulse {
-  0%, 100% { opacity: 0.6; }
+  0%, 100% { opacity: 0.75; }
   50%       { opacity: 1; }
 }
 
@@ -63,7 +63,7 @@
   background: linear-gradient(90deg, transparent 0%, rgba(220,0,0,0.5) 30%, rgba(220,0,0,1) 52%, rgba(220,0,0,0.6) 65%, transparent 100%);
   animation: speedSweep 2.8s ease-in-out infinite;
   animation-delay: 0s;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -73,7 +73,7 @@
   right: 0;
   height: 2px;
   animation: speedSweep 3.2s ease-in-out infinite;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -109,7 +109,9 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse 55% 70% at 25% 50%, rgba(220,0,0,0.22) 0%, transparent 65%);
+  background:
+    radial-gradient(ellipse 60% 80% at 22% 50%, rgba(220,0,0,0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 65% 50%, rgba(180,0,0,0.25) 0%, transparent 55%);
   pointer-events: none;
   z-index: 1;
   animation: glowPulse 4s ease-in-out infinite;
@@ -117,7 +119,7 @@
 
 .home-hero__inner {
   position: relative;
-  z-index: 2;
+  z-index: 20;
   max-width: 580px;
   animation: heroIn 0.5s ease both;
 }
@@ -129,7 +131,7 @@
   top: 0;
   bottom: 0;
   width: 90%;
-  z-index: 0;
+  z-index: 10;
   overflow: visible;
   -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 18%, black 38%, black 70%, rgba(0,0,0,0.3) 88%, transparent 100%);
   mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.5) 18%, black 38%, black 70%, rgba(0,0,0,0.3) 88%, transparent 100%);

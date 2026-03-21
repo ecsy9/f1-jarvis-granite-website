@@ -241,6 +241,19 @@
 .badge--medium { background: rgba(180, 120, 0, 0.2); color: #e6a817; }
 .badge--low { background: rgba(0, 120, 60, 0.2); color: #4ade80; }
 
+/* MoSCoW badges */
+.badge--must   { background: rgba(220, 0, 0, 0.2);    color: #ff4444; }
+.badge--should { background: rgba(220, 100, 0, 0.2);  color: #ff8c00; }
+.badge--could  { background: rgba(180, 160, 0, 0.2);  color: #ccbb00; }
+.badge--wont   { background: rgba(80, 80, 80, 0.2);   color: #666;    }
+
+/* NFR category badges */
+.badge--cat-performance     { background: rgba(220, 0, 0, 0.15);     color: #ff4444; }
+.badge--cat-reliability     { background: rgba(30, 100, 220, 0.15);  color: #5599ff; }
+.badge--cat-usability       { background: rgba(0, 160, 120, 0.15);   color: #33ccaa; }
+.badge--cat-maintainability { background: rgba(140, 60, 200, 0.15);  color: #bb88ff; }
+.badge--cat-interoperability{ background: rgba(180, 130, 0, 0.15);   color: #ddaa33; }
+
 /* Info cards */
 .info-cards {
   display: grid;
