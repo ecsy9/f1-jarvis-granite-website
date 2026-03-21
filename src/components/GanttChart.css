@@ -388,21 +388,95 @@
 .gc__filters {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 10px 14px;
+  gap: 4px;
+  padding: 8px 14px;
   background: #161616;
   border-bottom: 1px solid #2a2a2a;
 }
 
-.gc__filter-sep {
-  width: 1px;
-  height: 18px;
-  background: #2e2e2e;
+.gc__filter-label {
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #444;
+  margin-right: 4px;
   flex-shrink: 0;
-  margin: 0 2px;
 }
 
+.gc__filter-sep {
+  width: 1px;
+  height: 14px;
+  background: #2e2e2e;
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+/* Top-level tab buttons */
+.gc__filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  color: #666;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.gc__filter-tab:hover {
+  color: #ccc;
+  background: #1e1e1e;
+}
+.gc__filter-tab--active {
+  color: #fff;
+  background: #222;
+}
+
+.gc__filter-tab-val {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #DC0000;
+  background: rgba(220,0,0,0.12);
+  border-radius: 2px;
+  padding: 1px 5px;
+}
+
+.gc__filter-tab-arrow {
+  font-size: 0.6rem;
+  color: #444;
+  margin-left: 1px;
+}
+
+/* Dropdown menu */
+.gc__filter-menu {
+  position: relative;
+}
+
+.gc__filter-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #1a1a1a;
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  z-index: 100;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+/* Pills inside dropdown */
 .gc__filter-pill {
   display: flex;
   align-items: center;
