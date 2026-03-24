@@ -112,12 +112,12 @@ function Algorithms() {
           </tr>
           <tr>
             <td>LoRA Rank (r)</td>
-            <td>16</td>
+            <td>8</td>
             <td>Dimensionality of the low-rank decomposition — controls adapter capacity</td>
           </tr>
           <tr>
             <td>LoRA Alpha</td>
-            <td>32</td>
+            <td>16</td>
             <td>Scaling factor applied to adapter outputs (alpha/r = 2x scaling)</td>
           </tr>
           <tr>
@@ -306,7 +306,7 @@ Output: "### 1. Overall Performance and Result
           </tr>
           <tr>
             <td>Gradient Accumulation Steps</td>
-            <td>4</td>
+            <td>8</td>
             <td>4</td>
           </tr>
           <tr>
