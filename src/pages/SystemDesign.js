@@ -1,8 +1,27 @@
+import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
+import './Algorithms.css';
+
+const TABS = ['Data Pipeline', 'AI Pipeline'];
 
 function SystemDesign() {
+  const [activeTab, setActiveTab] = useState('Data Pipeline');
+
   return (
     <SectionPage title="System Design">
+      <div className="algo-tabs">
+        {TABS.map(tab => (
+          <button
+            key={tab}
+            className={`algo-tab${activeTab === tab ? ' algo-tab--active' : ''}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'Data Pipeline' && (<>
       <p>
         The F1 Jarvis Granite platform uses a modular layered architecture enabling parallel
         development across four tracks and future extensibility beyond the project deadline.
@@ -77,13 +96,6 @@ function SystemDesign() {
         <li>Caching layer for frequent queries</li>
         <li>WebSocket support for real-time streaming</li>
       </ul>
-      <h3>AI & Machine Learning</h3>
-      <ul>
-        <li>IBM Granite LLM for race strategy and conversational AI</li>
-        <li>Jarvis multi-agent orchestration</li>
-        <li>LLM fine-tuning via LoRA/QLoRA (parameter-efficient methods)</li>
-        <li>Text-to-speech synthesis for vocal output</li>
-      </ul>
       <h3>2D Visualisation Platform</h3>
       <ul>
         <li>Python-based GUI framework</li>
@@ -95,6 +107,16 @@ function SystemDesign() {
         <li>Unreal Engine 5 for immersive 3D environment</li>
         <li>VR headset support (Meta Quest or SteamVR)</li>
         <li>3D CAD model integration from UCL Racing</li>
+      </ul>
+      </>)}
+
+      {activeTab === 'AI Pipeline' && (<>
+      <h2>AI & Machine Learning Stack</h2>
+      <ul>
+        <li>IBM Granite LLM for race strategy and conversational AI</li>
+        <li>Jarvis multi-agent orchestration</li>
+        <li>LLM fine-tuning via LoRA/QLoRA (parameter-efficient methods)</li>
+        <li>Text-to-speech synthesis for vocal output</li>
       </ul>
 
       <h2>AI Integration with Jarvis</h2>
@@ -124,6 +146,7 @@ function SystemDesign() {
         This multi-agent approach allows specialised handling of different tasks while maintaining
         coherent, contextual responses to the driver throughout a session.
       </p>
+      </>)}
     </SectionPage>
   );
 }

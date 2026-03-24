@@ -1,8 +1,35 @@
+import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
+import './Algorithms.css';
+
+const TABS = ['Fine Tuning', 'Telemetry Data', 'AI Pipeline'];
 
 function Algorithms() {
+  const [activeTab, setActiveTab] = useState('Fine Tuning');
+
   return (
     <SectionPage title="Algorithms">
+      <div className="algo-tabs">
+        {TABS.map(tab => (
+          <button
+            key={tab}
+            className={`algo-tab${activeTab === tab ? ' algo-tab--active' : ''}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'Telemetry Data' && (
+        <p style={{ color: '#555', fontStyle: 'italic' }}>Telemetry Data content coming soon.</p>
+      )}
+
+      {activeTab === 'AI Pipeline' && (
+        <p style={{ color: '#555', fontStyle: 'italic' }}>AI Pipeline content coming soon.</p>
+      )}
+
+      {activeTab === 'Fine Tuning' && (<>
       <p>
         A detailed account of the machine learning approach underpinning Jarvis:
         why fine-tuning was chosen over alternative LLM strategies, how QLoRA makes it
@@ -52,15 +79,15 @@ function Algorithms() {
         <li>
           <strong>LoRA adapters</strong> — instead of updating every weight in the network,
           small low-rank matrices are inserted at each attention layer. Only these adapter
-          parameters — less than 1% of the total parameter count — are trained, leaving the
+          parameters — ~0.5% of the total parameter count — are trained, leaving the
           frozen quantised base untouched.
         </li>
       </ul>
       <p>
         Together these techniques make fine-tuning specialist LLMs feasible on a single
-        consumer-grade GPU. The resulting adapter is compact, loads on top of the frozen base
-        at inference time, and delivers near full fine-tune quality at a fraction of the
-        compute cost.
+        consumer-grade GPU, fitting the full training process in ~8–12 GB of VRAM. The resulting
+        adapter is compact, loads on top of the frozen base at inference time, and delivers near
+        full fine-tune quality at a fraction of the compute cost.
       </p>
 
       <h3>QLoRA Configuration</h3>
@@ -100,8 +127,8 @@ function Algorithms() {
           </tr>
           <tr>
             <td>Target Modules</td>
-            <td>q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj</td>
-            <td>All attention projections plus MLP gate/up/down projections</td>
+            <td>q_proj, k_proj, v_proj, o_proj</td>
+            <td>All attention projection layers</td>
           </tr>
         </tbody>
       </table>
@@ -264,7 +291,7 @@ Output: "### 1. Overall Performance and Result
         <tbody>
           <tr>
             <td>Base Model</td>
-            <td>ibm-granite/granite-3b-code-instruct-128k [4]</td>
+            <td>ibm-granite/granite-4.0-micro [3]</td>
             <td>ibm-granite/granite-4.0-micro [3]</td>
           </tr>
           <tr>
@@ -327,6 +354,11 @@ Output: "### 1. Overall Performance and Result
             <td>Lowest eval_loss</td>
             <td>Lowest eval_loss</td>
           </tr>
+          <tr>
+            <td>Eval Frequency</td>
+            <td>Every 50 steps</td>
+            <td>Every 50 steps</td>
+          </tr>
         </tbody>
       </table>
       <p>
@@ -359,8 +391,8 @@ Output: "### 1. Overall Performance and Result
 
       <h4>Post-Race Analyst Dataset</h4>
       <p>
-        The post-race model was trained on <strong>1,360 examples</strong> across the 2023, 2024,
-        and 2025 seasons, generated using a knowledge distillation approach.
+        The post-race model was trained on <strong>~1,320 examples</strong> across the 2023, 2024,
+        and 2025 seasons (~440 per year: 20 drivers × ~22 races), generated using a knowledge distillation approach.
       </p>
       <ul>
         <li>
@@ -396,17 +428,17 @@ Output: "### 1. Overall Performance and Result
       </p>
       <ul>
         <li>
-          <strong>Gibberish detection:</strong> Messages with low ASCII character ratio or low
-          letter-to-character ratio are removed (Whisper transcription artefacts).
+          <strong>Gibberish detection:</strong> Messages with &lt;60% ASCII ratio, &lt;50% letter ratio,
+          or &gt;30% special characters are removed (Whisper transcription artefacts).
         </li>
         <li>
           <strong>Language filtering:</strong> Non-English messages are detected and removed
-          using the langid library [10], as the model targets English-language output.
+          using the langid library [10] with a high-confidence threshold, as the model targets English-language output.
         </li>
         <li>
-          <strong>Conversational filtering:</strong> Purely conversational messages lacking
-          technical F1 keywords (e.g., "thank you", "well done") are removed to keep the
-          dataset focused on engineering-relevant communication.
+          <strong>Conversational filtering:</strong> Purely acknowledgement messages (e.g., "copy", "okay", "well done")
+          containing no technical content are removed — checked against ~120 technical keywords
+          (tire, fuel, gap, brake, etc.).
         </li>
         <li>
           <strong>Filtering impact:</strong> Of 826 raw examples (2023 + 2024), 106 were removed
@@ -710,6 +742,7 @@ Output: "### 1. Overall Performance and Result
           </a>
         </li>
       </ol>
+      </>)}
     </SectionPage>
   );
 }

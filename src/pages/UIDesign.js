@@ -1,8 +1,31 @@
+import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
+import './Algorithms.css';
+
+const TABS = ['2D Dashboards', 'VR'];
 
 function UIDesign() {
+  const [activeTab, setActiveTab] = useState('2D Dashboards');
+
   return (
     <SectionPage title="UI Design">
+      <div className="algo-tabs">
+        {TABS.map(tab => (
+          <button
+            key={tab}
+            className={`algo-tab${activeTab === tab ? ' algo-tab--active' : ''}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'VR' && (
+        <p style={{ color: '#555', fontStyle: 'italic' }}>VR content coming soon.</p>
+      )}
+
+      {activeTab === '2D Dashboards' && (<>
 
       <h2>Sketches</h2>
       <p>
@@ -15,21 +38,21 @@ function UIDesign() {
       <div className="sketch-grid">
         <figure className="sketch-grid__item">
           <img
-            src={`${process.env.PUBLIC_URL}/images/option1_1.jpg`}
+            src={`${process.env.PUBLIC_URL}/images/UI_images/option1_1.jpg`}
             alt="Option 1 sketch — screen 1"
           />
           <figcaption>Screen 1</figcaption>
         </figure>
         <figure className="sketch-grid__item">
           <img
-            src={`${process.env.PUBLIC_URL}/images/option1_2.jpg`}
+            src={`${process.env.PUBLIC_URL}/images/UI_images/option1_2.jpg`}
             alt="Option 1 sketch — screen 2"
           />
           <figcaption>Screen 2</figcaption>
         </figure>
         <figure className="sketch-grid__item">
           <img
-            src={`${process.env.PUBLIC_URL}/images/option1_3.jpg`}
+            src={`${process.env.PUBLIC_URL}/images/UI_images/option1_3.jpg`}
             alt="Option 1 sketch — screen 3"
           />
           <figcaption>Screen 3</figcaption>
@@ -41,21 +64,21 @@ function UIDesign() {
       <div className="sketch-grid">
         <figure className="sketch-grid__item">
           <img
-            src={`${process.env.PUBLIC_URL}/images/option2_1.jpg`}
+            src={`${process.env.PUBLIC_URL}/images/UI_images/option2_1.jpg`}
             alt="Option 2 sketch — screen 1"
           />
           <figcaption>Screen 1</figcaption>
         </figure>
         <figure className="sketch-grid__item">
           <img
-            src={`${process.env.PUBLIC_URL}/images/option2_2.jpg`}
+            src={`${process.env.PUBLIC_URL}/images/UI_images/option2_2.jpg`}
             alt="Option 2 sketch — screen 2"
           />
           <figcaption>Screen 2</figcaption>
         </figure>
         <figure className="sketch-grid__item">
           <img
-            src={`${process.env.PUBLIC_URL}/images/option2_3.jpg`}
+            src={`${process.env.PUBLIC_URL}/images/UI_images/option2_3.jpg`}
             alt="Option 2 sketch — screen 3"
           />
           <figcaption>Screen 3</figcaption>
@@ -137,7 +160,7 @@ function UIDesign() {
 
       <h2>Prototypes</h2>
       <p>
-        Following the previous evaluation, we developed prototypes by hand to gather usability data 
+        Following the previous evaluation, we developed prototypes by hand to gather usability data
         before any code is written, to minimise development risk and cost.
       </p>
 
@@ -149,7 +172,7 @@ function UIDesign() {
       </p>
       <figure className="page-figure">
         <img
-          src={`${process.env.PUBLIC_URL}/images/prototype_overlay.png`}
+          src={`${process.env.PUBLIC_URL}/images/UI_images/prototype_overlay.png`}
           alt="Racing Simulation Overlay Prototype"
         />
         <figcaption>Real-time telemetry overlay with AI race engineer feedback during simulation</figcaption>
@@ -163,14 +186,14 @@ function UIDesign() {
       </p>
       <figure className="page-figure page-figure--dark">
         <img
-          src={`${process.env.PUBLIC_URL}/images/prototype_telemetry_analysis_1.png`}
+          src={`${process.env.PUBLIC_URL}/images/UI_images/prototype_telemetry_analysis_1.png`}
           alt="Telemetry Analysis Dashboard Prototype"
         />
         <figcaption>Comprehensive telemetry dashboard with real-time and post-race analysis capabilities</figcaption>
       </figure>
       <figure className="page-figure page-figure--dark">
         <img
-          src={`${process.env.PUBLIC_URL}/images/prototype_telemetry_analysis_2.png`}
+          src={`${process.env.PUBLIC_URL}/images/UI_images/prototype_telemetry_analysis_2.png`}
           alt="Telemetry Analysis Dashboard — Advanced View"
         />
         <figcaption>Advanced telemetry analysis view with multi-lap comparison and trend analysis</figcaption>
@@ -227,6 +250,7 @@ function UIDesign() {
         <li>[2] Nielsen, J. (1994). <em>Usability Inspection Methods.</em> <a href="https://doi.org/10.1145/191666.191743" target="_blank" rel="noopener noreferrer">Conference Companion on Human Factors in Computing Systems</a>.</li>
       </ol>
 
+      </>)}
     </SectionPage>
   );
 }

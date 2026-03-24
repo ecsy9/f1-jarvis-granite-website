@@ -128,7 +128,6 @@ const TASKS = [
   },
 ];
 
-
 const DELIVERABLES = ['Jarvis Live', 'Jarvis Post', 'Jarvis VR', 'Both Dashboards', 'All'];
 const TAGS = [
   ['dev',         'Development'],
