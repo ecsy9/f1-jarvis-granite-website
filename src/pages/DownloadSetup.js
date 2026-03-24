@@ -1,5 +1,46 @@
+import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
 import './DownloadSetup.css';
+
+const FAQS = [
+  {
+    q: "My Speech-To-Text isnt working — what should I do?",
+    a: "Go to your windows settings and ensure that your primary voice input device is the one that you wish to use for voice input. Alternatively, make sure that you are in a quiet area where there isnt too much outside noise",
+  },
+  {
+    q: "Can I use a steering wheel button for push-to-talk instead of a keyboard key?",
+    a: "Yes — supported wheel hardware will appear in the push-to-talk button selector in Settings. Make sure the button you choose is not already bound to a function inside Assetto Corsa, otherwise both actions will fire simultaneously.",
+  },
+  {
+    q: "Does Jarvis work with all Assetto Corsa cars and tracks?",
+    a: "Jarvis reads from Assetto Corsa's shared memory interface, which is car- and track-agnostic. All telemetry channels (speed, RPM, tyres, fuel, etc.) are available regardless of which car or track you choose.",
+  },
+  {
+    q: "Can I use Jarvis Post without having run a live session first?",
+    a: "Jarvis Post analyses the telemetry file written during your session. You must run at least one Jarvis Live session to generate that file — without it, there is nothing for Jarvis Post to analyse. Alternatively, you can import a previously exported session file and run Jarvis Post based on the imported session data.",
+  },
+  {
+    q: "What happens if I close Jarvis Live mid-session?",
+    a: "Telemetry recorded up to that point is saved. When you later open Jarvis Post it will analyse whatever data was captured before you closed the app.",
+  },
+  {
+    q: "I get wheel slip warnings constantly. Why?",
+    a: "This is most common when playing on keyboard. Unlike a wheel or gamepad, keyboard inputs are binary — brake and throttle are either fully on or fully off, with no gradual pressure. This causes abrupt traction breaks that reliably trip the wheel slip threshold, even when your driving feels smooth to you. It is not a bug. If the alerts become disruptive, switch the AI verbosity to Minimal in Settings so wheel slip events produce shorter, less intrusive messages rather than full commentary.",
+  },
+];
+
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`faq-item${open ? ' faq-item--open' : ''}`}>
+      <button className="faq-item__q" onClick={() => setOpen(o => !o)}>
+        <span>{q}</span>
+        <span className="faq-item__arrow">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && <div className="faq-item__a">{a}</div>}
+    </div>
+  );
+}
 
 const DOWNLOAD_URL = null; // TODO: replace with GitHub Release URL when ready
 
@@ -66,10 +107,29 @@ function DownloadSetup() {
       </p>
       
 
+      <h2>FAQ</h2>
+      <div className="faq-list">
+        {FAQS.map((item, i) => <FaqItem key={i} q={item.q} a={item.a} />)}
+      </div>
+
       <h2>Usage guidance</h2>
       <p>
         The executable will take the user to a menu with options of Jarvis Live, Jarvis Post and Settings. Data will only be recorded once the user clicks Jarvis Live. 
       </p>
+      <div className="cm-settings-callout">
+        <div className="cm-settings-callout__text">
+          <strong>Skip the manual setup</strong>
+          <span>Download our pre-configured Content Manager settings and get started in one click.</span>
+        </div>
+        <a
+          href="https://acstuff.club/s/iUcL"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cm-settings-callout__btn"
+        >
+          ↓ Content Manager Settings
+        </a>
+      </div>
       <p>Feel free to contact ece.okutan.24@ucl.ac.uk for any issues or questions</p>
     </SectionPage>
   );

@@ -52,6 +52,124 @@
   transform: translateY(-1px);
 }
 
+/* ── FAQ accordion ───────────────────────────────────────── */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 1rem;
+  border: 1px solid #2a2a2a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.faq-item {
+  border-bottom: 1px solid #2a2a2a;
+}
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-item__q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: #161616;
+  border: none;
+  padding: 1rem 1.25rem;
+  color: #d0d0d0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.faq-item__q:hover,
+.faq-item--open .faq-item__q {
+  background: #1e1e1e;
+  color: #f0f0f0;
+}
+.faq-item--open .faq-item__q {
+  border-left: 3px solid #DC0000;
+  padding-left: calc(1.25rem - 3px);
+}
+
+.faq-item__arrow {
+  font-size: 0.65rem;
+  color: #555;
+  flex-shrink: 0;
+}
+.faq-item--open .faq-item__arrow {
+  color: #DC0000;
+}
+
+.faq-item__a {
+  background: #111;
+  padding: 0.9rem 1.25rem;
+  font-size: 0.88rem;
+  color: #888;
+  line-height: 1.65;
+  border-left: 3px solid #DC0000;
+}
+
+/* ── Content Manager settings callout ───────────────────── */
+.cm-settings-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-left: 4px solid #DC0000;
+  border-radius: 2px;
+  padding: 1.1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.cm-settings-callout__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cm-settings-callout__text strong {
+  color: #f0f0f0;
+  font-size: 0.95rem;
+}
+
+.cm-settings-callout__text span {
+  color: #777;
+  font-size: 0.85rem;
+}
+
+.cm-settings-callout__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  background: transparent;
+  border: 1px solid #DC0000;
+  color: #DC0000;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  border-radius: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cm-settings-callout__btn:hover {
+  background: #DC0000;
+  color: #fff;
+}
+
 .download-btn--disabled {
   background: #2a2a2a;
   color: #555;

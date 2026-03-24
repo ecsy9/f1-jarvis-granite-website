@@ -1,5 +1,35 @@
 import SectionPage from '../components/SectionPage';
 
+const AVATARS = {
+  Ece:    `${process.env.PUBLIC_URL}/images/team/ece-okutan.jpg`,
+  Eima:   `${process.env.PUBLIC_URL}/images/team/eima-miyasaka.jpg`,
+  Oltun:  `${process.env.PUBLIC_URL}/images/team/oltun-ozavci.jpg`,
+  Athena: `${process.env.PUBLIC_URL}/images/team/athena-chong.jpg`,
+  Elinor: `${process.env.PUBLIC_URL}/images/team/elinor-cheung.jpg`,
+};
+
+const avatarStyle = {
+  width: '24px', height: '24px', borderRadius: '50%',
+  objectFit: 'cover', verticalAlign: 'middle', marginRight: '5px',
+};
+
+function NameWithAvatar({ name }) {
+  return (
+    <span style={{ whiteSpace: 'nowrap' }}>
+      {AVATARS[name] && <img src={AVATARS[name]} alt={name} style={avatarStyle} />}
+      {name}
+    </span>
+  );
+}
+
+function Contributors({ names }) {
+  return (
+    <span style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      {names.split(', ').map(n => <NameWithAvatar key={n} name={n} />)}
+    </span>
+  );
+}
+
 function Evaluation() {
   return (
     <SectionPage title="Evaluation">
@@ -30,49 +60,49 @@ function Evaluation() {
             <td>2D platform displays real-time telemetry with &lt;500ms latency</td>
             <td>Should</td>
             <td>✓</td>
-            <td>Ece</td>
+            <td><Contributors names="Ece" /></td>
           </tr>
           <tr>
             <td>2</td>
             <td>AI recommendations achieve &gt;85% accuracy on test scenarios</td>
             <td>Should</td>
             <td>✓</td>
-            <td>Elinor, Athena</td>
+            <td><Contributors names="Elinor, Athena" /></td>
           </tr>
           <tr>
             <td>3</td>
             <td>Data integration functional from CAN bus and simulators to database</td>
             <td>Must</td>
             <td>✓</td>
-            <td>Ece</td>
+            <td><Contributors names="Ece" /></td>
           </tr>
           <tr>
             <td>4</td>
             <td>IBM Granite with Jarvis orchestration operational with &lt;3 sec response times</td>
             <td>Could</td>
             <td>✕</td>
-            <td>Eima</td>
+            <td><Contributors names="Eima" /></td>
           </tr>
           <tr>
             <td>5</td>
             <td>≥3 Formula Student members confirm value (SUS score &gt;70)</td>
             <td>Could</td>
             <td>✓</td>
-            <td>Ece, Eima</td>
+            <td><Contributors names="Ece, Eima" /></td>
           </tr>
           <tr>
             <td>6</td>
             <td>VR platform renders 3D model with interactive telemetry at &gt;60 FPS</td>
             <td>Should</td>
             <td>✓</td>
-            <td>Oltun, Eima</td>
+            <td><Contributors names="Oltun, Eima" /></td>
           </tr>
           <tr>
             <td>7</td>
             <td>Complete documentation enables system replication by a new team</td>
             <td>Should</td>
             <td>✓</td>
-            <td>Eima</td>
+            <td><Contributors names="Eima" /></td>
           </tr>
           <tr>
             <td colSpan={2}>
@@ -101,11 +131,11 @@ function Evaluation() {
         <thead>
           <tr>
             <th>Work packages</th>
-            <th style={{ width: '120px' }}>Ece</th>
-            <th style={{ width: '120px' }}>Eima</th>
-            <th style={{ width: '120px' }}>Oltun</th>
-            <th style={{ width: '120px' }}>Athena</th>
-            <th style={{ width: '120px' }}>Elinor</th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Ece" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Eima" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Oltun" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Athena" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Elinor" /></th>
           </tr>
         </thead>
         <tbody>
@@ -169,11 +199,11 @@ function Evaluation() {
         <thead>
           <tr>
             <th>Work packages</th>
-            <th style={{ width: '120px' }}>Ece</th>
-            <th style={{ width: '120px' }}>Eima</th>
-            <th style={{ width: '120px' }}>Oltun</th>
-            <th style={{ width: '120px' }}>Athena</th>
-            <th style={{ width: '120px' }}>Elinor</th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Ece" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Eima" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Oltun" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Athena" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Elinor" /></th>
           </tr>
         </thead>
         <tbody>

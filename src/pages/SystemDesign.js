@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
 import './Algorithms.css';
 
-const TABS = ['Data Pipeline', 'AI Pipeline'];
+const TABS = ['Data Pipeline', 'AI Pipeline', 'VR'];
 
 function SystemDesign() {
   const [activeTab, setActiveTab] = useState('Data Pipeline');
@@ -147,6 +147,10 @@ function SystemDesign() {
         coherent, contextual responses to the driver throughout a session.
       </p>
       </>)}
+
+      {activeTab === 'VR' && (
+        <p style={{ color: '#555', fontStyle: 'italic' }}>VR content coming soon.</p>
+      )}
     </SectionPage>
   );
 }

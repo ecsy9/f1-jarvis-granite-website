@@ -10,8 +10,8 @@
 }
 
 @keyframes speedSweep {
-  from { transform: translateX(-120%); }
-  to   { transform: translateX(220%); }
+  from { transform: translateX(220%); }
+  to   { transform: translateX(-120%); }
 }
 
 /* ── Scroll-triggered fade-up ───────────────────────────── */
