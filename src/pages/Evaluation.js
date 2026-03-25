@@ -132,64 +132,36 @@ function Evaluation() {
           <tr>
             <th>Work packages</th>
             <th style={{ width: '120px' }}><NameWithAvatar name="Ece" /></th>
-            <th style={{ width: '120px' }}><NameWithAvatar name="Eima" /></th>
             <th style={{ width: '120px' }}><NameWithAvatar name="Oltun" /></th>
-            <th style={{ width: '120px' }}><NameWithAvatar name="Athena" /></th>
             <th style={{ width: '120px' }}><NameWithAvatar name="Elinor" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Athena" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Eima" /></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Research and Experiments</td>
-            <td>20%</td>
-            <td>20%</td>
-            <td>20%</td>
-            <td>20%</td>
-            <td>20%</td>
+            <td>Research &amp; Experiments</td>
+            <td>10%</td><td>30%</td><td>20%</td><td>25%</td><td>15%</td>
           </tr>
           <tr>
             <td>UI Design</td>
-            <td>100%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
+            <td>40%</td><td>35%</td><td>5%</td><td>5%</td><td>15%</td>
           </tr>
           <tr>
             <td>Coding</td>
-            <td>[%]</td>
-            <td>[%]</td>
-            <td>[%]</td>
-            <td>[%]</td>
-            <td>[%]</td>
+            <td>20%</td><td>5%</td><td>25%</td><td>20%</td><td>30%</td>
           </tr>
           <tr>
             <td>Testing</td>
-            <td>[%]</td>
-            <td>[%]</td>
-            <td>[%]</td>
-            <td>[%]</td>
-            <td>[%]</td>
+            <td>15%</td><td>5%</td><td>30%</td><td>25%</td><td>25%</td>
           </tr>
           <tr>
-            <td>
-              <strong>Overall contribution</strong>
-            </td>
-            <td>
-              <strong>[%]</strong>
-            </td>
-            <td>
-              <strong>[%]</strong>
-            </td>
-            <td>
-              <strong>[%]</strong>
-            </td>
-            <td>
-              <strong>[%]</strong>
-            </td>
-            <td>
-              <strong>[%]</strong>
-            </td>
+            <td><strong>Overall contribution</strong></td>
+            <td><strong>21%</strong></td>
+            <td><strong>19%</strong></td>
+            <td><strong>20%</strong></td>
+            <td><strong>19%</strong></td>
+            <td><strong>21%</strong></td>
           </tr>
         </tbody>
       </table>
@@ -200,144 +172,76 @@ function Evaluation() {
           <tr>
             <th>Work packages</th>
             <th style={{ width: '120px' }}><NameWithAvatar name="Ece" /></th>
-            <th style={{ width: '120px' }}><NameWithAvatar name="Eima" /></th>
             <th style={{ width: '120px' }}><NameWithAvatar name="Oltun" /></th>
-            <th style={{ width: '120px' }}><NameWithAvatar name="Athena" /></th>
             <th style={{ width: '120px' }}><NameWithAvatar name="Elinor" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Athena" /></th>
+            <th style={{ width: '120px' }}><NameWithAvatar name="Eima" /></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Website Template and Setup</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>50%</td>
-            <td>50%</td>
+            <td>Template and Setup</td>
+            <td>0%</td><td>0%</td><td>20%</td><td>80%</td><td>0%</td>
           </tr>
           <tr>
             <td>Home</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
+            <td>55%</td><td>10%</td><td>20%</td><td>10%</td><td>5%</td>
           </tr>
           <tr>
             <td>Video</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
+            <td>20%</td><td>20%</td><td>20%</td><td>20%</td><td>20%</td>
           </tr>
           <tr>
-            <td>Requirements</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
+            <td>Requirement</td>
+            <td>10%</td><td>0%</td><td>15%</td><td>15%</td><td>60%</td>
           </tr>
           <tr>
             <td>Research</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
+            <td>20%</td><td>15%</td><td>30%</td><td>10%</td><td>25%</td>
           </tr>
           <tr>
-            <td>Algorithms</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
+            <td>Algorithm</td>
+            <td>20%</td><td>0%</td><td>25%</td><td>25%</td><td>30%</td>
           </tr>
           <tr>
             <td>UI Design</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
+            <td>40%</td><td>5%</td><td>25%</td><td>30%</td><td>0%</td>
           </tr>
           <tr>
             <td>System Design</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
+            <td>25%</td><td>30%</td><td>10%</td><td>0%</td><td>35%</td>
           </tr>
           <tr>
             <td>Implementation</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
+            <td>0%</td><td>30%</td><td>30%</td><td>25%</td><td>15%</td>
           </tr>
           <tr>
             <td>Testing</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
-            <td>[0–100%]</td>
+            <td>15%</td><td>20%</td><td>20%</td><td>20%</td><td>25%</td>
           </tr>
           <tr>
             <td>Evaluation and Future Work</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
-            <td>0%</td>
+            <td>40%</td><td>30%</td><td>20%</td><td>0%</td><td>10%</td>
           </tr>
           <tr>
             <td>User and Deployment Manuals</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
-            <td>0%</td>
+            <td>40%</td><td>10%</td><td>0%</td><td>0%</td><td>50%</td>
           </tr>
           <tr>
             <td>Legal Issues</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
-            <td>0%</td>
-            </tr>
-          <tr>
-            <td>Blog and Monthly Video</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>0%</td>
-            <td>100%</td>
-            <td>0%</td>
+            <td>0%</td><td>60%</td><td>20%</td><td>20%</td><td>0%</td>
           </tr>
           <tr>
-            <td>
-              <strong>Overall contribution</strong>
-            </td>
-            <td>
-              <strong>[0–100%]</strong>
-            </td>
-            <td>
-              <strong>[0–100%]</strong>
-            </td>
-            <td>
-              <strong>[0–100%]</strong>
-            </td>
-            <td>
-              <strong>[0–100%]</strong>
-            </td>
-            <td>
-              <strong>[0–100%]</strong>
-            </td>
+            <td>Blog and Monthly Video</td>
+            <td>30%</td><td>10%</td><td>20%</td><td>20%</td><td>20%</td>
+          </tr>
+          <tr>
+            <td><strong>Overall contribution</strong></td>
+            <td><strong>23%</strong></td>
+            <td><strong>17%</strong></td>
+            <td><strong>20%</strong></td>
+            <td><strong>20%</strong></td>
+            <td><strong>21%</strong></td>
           </tr>
         </tbody>
       </table>
