@@ -23,91 +23,372 @@ function SystemDesign() {
 
       {activeTab === 'Data Pipeline' && (<>
       <p>
-        The F1 Jarvis Granite platform uses a modular layered architecture enabling parallel
-        development across four tracks and future extensibility beyond the project deadline.
+        This section covers the data pipeline system design: architecture, sequence diagrams,
+        design patterns, data layer class diagram, storage schema, and packages/APIs.
+        AI model inference and the AI pipeline are covered in the AI Pipeline tab.
       </p>
 
-      <h2>Architecture Overview</h2>
-      <p>The platform is organised into six layers, each with a clear responsibility:</p>
+      <h2>System Architecture</h2>
+      <p>
+        The application follows a <strong>multi-threaded producer-consumer architecture</strong>{' '}
+        with Qt signal-slot decoupling between components. All inter-thread communication uses
+        PyQt5's thread-safe signal mechanism, ensuring the UI thread never blocks on telemetry
+        processing or AI inference.
+      </p>
+      <pre className="code-block"><code>{`+---------------------------+
+|     Assetto Corsa Game    |
+|  (Windows Shared Memory)  |
++----------+----------------+
+           | ctypes mmap read @ 60 Hz
+           v
++----------+----------------+
+|   AcTelemetryWorker       |
+|   (QThread)               |
+|   - Reads 3 memory blocks |
+|   - Validates/cleans data |
+|   - Detects lap boundaries|
++--+------+------+------+--+
+   |      |      |      |
+   | realtime_sample (60 Hz)
+   | lap_completed
+   | session_info_update
+   | live_data_update
+   v      v      v      v
++--+------+------+------+--+     +-------------------------+
+|     MainWindow (UI)       |     |  AIRaceEngineerWorker   |
+|  - Track map canvas       |     |  (QThread)              |
+|  - Time-series graphs     |<----+  - TelemetryAgent       |
+|  - Live data panels       |     |  - RaceEngineerAgent    |
+|  - AI transcript display  |     |  - LiveSessionContext   |
+|  - Lap table              |     +---+---------------------+
++---------------------------+         | ai_commentary signal
+                                      v
++---------------------------+     +-------------------------+
+|   SessionRecorder         |     |  VoiceInputWorker       |
+|   (QThread)               |     |  (QThread)              |
+|   - SQLite batch writes   |     |  - WebRTC VAD           |
+|   - 60-sample buffer      |     |  - Whisper STT          |
++---------------------------+     +-------------------------+
+           | SQLite DB
+           v
++---------------------------+
+|   Post-Race Viewer        |
+|   (LapViewerWindow)       |
+|   - TelemetryLoader       |
+|   - Timeline scrubber     |
+|   - 16 graph types        |
+|   - AI Coach/Analyst      |
++---------------------------+`}</code></pre>
+
       <table className="section-table">
         <thead>
-          <tr>
-            <th>Layer</th>
-            <th>Components</th>
-          </tr>
+          <tr><th>Component</th><th>Thread</th><th>Responsibility</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Data Sources</strong></td>
-            <td>CAN bus (Formula Student vehicle), TORCS simulator, Assetto Corsa simulator</td>
+            <td><code>AcTelemetryWorker</code></td>
+            <td>Background QThread</td>
+            <td>Reads AC shared memory at 60 Hz, validates data, detects lap boundaries via LapBuffer, emits 4 Qt signals</td>
           </tr>
           <tr>
-            <td><strong>Data Ingestion</strong></td>
-            <td>Protocol handlers per source, validation pipeline, normalisation to unified schema</td>
+            <td><code>MainWindow</code></td>
+            <td>Main (UI) thread</td>
+            <td>Receives signals, updates Matplotlib canvases at ~12 Hz, displays live data panels, lap table, AI transcripts</td>
           </tr>
           <tr>
-            <td><strong>Storage</strong></td>
-            <td>InfluxDB for time-series telemetry; relational storage for session metadata</td>
+            <td><code>AIRaceEngineerWorker</code></td>
+            <td>Background QThread</td>
+            <td>Converts telemetry to Pydantic models, runs rule-based event detection (&lt;50ms), triggers LLM responses (~2s), emits <code>ai_commentary</code></td>
           </tr>
           <tr>
-            <td><strong>API</strong></td>
-            <td>FastAPI RESTful endpoints; WebSocket support for real-time streaming</td>
+            <td><code>SessionRecorder</code></td>
+            <td>Background QThread</td>
+            <td>Buffers 60 telemetry samples, batch-inserts to SQLite, records laps/AI/voice data</td>
           </tr>
           <tr>
-            <td><strong>AI Services</strong></td>
-            <td>IBM Granite LLM with Jarvis multi-agent orchestration; text-to-speech synthesis</td>
+            <td><code>VoiceInputWorker</code></td>
+            <td>Background QThread</td>
+            <td>Listens for voice via WebRTC VAD, transcribes with faster-whisper, forwards queries to AI</td>
           </tr>
           <tr>
-            <td><strong>Presentation</strong></td>
-            <td>2D Python visualisation platform; Unreal Engine 5 VR environment</td>
+            <td><code>TTSOutputWorker</code></td>
+            <td>Background QThread</td>
+            <td>Converts AI text responses to speech via Kokoro TTS, plays through PyAudio</td>
+          </tr>
+          <tr>
+            <td><code>LapViewerWindow</code></td>
+            <td>Main (UI) thread</td>
+            <td>Loads recorded sessions from CSV/SQLite, provides timeline scrubber, 16 configurable graph types, AI analysis tabs</td>
+          </tr>
+          <tr>
+            <td><code>StartupLoaderThread</code></td>
+            <td>Background QThread</td>
+            <td>Stages 2–9 sequential import of heavy modules, model download with progress tracking</td>
           </tr>
         </tbody>
       </table>
 
-      <h2>Data Model</h2>
-      <h3>Telemetry Schema</h3>
+      <h2>Sequence Diagrams</h2>
+
+      <h3>Real-Time Telemetry Flow (Per Frame)</h3>
+      <pre className="code-block"><code>{`AC Game       AcTelemetryWorker    LapBuffer     MainWindow     SessionRecorder
+  |                 |                  |               |                |
+  |--shared mem.--->|                  |               |                |
+  |                 |--add_sample()--->|               |                |
+  |                 |--emit realtime_sample----------->|                |
+  |                 |--emit realtime_sample--------------------------------->|
+  |                 |                  |               |--buffer sample |
+  |                 |                  |               |                |--append to batch
+  |                 |      [every 5 samples]           |                |
+  |                 |                  |               |--update canvases (12Hz)
+  |                 |      [every 60 samples]          |                |
+  |                 |                  |               |                |--flush batch
+  |                 |                  |               |                |  (executemany)`}</code></pre>
+
+      <h3>Lap Completion Flow</h3>
+      <pre className="code-block"><code>{`AcTelemetryWorker    LapBuffer      MainWindow    SessionRecorder  AIRaceEngineerWorker
+  |                     |               |               |                  |
+  |--lap_id incremented->|              |               |                  |
+  |                     |--wait 10 frames (stabilisation)                  |
+  |                     |--on_lap_complete->|           |                  |
+  |--emit lap_completed------------------>|            |                  |
+  |                     |               |--add to lap table                |
+  |--emit lap_completed---------------------------->|                     |
+  |                     |               |           |--record_lap()        |
+  |--emit lap_completed------------------------------------------>|        |
+  |                     |               |               |         |--detect lap_complete
+  |                     |               |               |         |--LLM generate response
+  |                     |               |               |         |--emit ai_commentary
+  |                     |               |<------- ai_commentary --|
+  |                     |               |--display in transcript  |`}</code></pre>
+
+      <h3>AI Event Detection &amp; Response Flow</h3>
+      <pre className="code-block"><code>{`AIRaceEngineerWorker
+  |
+  |--receive realtime_sample
+  |--convert dict -> TelemetryData (Pydantic)
+  |--LiveSessionContext.update(telemetry)
+  |--TelemetryAgent.detect_events(telemetry, context)
+  |    |
+  |    |--_check_fuel_events()         [fuel / consumption_per_lap <= threshold?]
+  |    |--_check_tire_temp_events()    [any tire >= 100C / 110C?]
+  |    |--_check_tire_wear_events()    [any tire >= 70% / 85%?]
+  |    |--_check_wheel_slip_events()   [any tire slip >= 50 / 100?]
+  |    |--_check_gap_events()          [gap delta >= 1.0s?]
+  |    |--_check_opponent_events()     [gap_behind <= 0.8s?]
+  |    |--_check_car_damage_events()   [total damage >= 5% / 20%?]
+  |    |--_check_position_change()     [position != previous?]
+  |    |--_check_lap_completion()      [lap_number incremented?]
+  |    |--_check_pit_window()          [fuel <= 5 laps OR wear >= 70%?]
+  |    |
+  |    |--return List[Event]  (< 50ms total)
+  |
+  |--for each Event (sorted by Priority via heapq):
+  |    |--RaceEngineerAgent.generate_proactive_response(event, context)
+  |    |    |--format prompt with event data + context
+  |    |    |--LLM inference (~2s)
+  |    |    |--return response text
+  |    |
+  |    |--emit ai_commentary(message, trigger_type, priority)`}</code></pre>
+
+      <h2>Design Patterns</h2>
+      <table className="section-table">
+        <thead>
+          <tr><th>Pattern</th><th>Where Used</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Observer (Signal-Slot)</strong></td>
+            <td>All inter-thread communication</td>
+            <td>PyQt5 signals decouple producers from consumers; any number of slots can connect to a signal without the emitter knowing about them</td>
+          </tr>
+          <tr>
+            <td><strong>Producer-Consumer</strong></td>
+            <td><code>AcTelemetryWorker</code> &rarr; <code>MainWindow</code>, <code>SessionRecorder</code>, <code>AIWorker</code></td>
+            <td>Single telemetry producer feeds multiple independent consumers via signal fan-out</td>
+          </tr>
+          <tr>
+            <td><strong>Strategy</strong></td>
+            <td><code>TelemetryAgent</code> detection rules</td>
+            <td>Each <code>_check_*</code> method is an independent detection strategy; new rules are added by implementing a new method</td>
+          </tr>
+          <tr>
+            <td><strong>Factory</strong></td>
+            <td><code>events.py</code> factory functions</td>
+            <td><code>create_fuel_critical_event()</code>, <code>create_tire_warning_event()</code>, etc. encapsulate event construction with correct priority and data schema</td>
+          </tr>
+          <tr>
+            <td><strong>Template Method</strong></td>
+            <td>Backend workers</td>
+            <td>All backends follow the same <code>run()</code> structure: connect &rarr; poll &rarr; validate &rarr; emit; extending to a new sim requires overriding only the read logic</td>
+          </tr>
+          <tr>
+            <td><strong>Singleton (Module-level)</strong></td>
+            <td>LLM instance in <code>model_prewarm</code></td>
+            <td>The LLM is loaded once and shared across inference calls to avoid multi-GB memory duplication</td>
+          </tr>
+          <tr>
+            <td><strong>Batch/Buffer</strong></td>
+            <td><code>SessionRecorder</code> (60-sample batch), <code>LiveSessionContext</code> (600-sample deque)</td>
+            <td>Amortise I/O cost and bound memory usage</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Class Diagram (Data Layer)</h2>
+      <pre className="code-block"><code>{`+---------------------+       +-------------------+       +------------------+
+|   SessionMetadata   |       |     Session       |       |       Lap        |
++---------------------+       +-------------------+       +------------------+
+| session_id: int     |<------| metadata          |       | lap_number: int  |
+| game: str           |       | laps: List[Lap]   |------>| telemetry: DF    |
+| track_name: str     |       | telemetry: DF     |       | lap_time: float  |
+| car_model: str      |       | ai_commentary:    |       | summary: LapSum  |
+| player_name: str    |       |   List[AIComment] |       +------------------+
+| start_time: datetime|       +-------------------+       | get_speed_trace()|
+| total_laps: int     |       | get_lap(n)        |       | get_racing_line()|
+| ai_enabled: bool    |       | get_fastest_lap() |       | get_avg_tire_*() |
++---------------------+       | calculate_CoV()   |       +------------------+
+                              +-------------------+
+
++---------------------+       +-------------------+       +------------------+
+|    AIComment        |       |   TelemetryData   |       |   TireTemps      |
++---------------------+       |   (Pydantic)      |       +------------------+
+| timestamp: datetime |       +-------------------+       | fl: float (>= 0) |
+| message: str        |       | speed: float      |       | fr: float (>= 0) |
+| trigger: str        |       | rpms: int         |       | rl: float (>= 0) |
+| priority: int       |       | gear: int         |       | rr: float (>= 0) |
+| lap_number: int     |       | throttle: 0-1     |       +------------------+
++---------------------+       | brake: 0-1        |
+                              | fuel: Optional    |       +------------------+
+                              | tire_temps        |       |     GForces      |
+                              | tire_pressure     |       +------------------+
+                              | tire_wear         |       | lateral: float   |
+                              | g_forces          |       | longitudinal:float|
+                              | wheel_slip        |       +------------------+
+                              | car_damage: dict  |
+                              +-------------------+`}</code></pre>
+
+      <h2>Data Storage</h2>
       <p>
-        Timestamp, Session ID, Data Source, Vehicle ID, Sensor Readings (speed, throttle, brake,
-        RPM, gear, steering angle, tire temps, G-forces, track position).
-      </p>
-      <h3>Session Schema</h3>
-      <p>
-        Session ID, Type (practice / qualifying / race), start/end times, track name, weather
-        conditions, participant info.
-      </p>
-      <h3>AI Interaction Schema</h3>
-      <p>
-        Interaction ID, timestamp, user ID, query text, AI response, confidence score, session
-        context reference.
+        The application uses a single SQLite file (<code>data/telemetry_sessions.db</code>).
+        SQLite was chosen for zero configuration (no server process), portability (single file),
+        adequate concurrency for single-writer with WAL mode, and performance (batch inserts
+        handle 60 samples/second comfortably).
       </p>
 
-      <h2>Technology Stack</h2>
-      <h3>Data Integration</h3>
+      <h3>Entity-Relationship Diagram</h3>
+      <pre className="code-block"><code>{`+------------------+        +------------------+        +-------------------+
+|    sessions      |        |      laps        |        |    telemetry      |
++------------------+        +------------------+        +-------------------+
+| PK session_id    |<-------| FK session_id    |        | PK telemetry_id   |
+|    start_time    |   1:N  | PK lap_id        |        | FK session_id     |----+
+|    end_time      |        |    lap_number    |        |    lap_number     |    |
+|    game          |        |    lap_time      |        |    elapsed_time   |    |
+|    track_name    |        |    sector1_time  |        |    pos_x, pos_z   |    |
+|    car_model     |        |    sector2_time  |        |    speed          |    |
+|    player_name   |        |    sector3_time  |        |    gear, rpm      |    |
+|    total_laps    |        |    valid         |        |    throttle, brake|    |
+|    best_lap_time |        |    fuel_start    |        |    tyre_press_*   |    |
+|    ai_enabled    |        |    fuel_end      |        |    tyre_temp_*    |    |
+|    session_type  |        |    avg_speed     |        |    tyre_wear_*    |    |
++------------------+        |    timestamp     |        |    wheel_slip_*   |    |
+        |                   +------------------+        |    car_damage_*   |    |
+        | 1:N                                           |    timestamp      |    |
+        v                                               +-------------------+    |
++------------------+        +-------------------+                                |
+| ai_commentary    |        |  voice_queries    |<-------------------------------+
++------------------+        +-------------------+       (all FK to session_id)
+| PK commentary_id |        | PK query_id       |
+| FK session_id    |        | FK session_id     |
+|    timestamp     |        |    timestamp      |
+|    message       |        |    query_text     |
+|    trigger       |        |    response_text  |
+|    priority      |        |    lap_number     |
+|    lap_number    |        +-------------------+
++------------------+`}</code></pre>
+
+      <p><strong>Cardinalities:</strong></p>
       <ul>
-        <li>CAN bus protocol handling (ISO 11898)</li>
-        <li>TORCS telemetry via UDP data packets</li>
-        <li>Assetto Corsa telemetry via shared memory</li>
-        <li>Data normalisation and validation pipeline</li>
+        <li><code>sessions</code> 1:N <code>laps</code> — one session has many laps</li>
+        <li><code>sessions</code> 1:N <code>telemetry</code> — one session has ~60 &times; laps &times; lap_duration telemetry rows</li>
+        <li><code>sessions</code> 1:N <code>ai_commentary</code> — one session has 0–many AI messages</li>
+        <li><code>sessions</code> 1:N <code>voice_queries</code> — one session has 0–many voice queries</li>
       </ul>
-      <h3>Backend Services</h3>
+
+      <p><strong>Database Indices:</strong></p>
       <ul>
-        <li>Python backend with FastAPI</li>
-        <li>InfluxDB for time-series telemetry storage</li>
-        <li>Caching layer for frequent queries</li>
-        <li>WebSocket support for real-time streaming</li>
+        <li><code>idx_laps_session</code> on <code>laps(session_id)</code></li>
+        <li><code>idx_telemetry_session</code> on <code>telemetry(session_id)</code></li>
+        <li><code>idx_telemetry_lap</code> on <code>telemetry(lap_number)</code></li>
+        <li><code>idx_ai_session</code> on <code>ai_commentary(session_id)</code></li>
+        <li><code>idx_voice_session</code> on <code>voice_queries(session_id)</code></li>
       </ul>
-      <h3>2D Visualisation Platform</h3>
+
+      <p><strong>Storage Estimates:</strong></p>
       <ul>
-        <li>Python-based GUI framework</li>
-        <li>Custom visualisation components inspired by MoTeC</li>
-        <li>Real-time data rendering with interactive controls</li>
+        <li>Telemetry row: ~50 columns &times; 8 bytes avg = ~400 bytes/row</li>
+        <li>10-lap Monza session: ~66,000 rows &times; 400 bytes = ~26 MB</li>
+        <li>Database file: <code>data/telemetry_sessions.db</code></li>
       </ul>
-      <h3>VR Platform</h3>
-      <ul>
-        <li>Unreal Engine 5 for immersive 3D environment</li>
-        <li>VR headset support (Meta Quest or SteamVR)</li>
-        <li>3D CAD model integration from UCL Racing</li>
-      </ul>
+
+      <h2>Packages and APIs</h2>
+
+      <h3>Internal Packages</h3>
+      <table className="section-table">
+        <thead>
+          <tr><th>Package</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>telemetry/</code></td><td>Backend workers and lap detection</td></tr>
+          <tr><td><code>telemetry/backends/</code></td><td>Game-specific shared memory readers</td></tr>
+          <tr><td><code>ui/</code></td><td>PyQt5 windows, canvases, styles</td></tr>
+          <tr><td><code>ui/canvases/</code></td><td>Matplotlib graph widgets (track map, time-series, multi-line, camber)</td></tr>
+          <tr><td><code>ui/post_race/</code></td><td>Post-race viewer with timeline, graphs, AI analysis tabs</td></tr>
+          <tr><td><code>ai/</code></td><td>AI race engineer, voice input, TTS output</td></tr>
+          <tr><td><code>ai/race_engineer_core/</code></td><td>Rule-based detection, LLM client, context, prompts, event models</td></tr>
+          <tr><td><code>data/</code></td><td>Session/Lap/Telemetry models, recorder, exporter, loader</td></tr>
+          <tr><td><code>analysis/</code></td><td>Post-race AI pipeline bridge and fallback</td></tr>
+        </tbody>
+      </table>
+
+      <h3>External Dependencies</h3>
+      <table className="section-table">
+        <thead>
+          <tr><th>Library</th><th>Version</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>PyQt5</strong></td><td>5.15+</td><td>GUI framework, threading (QThread), signals/slots</td></tr>
+          <tr><td><strong>Matplotlib</strong></td><td>3.8+</td><td>Track map, time-series, multi-line graphs</td></tr>
+          <tr><td><strong>NumPy</strong></td><td>1.24+</td><td>Array operations, unit conversions, interpolation</td></tr>
+          <tr><td><strong>Pandas</strong></td><td>2.0+</td><td>Telemetry DataFrames, CSV I/O, column operations</td></tr>
+          <tr><td><strong>Pydantic</strong></td><td>2.0+</td><td>Telemetry data validation and type-safe models</td></tr>
+          <tr><td><strong>SQLite3</strong></td><td>(stdlib)</td><td>Session recording database</td></tr>
+          <tr><td><strong>ctypes</strong></td><td>(stdlib)</td><td>Windows shared memory struct mapping</td></tr>
+          <tr><td><strong>llama-cpp-python</strong></td><td>0.2+</td><td>Local GGUF model inference</td></tr>
+          <tr><td><strong>huggingface-hub</strong></td><td>0.20+</td><td>Model download with caching</td></tr>
+          <tr><td><strong>faster-whisper</strong></td><td>1.0+</td><td>Local speech-to-text (voice input)</td></tr>
+          <tr><td><strong>pykokoro</strong></td><td>0.5+</td><td>Local text-to-speech output</td></tr>
+          <tr><td><strong>PyAudio</strong></td><td>0.2+</td><td>Audio playback for TTS</td></tr>
+          <tr><td><strong>webrtcvad</strong></td><td>2.0+</td><td>Voice activity detection</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Key APIs Defined</h3>
+      <pre className="code-block"><code>{`# Telemetry Backend API (signals any new backend must emit)
+lap_completed       = pyqtSignal(int, list)     # lap_id, samples
+status_update       = pyqtSignal(str)           # message
+session_info_update = pyqtSignal(dict)          # {track, car, player, ...}
+live_data_update    = pyqtSignal(dict)          # {speed, gear, rpm, fuel, ...}
+realtime_sample     = pyqtSignal(dict)          # full sample dict @ 60Hz
+
+# AI Commentary API
+ai_commentary       = pyqtSignal(str, str, int) # message, trigger, priority
+
+# Session Export API (file format per session)
+session_X_telemetry.csv       # All telemetry columns @ 60Hz
+session_X_laps.csv            # Lap summary statistics
+session_X_ai_commentary.csv   # AI messages with timestamps
+session_X_metadata.json       # Session metadata sidecar`}</code></pre>
       </>)}
 
       {activeTab === 'AI Pipeline' && (<>

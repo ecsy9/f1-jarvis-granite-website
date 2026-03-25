@@ -42,7 +42,7 @@ function FaqItem({ q, a }) {
   );
 }
 
-const DOWNLOAD_URL = null; // TODO: replace with GitHub Release URL when ready
+const DOWNLOAD_URL = 'https://github.com/eceokutan/F1-Jarvis-Granite-Releases/releases/download/v1.0.0/Jarvis-Setup.exe';
 
 function DownloadSetup() {
   return (
@@ -60,7 +60,7 @@ function DownloadSetup() {
             className="download-btn"
             download
           >
-            ↓ Download Jarvis Live (.exe)
+            ↓ Download Jarvis-Setup.exe
           </a>
         ) : (
           <span className="download-btn download-btn--disabled" title="Release coming soon">
