@@ -37,7 +37,7 @@ const teamMembers = [
     name: 'Athena Chong',
     role: 'Developer',
     description:
-      'Hi, I\’m Athena, a CS student at UCL. I love exploring AI, software, and how technology can transform racing data into actionable insights.',
+      'Hi, I\’m Athena, a second-year Computer Science student at UCL. I\’m interested in AI, computer vision, and how LLMs can transform racing data into actionable insights.',
     linkedin: 'https://www.linkedin.com/in/athena-chong/',
     github: 'https://github.com/athena-c-22',
     email: 'athena.chong.24@ucl.ac.uk',
