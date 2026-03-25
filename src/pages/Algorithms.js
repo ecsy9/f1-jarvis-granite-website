@@ -36,16 +36,16 @@ function Algorithms() {
       <h2>Pipeline Overview</h2>
       <p>
         The AI pipeline employs a hybrid architecture combining deterministic rule-based event
-        detection with LLM-powered natural language generation and a full voice I/O loop. Five
+        detection and a full voice I/O loop with LLM-powered natural language generation. Five
         distinct algorithmic components are chosen for specific latency and accuracy trade-offs
-        within a real-time sim racing context [2].
+        within a real-time sim racing context.
       </p>
       <p>
         The system operates in two modes. In <strong>proactive mode</strong>, the telemetry agent
-        detects an event (e.g., fuel critical) and triggers the LLM to generate a radio message
+        detects an event (e.g., fuel critical) and generates a rule-based radio message
         from the event type, event data, and current session context. In <strong>reactive
         mode</strong>, the driver asks a question via voice input, and the LLM receives the query,
-        relevant session context (pruned by query keywords), and conversation history [1].
+        relevant session context (pruned by query keywords), and conversation history.
       </p>
 
       <table className="section-table">
@@ -66,13 +66,13 @@ function Algorithms() {
           </tr>
           <tr>
             <td>LLM proactive response (CPU)</td>
-            <td>&lt; 5 s</td>
-            <td>1-3 s</td>
+            <td>&lt; 3 s</td>
+            <td>1-2 s</td>
             <td>Within budget</td>
           </tr>
           <tr>
             <td>LLM reactive response (CPU)</td>
-            <td>&lt; 10 s</td>
+            <td>&lt; 7 s</td>
             <td>2-5 s</td>
             <td>Within budget</td>
           </tr>
@@ -84,20 +84,20 @@ function Algorithms() {
           </tr>
           <tr>
             <td>Speech-to-text (Whisper base, INT8)</td>
-            <td>&lt; 5 s</td>
-            <td>1-3 s (for 2-8 s audio)</td>
+            <td>&lt; 2 s</td>
+            <td>&lt; 1 s (for 2-8 s audio)</td>
             <td>Acceptable</td>
           </tr>
           <tr>
             <td>TTS synthesis (Kokoro, CPU)</td>
-            <td>&lt; 3 s</td>
-            <td>1-2 s</td>
+            <td>&lt; 2 s</td>
+            <td>&lt; 1 s</td>
             <td>Acceptable</td>
           </tr>
           <tr>
             <td><strong>Full voice query round-trip</strong></td>
-            <td><strong>&lt; 15 s</strong></td>
-            <td><strong>5-12 s</strong></td>
+            <td><strong>&lt; 12 s</strong></td>
+            <td><strong>4-9 s</strong></td>
             <td><strong>Within budget</strong></td>
           </tr>
         </tbody>
@@ -107,20 +107,17 @@ function Algorithms() {
         <strong>Fallback chain:</strong> If the LLM is unavailable, times out, or produces
         low-quality output, the system falls back to deterministic rule-based responses (e.g.,
         "Box box box! Fuel critical, pit this lap.") to ensure the driver always receives a
-        message [1].
+        message.
       </p>
       <p>
         The rule-based telemetry agent evaluates 12 event categories against configurable
-        thresholds (see the Fine Tuning tab for full threshold details). Each event type has an
+        thresholds. Each event type has an
         independent <strong>cooldown timer</strong> (5-60 seconds depending on severity) to
         prevent alert fatigue. Events are sorted by a 4-level priority enum (CRITICAL, HIGH,
-        MEDIUM, LOW) before being passed to the LLM [1]. Additional detection features include:
+        MEDIUM, LOW) before being queued to the communications transcript and TTS.
       </p>
+      <p>Additional detection features include:</p>
       <ul>
-        <li>
-          <strong>Opponent close behind:</strong> Uses hysteresis — triggers at 0.8 s gap,
-          resets at 1.2 s to prevent oscillation.
-        </li>
         <li>
           <strong>Position change:</strong> First-change suppression avoids alerting on the
           initial position assignment at session start.
@@ -138,16 +135,19 @@ function Algorithms() {
       <h3>Voice Activity Detection (WebRTC VAD)</h3>
       <p>
         Before transcription, audio is segmented into speech and non-speech regions
-        using <strong>WebRTC's Voice Activity Detection</strong> algorithm [7], a lightweight
+        using <strong>WebRTC's Voice Activity Detection</strong> algorithm, a lightweight
         Gaussian Mixture Model (GMM)-based classifier originally developed by Google for real-time
         communication. This avoids sending silence or background noise to the more computationally
         expensive Whisper model.
       </p>
       <p>
         WebRTC VAD operates on 30 ms audio frames at 16 kHz and classifies each frame as speech
-        or non-speech. The implementation uses aggressiveness level 2 (scale 0-3) — aggressive
+        or non-speech. The implementation uses aggressiveness level 2 (scale 0-3) -- aggressive
         enough to reject engine noise and ambient sound, but sensitive enough to capture natural
-        speech onset [7]. The segmentation logic:
+        speech onset.
+      </p>
+      <p>
+        The segmentation logic:
       </p>
       <ol>
         <li><strong>Onset detection:</strong> When VAD classifies a frame as speech, recording begins.</li>
@@ -163,9 +163,9 @@ function Algorithms() {
 
       <h3>Speech Recognition (Faster-Whisper)</h3>
       <p>
-        Driver voice queries are transcribed using <strong>OpenAI's Whisper</strong> [5], an
+        Driver voice queries are transcribed using <strong>OpenAI's Whisper</strong>, an
         encoder-decoder transformer trained on 680,000 hours of multilingual audio via large-scale
-        weak supervision. The implementation uses <strong>faster-whisper</strong> [6], which
+        weak supervision. The implementation uses <strong>base-faster-whisper</strong>, which
         re-implements Whisper using CTranslate2 for up to 4x faster inference with INT8
         quantisation on CPU.
       </p>
@@ -173,7 +173,7 @@ function Algorithms() {
         The <strong>encoder</strong> processes log-Mel spectrogram features (80-channel, 30-second
         windows) through transformer blocks to produce audio representations.
         The <strong>decoder</strong> autoregressively generates text tokens conditioned on the
-        encoder output, using beam search (beam_size=5) for improved transcription quality [5].
+        encoder output, using beam search (beam_size=5) for improved transcription quality.
       </p>
       <p>
         <strong>Domain adaptation</strong> is achieved without fine-tuning through
@@ -183,7 +183,7 @@ function Algorithms() {
       <pre className="code-block"><code>{`"F1 racing, telemetry, tires, brakes, fuel, pit stop, lap time, sector"`}</code></pre>
       <p>
         This biases the model's token predictions toward racing terminology, improving recognition
-        of domain-specific terms like "understeer," "pit window," and "tyre degradation" [5].
+        of domain-specific terms like "understeer," "pit window," and "tyre degradation".
       </p>
 
       <h3>Configuration</h3>
@@ -199,37 +199,32 @@ function Algorithms() {
           <tr>
             <td>Whisper model size</td>
             <td>base (~140 MB)</td>
-            <td>Balance of accuracy and CPU inference speed [5]</td>
+            <td>Balance of accuracy and CPU inference speed</td>
           </tr>
           <tr>
             <td>Whisper compute type</td>
             <td>INT8</td>
-            <td>~2x faster than FP32 on CPU with minimal quality loss [6]</td>
+            <td>~2x faster than FP32 on CPU with minimal quality loss</td>
           </tr>
           <tr>
             <td>Beam size</td>
             <td>5</td>
-            <td>Standard setting; higher values showed diminishing returns [5]</td>
+            <td>Standard setting; higher values showed diminishing returns</td>
           </tr>
           <tr>
             <td>Language</td>
             <td>"en" (fixed)</td>
-            <td>Single-language mode avoids language detection overhead [5]</td>
+            <td>Single-language mode avoids language detection overhead</td>
           </tr>
           <tr>
             <td>VAD aggressiveness</td>
             <td>2 (of 0-3)</td>
-            <td>Level 3 rejected soft-spoken queries; level 1 triggered on engine noise [7]</td>
+            <td>Level 3 rejected soft-spoken queries; level 1 triggered on engine noise</td>
           </tr>
           <tr>
             <td>VAD frame size</td>
             <td>30 ms</td>
-            <td>Required by WebRTC VAD algorithm [7]</td>
-          </tr>
-          <tr>
-            <td>Speech padding</td>
-            <td>150 ms</td>
-            <td>Prevents clipping of plosive consonants at word boundaries</td>
+            <td>Required by WebRTC VAD algorithm</td>
           </tr>
           <tr>
             <td>Min speech duration</td>
@@ -243,10 +238,10 @@ function Algorithms() {
 
       <h3>Inference Modes</h3>
       <p>
-        The quantised <strong>IBM Granite 4.0-Micro</strong> model [2], fine-tuned with QLoRA [3]
-        and converted to <strong>GGUF Q4_K_M</strong> format [4], generates natural-language race
+        The quantised <strong>IBM Granite 4.0-Micro</strong> model, fine-tuned with QLoRA
+        and converted to <strong>GGUF Q4_K_M</strong> format, generates natural-language race
         engineer radio messages from structured telemetry context. Inference is performed
-        via <strong>llama-cpp-python</strong> [4], a C++ backend that avoids Python-level overhead.
+        via <strong>llama-cpp-python</strong>, a C++ backend that avoids Python-level overhead.
       </p>
       <ul>
         <li>
@@ -257,11 +252,11 @@ function Algorithms() {
         <li>
           <strong>Reactive mode</strong> (driver query): When the driver asks a question via voice
           input, the prompt includes the query, relevant session context (pruned by query keywords),
-          and conversation history. Latency target: &lt; 10 seconds.
+          and conversation history. Latency target: &lt; 7 seconds.
         </li>
       </ul>
       <p>
-        Prompt formatting uses Granite's chat template with explicit role markers [2]:
+        Prompt formatting uses Granite's chat template with explicit role markers:
       </p>
       <pre className="code-block"><code>{`<|start_of_role|>system<|end_of_role|>{system_prompt}<|end_of_text|>
 <|start_of_role|>user<|end_of_role|>{user_prompt}<|end_of_text|>
@@ -270,7 +265,7 @@ function Algorithms() {
       <h3>Prompt Construction</h3>
       <p>
         Telemetry data undergoes <strong>query-aware context pruning</strong> before being included
-        in LLM prompts. The <code>to_prompt_context()</code> method dynamically includes or excludes
+        in LLM prompts. This was implemented to minimise the LLM pre-processing latency, by removing unnecessary data from the input prompts. The <code>to_prompt_context()</code> method dynamically includes or excludes
         context lines based on keyword analysis of the driver's query:
       </p>
       <table className="section-table">
@@ -310,7 +305,7 @@ function Algorithms() {
       <p>
         Core data (track name, lap/position, speed/gear/RPM) is always included. This reduces
         prompt token count by 30-60% for targeted queries, keeping inference within the 2048-token
-        context window [2].
+        context window.
       </p>
       <p>
         <strong>Constraint injection:</strong> For specific query categories, additional constraints
@@ -339,7 +334,7 @@ function Algorithms() {
         </li>
       </ol>
       <p>
-        The guardrail system reduces hallucination rates by approximately 50% — from ~8-15%
+        The guardrail system reduced hallucination rates by approximately 50% — from ~8-15%
         pre-guardrail to ~3-7% post-guardrail.
       </p>
 
@@ -403,13 +398,13 @@ function Algorithms() {
         A temperature of 0.15 was selected for live mode through iterative testing. At
         temperature 0.0 (greedy), responses became repetitive across similar events. At
         temperature 0.3, occasional hallucinations appeared under time pressure. The value 0.15
-        provided sufficient variety while maintaining factual grounding [2].
+        provided sufficient variety while maintaining factual grounding.
       </p>
 
       <h2>Text-to-Speech Output</h2>
       <p>
-        AI responses are vocalised using <strong>Kokoro</strong> [8], a lightweight neural TTS
-        system that runs inference via the <strong>ONNX Runtime</strong> [9] without requiring
+        AI responses are vocalised using <strong>Kokoro</strong>, a lightweight neural TTS
+        system that runs inference via the <strong>ONNX Runtime</strong> without requiring
         PyTorch. Kokoro uses a neural acoustic model to generate speech waveforms from text,
         producing natural-sounding output suitable for a race engineer persona.
       </p>
@@ -439,17 +434,16 @@ function Algorithms() {
           </tr>
           <tr>
             <td>Inference backend</td>
-            <td>ONNX on CPU (CUDA optional)</td>
-            <td>No PyTorch dependency; runs on consumer hardware</td>
+            <td>ONNX on CPU</td>
+            <td>No PyTorch dependency; runs on consumer hardware; avoids GPU contention</td>
           </tr>
         </tbody>
       </table>
       <p>
         A regex-based <strong>text preprocessor</strong> converts decimal numbers to spoken form
-        before synthesis to prevent mispronunciation of numerical data [8]:
+        before synthesis to prevent mispronunciation of numerical data:
       </p>
-      <pre className="code-block"><code>{`"1.5" → "1 point 5"
-"3.2s gap" → "3 point 2 s gap"`}</code></pre>
+      <pre className="code-block"><code>{`"1.5" → "1 point 5"`}</code></pre>
       <p>
         <strong>Sentence splitting</strong> uses a custom non-spaCy parser to avoid the spaCy
         dependency (~500 MB). The parser segments text using punctuation-based heuristics and
@@ -463,12 +457,12 @@ function Algorithms() {
         Before real telemetry data is available (i.e., before the first lap completes), fuel
         consumption is estimated using a pre-computed datasheet of car/track combinations. Matching
         the game's internal IDs (e.g., <code>ks_ferrari_458</code>) to the datasheet entries
-        requires <strong>fuzzy string matching</strong> using a three-pass cascade [10]:
+        requires <strong>fuzzy string matching</strong> using a three-pass cascade:
       </p>
       <ol>
-        <li><strong>Pass 1 — Exact match:</strong> Normalised strings are compared for equality (after lowercasing, accent stripping, prefix removal, and whitespace collapsing).</li>
-        <li><strong>Pass 2 — Substring containment:</strong> Either string is checked as a substring of the other.</li>
-        <li><strong>Pass 3 — Jaccard token overlap:</strong> Token sets are compared using the Jaccard similarity coefficient [10]:</li>
+        <li><strong>Pass 1 -- Exact match:</strong> Normalised strings are compared for equality (after lowercasing, accent stripping, prefix removal, and whitespace collapsing).</li>
+        <li><strong>Pass 2 -- Substring containment:</strong> Either string is checked as a substring of the other.</li>
+        <li><strong>Pass 3 -- Jaccard token overlap:</strong> Token sets are compared using the Jaccard similarity coefficient:</li>
       </ol>
       <pre className="code-block"><code>{`J(A, B) = |A ∩ B| / |A ∪ B|`}</code></pre>
       <p>
@@ -492,7 +486,7 @@ function Algorithms() {
         After a session ends, two specialised LLM agents process the recorded telemetry data for
         structured analysis. Both use the same Granite 4.0-Micro architecture as the live race
         engineer, but with a separate fine-tuned model optimised for longer-form analytical
-        output [2].
+        output.
       </p>
       <ul>
         <li>
@@ -507,7 +501,7 @@ function Algorithms() {
           aggregates rather than raw data) and generates 3-5 actionable coaching tips.
           Uses <code>max_tokens=500</code> and <code>temperature=0.6</code> for slightly more
           creative, encouraging output. Includes a <strong>truncation detection and retry
-          mechanism</strong> — if the response appears cut off, a more concise prompt is retried.
+          mechanism</strong> -- if the response appears cut off, a more concise prompt is retried.
           If the retry also truncates, a deterministic fallback generates coaching tips from the
           statistical summary without LLM involvement.
         </li>
@@ -539,7 +533,7 @@ function Algorithms() {
           </tr>
           <tr>
             <td>Time cap</td>
-            <td>5 seconds</td>
+            <td>8 seconds</td>
             <td>No hard limit</td>
           </tr>
         </tbody>
@@ -609,17 +603,12 @@ function Algorithms() {
           <tr>
             <td>lap_number</td>
             <td>int</td>
-            <td>Current lap index (0-indexed)</td>
+            <td>Current lap index</td>
           </tr>
           <tr>
             <td>position</td>
             <td>int</td>
             <td>Race position (1-indexed)</td>
-          </tr>
-          <tr>
-            <td>gap_ahead, gap_behind</td>
-            <td>float</td>
-            <td>Gap to adjacent cars (seconds)</td>
           </tr>
           <tr>
             <td>car_damage_&#123;front,rear,left,right,centre&#125;</td>
@@ -713,7 +702,7 @@ function Algorithms() {
           <tr>
             <td>Average response length</td>
             <td>12-18 words</td>
-            <td>15-25 words</td>
+            <td>15-30 words</td>
           </tr>
         </tbody>
       </table>
@@ -752,8 +741,7 @@ function Algorithms() {
       </table>
       <p>
         The <code>initial_prompt</code> seeding with racing vocabulary reduced domain-specific term
-        errors by an estimated 15-20% compared to default Whisper (e.g., "pit stop" instead of "pet
-        stop", "tyre" instead of "tire" for British English) [5].
+        errors by an estimated 15-20% compared to default Whisper.
       </p>
 
       <h2>Limitations and Future Work</h2>
@@ -765,14 +753,14 @@ function Algorithms() {
           incomplete (e.g., gap data unavailable in certain modes), the model occasionally
           fabricates gap times or opponent information despite explicit prompt constraints. The
           4-bit quantised model has reduced capacity to follow negative instructions compared to
-          full-precision models [3]. The guardrail system catches approximately 50% of these cases.
+          full-precision models. The guardrail system catches approximately 50% of these cases.
         </li>
         <li>
           <strong>Voice recognition in high-noise environments:</strong> The Whisper base model
           struggles with short, domain-specific queries in noisy racing environments (WER &gt; 20%).
           Common failure modes include:
           <ul>
-            <li>Misrecognition of similar-sounding terms ("brake" vs. "break", "tyre" vs. "tire")</li>
+            <li>Misrecognition of similar-sounding terms</li>
             <li>Truncation of very short queries (1-2 words) when the VAD triggers late</li>
             <li>False positive VAD activations from engine note changes or gear shifts</li>
           </ul>
@@ -801,7 +789,7 @@ function Algorithms() {
       <ol>
         <li>
           <strong>Larger Whisper model with GPU offload:</strong> Upgrading from Whisper base to
-          small or medium would significantly reduce WER in noisy environments [5], but requires
+          small or medium would significantly reduce WER in noisy environments, but requires
           GPU acceleration to maintain acceptable latency. Alternatively, domain-specific
           fine-tuning of the Whisper model on racing audio data would improve recognition without
           increasing model size.
@@ -810,7 +798,7 @@ function Algorithms() {
           <strong>Retrieval-augmented generation (RAG):</strong> Rather than relying solely on the
           current telemetry frame and rolling buffer, a RAG system could retrieve relevant
           historical data (previous session performance, track-specific insights) to provide richer
-          context for LLM responses [11].
+          context for LLM responses.
         </li>
         <li>
           <strong>Adaptive threshold tuning:</strong> The current fixed thresholds do not account
@@ -823,77 +811,102 @@ function Algorithms() {
           <strong>Streaming TTS:</strong> Currently, the full response is synthesised before
           playback begins. Implementing streaming synthesis (generating audio chunk-by-chunk as LLM
           tokens are produced) would reduce perceived latency by 1-2 seconds for longer
-          responses.
+          responses This implementation was attempted, but regressed pereived latency due to the minimal verbosity of live race engineer responses..
         </li>
       </ol>
 
       <h2>References</h2>
       <ol className="ref-list">
         <li>
-          [1] Erman, L. D. et al. — <em>The Hearsay-II Speech-Understanding System: Integrating Knowledge to Resolve Uncertainty</em> (ACM Computing Surveys, 1980)
+          Erman, L.D., Hayes-Roth, F., Lesser, V.R. and Reddy, D.R. (1980) 'The Hearsay-II
+          speech-understanding system: Integrating knowledge to resolve uncertainty', <em>ACM
+          Computing Surveys</em>, 12(2), pp. 213-253.
         </li>
         <li>
-          [2] Mishra, M. et al. — <em>Granite Code Models: A Family of Open Foundation Models for Code Intelligence</em> (IBM Research, 2024):{' '}
+          Mishra, M. <em>et al.</em> (2024) 'Granite code models: A family of open foundation
+          models for code intelligence', <em>arXiv</em>, 2405.04324. Available at:{' '}
           <a href="https://arxiv.org/abs/2405.04324" target="_blank" rel="noopener noreferrer">
             https://arxiv.org/abs/2405.04324
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [3] Dettmers, T. et al. — <em>QLoRA: Efficient Finetuning of Quantized Language Models</em> (NeurIPS 2023):{' '}
+          Dettmers, T., Pagnoni, A., Holtzman, A. and Zettlemoyer, L. (2023) 'QLoRA: Efficient
+          finetuning of quantized language models', <em>Advances in Neural Information Processing
+          Systems</em>. Available at:{' '}
           <a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener noreferrer">
             https://arxiv.org/abs/2305.14314
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [4] Gerganov, G. — <em>llama.cpp: LLM Inference in C/C++</em> (GitHub, 2023):{' '}
+          Gerganov, G. (2023) <em>llama.cpp: Inference of Meta's LLaMA model in pure C/C++</em>.
+          GitHub. Available at:{' '}
           <a href="https://github.com/ggerganov/llama.cpp" target="_blank" rel="noopener noreferrer">
             https://github.com/ggerganov/llama.cpp
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [5] Radford, A. et al. — <em>Robust Speech Recognition via Large-Scale Weak Supervision</em> (ICML 2023):{' '}
+          Radford, A., Kim, J.W., Xu, T., Brockman, G., McLeavey, C. and Sutskever, I. (2023)
+          'Robust speech recognition via large-scale weak supervision', in <em>Proceedings of the
+          40th International Conference on Machine Learning</em>, pp. 28492-28518. Available at:{' '}
           <a href="https://arxiv.org/abs/2212.04356" target="_blank" rel="noopener noreferrer">
             https://arxiv.org/abs/2212.04356
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [6] Klein, G. — <em>CTranslate2: Fast Inference Engine for Transformer Models</em> (GitHub, 2020):{' '}
+          Klein, G. (2020) <em>CTranslate2: Fast inference engine for Transformer models</em>.
+          GitHub. Available at:{' '}
           <a href="https://github.com/OpenNMT/CTranslate2" target="_blank" rel="noopener noreferrer">
             https://github.com/OpenNMT/CTranslate2
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [7] Google — <em>WebRTC: Real-Time Communication for the Web</em> (2011):{' '}
+          Google (2011) <em>WebRTC: Real-time communication for the web</em>. Available at:{' '}
           <a href="https://webrtc.org/" target="_blank" rel="noopener noreferrer">
             https://webrtc.org/
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [8] Hexgrad — <em>Kokoro: Lightweight Neural Text-to-Speech</em> (GitHub, 2024):{' '}
+          Hexgrad (2024) <em>Kokoro: Lightweight neural text-to-speech</em>. GitHub. Available at:{' '}
           <a href="https://github.com/hexgrad/kokoro" target="_blank" rel="noopener noreferrer">
             https://github.com/hexgrad/kokoro
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [9] ONNX Runtime developers — <em>ONNX Runtime: Cross-Platform, High Performance ML Inferencing and Training Accelerator</em> (Microsoft, 2019):{' '}
+          ONNX Runtime developers (2019) <em>ONNX Runtime: Cross-platform, high performance ML
+          inferencing and training accelerator</em>. Microsoft. Available at:{' '}
           <a href="https://onnxruntime.ai/" target="_blank" rel="noopener noreferrer">
             https://onnxruntime.ai/
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [10] Jaccard, P. — <em>The Distribution of the Flora in the Alpine Zone</em> (New Phytologist, 1912)
+          Jaccard, P. (1912) 'The distribution of the flora in the alpine zone', <em>New
+          Phytologist</em>, 11(2), pp. 37-50.
         </li>
         <li>
-          [11] Lewis, P. et al. — <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em> (NeurIPS 2020):{' '}
+          Lewis, P. <em>et al.</em> (2020) 'Retrieval-augmented generation for knowledge-intensive
+          NLP tasks', <em>Advances in Neural Information Processing Systems</em>, 33, pp. 9459-9474.
+          Available at:{' '}
           <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">
             https://arxiv.org/abs/2005.11401
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
         <li>
-          [12] Leviathan, Y. et al. — <em>Fast Inference from Transformers via Speculative Decoding</em> (ICML 2023):{' '}
+          Leviathan, Y., Kalman, M. and Matias, Y. (2023) 'Fast inference from transformers via
+          speculative decoding', in <em>Proceedings of the 40th International Conference on Machine
+          Learning</em>, pp. 19274-19286. Available at:{' '}
           <a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="noopener noreferrer">
             https://arxiv.org/abs/2211.17192
-          </a>
+          </a>{' '}
+          (Accessed: 25 March 2026).
         </li>
       </ol>
       </>)}
