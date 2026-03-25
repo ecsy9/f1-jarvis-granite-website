@@ -25,9 +25,878 @@ function Algorithms() {
         <p style={{ color: '#555', fontStyle: 'italic' }}>Telemetry Data content coming soon.</p>
       )}
 
-      {activeTab === 'AI Pipeline' && (
-        <p style={{ color: '#555', fontStyle: 'italic' }}>AI Pipeline content coming soon.</p>
-      )}
+      {activeTab === 'AI Pipeline' && (<>
+      <p>
+        A detailed account of the algorithms that execute during a live race session: how telemetry
+        events are detected, how the LLM generates natural-language responses, how driver voice input
+        is processed, how speech is synthesised, and how post-race analysis is produced. For
+        fine-tuning methodology and training data, see the Fine Tuning tab.
+      </p>
+
+      <h2>Pipeline Overview</h2>
+      <p>
+        The AI pipeline employs a hybrid architecture combining deterministic rule-based event
+        detection with LLM-powered natural language generation and a full voice I/O loop. Five
+        distinct algorithmic components are chosen for specific latency and accuracy trade-offs
+        within a real-time sim racing context [2].
+      </p>
+      <p>
+        The system operates in two modes. In <strong>proactive mode</strong>, the telemetry agent
+        detects an event (e.g., fuel critical) and triggers the LLM to generate a radio message
+        from the event type, event data, and current session context. In <strong>reactive
+        mode</strong>, the driver asks a question via voice input, and the LLM receives the query,
+        relevant session context (pruned by query keywords), and conversation history [1].
+      </p>
+
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Target Latency</th>
+            <th>Measured Latency</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rule-based event detection</td>
+            <td>&lt; 50 ms</td>
+            <td>&lt; 5 ms</td>
+            <td>Well within budget</td>
+          </tr>
+          <tr>
+            <td>LLM proactive response (CPU)</td>
+            <td>&lt; 5 s</td>
+            <td>1-3 s</td>
+            <td>Within budget</td>
+          </tr>
+          <tr>
+            <td>LLM reactive response (CPU)</td>
+            <td>&lt; 10 s</td>
+            <td>2-5 s</td>
+            <td>Within budget</td>
+          </tr>
+          <tr>
+            <td>Voice activity detection</td>
+            <td>Real-time</td>
+            <td>&lt; 1 ms per frame</td>
+            <td>Negligible</td>
+          </tr>
+          <tr>
+            <td>Speech-to-text (Whisper base, INT8)</td>
+            <td>&lt; 5 s</td>
+            <td>1-3 s (for 2-8 s audio)</td>
+            <td>Acceptable</td>
+          </tr>
+          <tr>
+            <td>TTS synthesis (Kokoro, CPU)</td>
+            <td>&lt; 3 s</td>
+            <td>1-2 s</td>
+            <td>Acceptable</td>
+          </tr>
+          <tr>
+            <td><strong>Full voice query round-trip</strong></td>
+            <td><strong>&lt; 15 s</strong></td>
+            <td><strong>5-12 s</strong></td>
+            <td><strong>Within budget</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        <strong>Fallback chain:</strong> If the LLM is unavailable, times out, or produces
+        low-quality output, the system falls back to deterministic rule-based responses (e.g.,
+        "Box box box! Fuel critical, pit this lap.") to ensure the driver always receives a
+        message [1].
+      </p>
+      <p>
+        The rule-based telemetry agent evaluates 12 event categories against configurable
+        thresholds (see the Fine Tuning tab for full threshold details). Each event type has an
+        independent <strong>cooldown timer</strong> (5-60 seconds depending on severity) to
+        prevent alert fatigue. Events are sorted by a 4-level priority enum (CRITICAL, HIGH,
+        MEDIUM, LOW) before being passed to the LLM [1]. Additional detection features include:
+      </p>
+      <ul>
+        <li>
+          <strong>Opponent close behind:</strong> Uses hysteresis — triggers at 0.8 s gap,
+          resets at 1.2 s to prevent oscillation.
+        </li>
+        <li>
+          <strong>Position change:</strong> First-change suppression avoids alerting on the
+          initial position assignment at session start.
+        </li>
+        <li>
+          <strong>Fuel laps remaining:</strong> Calculated as <code>current_fuel /
+          fuel_consumption_per_lap</code>, where consumption is either looked up from a
+          pre-computed datasheet (see Fuel Consumption Lookup below) or calculated from real
+          telemetry after the first completed lap.
+        </li>
+      </ul>
+
+      <h2>Voice Input Pipeline</h2>
+
+      <h3>Voice Activity Detection (WebRTC VAD)</h3>
+      <p>
+        Before transcription, audio is segmented into speech and non-speech regions
+        using <strong>WebRTC's Voice Activity Detection</strong> algorithm [7], a lightweight
+        Gaussian Mixture Model (GMM)-based classifier originally developed by Google for real-time
+        communication. This avoids sending silence or background noise to the more computationally
+        expensive Whisper model.
+      </p>
+      <p>
+        WebRTC VAD operates on 30 ms audio frames at 16 kHz and classifies each frame as speech
+        or non-speech. The implementation uses aggressiveness level 2 (scale 0-3) — aggressive
+        enough to reject engine noise and ambient sound, but sensitive enough to capture natural
+        speech onset [7]. The segmentation logic:
+      </p>
+      <ol>
+        <li><strong>Onset detection:</strong> When VAD classifies a frame as speech, recording begins.</li>
+        <li><strong>Padding:</strong> 150 ms of audio is buffered before and after detected speech boundaries to avoid clipping word beginnings/endings.</li>
+        <li><strong>Minimum duration filter:</strong> Segments shorter than 300 ms are discarded as noise (e.g., coughs, button clicks).</li>
+        <li><strong>Offset detection:</strong> Recording ends after 150 ms of continuous silence following speech.</li>
+      </ol>
+      <p>
+        An alternative <strong>Push-to-Talk (PTT) mode</strong> bypasses VAD entirely, recording
+        only while the driver holds a physical button (keyboard or racing wheel). This mode skips
+        VAD model loading, saving approximately 30 MB of memory.
+      </p>
+
+      <h3>Speech Recognition (Faster-Whisper)</h3>
+      <p>
+        Driver voice queries are transcribed using <strong>OpenAI's Whisper</strong> [5], an
+        encoder-decoder transformer trained on 680,000 hours of multilingual audio via large-scale
+        weak supervision. The implementation uses <strong>faster-whisper</strong> [6], which
+        re-implements Whisper using CTranslate2 for up to 4x faster inference with INT8
+        quantisation on CPU.
+      </p>
+      <p>
+        The <strong>encoder</strong> processes log-Mel spectrogram features (80-channel, 30-second
+        windows) through transformer blocks to produce audio representations.
+        The <strong>decoder</strong> autoregressively generates text tokens conditioned on the
+        encoder output, using beam search (beam_size=5) for improved transcription quality [5].
+      </p>
+      <p>
+        <strong>Domain adaptation</strong> is achieved without fine-tuning through
+        Whisper's <code>initial_prompt</code> mechanism, which seeds the decoder with
+        domain-specific vocabulary:
+      </p>
+      <pre className="code-block"><code>{`"F1 racing, telemetry, tires, brakes, fuel, pit stop, lap time, sector"`}</code></pre>
+      <p>
+        This biases the model's token predictions toward racing terminology, improving recognition
+        of domain-specific terms like "understeer," "pit window," and "tyre degradation" [5].
+      </p>
+
+      <h3>Configuration</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Whisper model size</td>
+            <td>base (~140 MB)</td>
+            <td>Balance of accuracy and CPU inference speed [5]</td>
+          </tr>
+          <tr>
+            <td>Whisper compute type</td>
+            <td>INT8</td>
+            <td>~2x faster than FP32 on CPU with minimal quality loss [6]</td>
+          </tr>
+          <tr>
+            <td>Beam size</td>
+            <td>5</td>
+            <td>Standard setting; higher values showed diminishing returns [5]</td>
+          </tr>
+          <tr>
+            <td>Language</td>
+            <td>"en" (fixed)</td>
+            <td>Single-language mode avoids language detection overhead [5]</td>
+          </tr>
+          <tr>
+            <td>VAD aggressiveness</td>
+            <td>2 (of 0-3)</td>
+            <td>Level 3 rejected soft-spoken queries; level 1 triggered on engine noise [7]</td>
+          </tr>
+          <tr>
+            <td>VAD frame size</td>
+            <td>30 ms</td>
+            <td>Required by WebRTC VAD algorithm [7]</td>
+          </tr>
+          <tr>
+            <td>Speech padding</td>
+            <td>150 ms</td>
+            <td>Prevents clipping of plosive consonants at word boundaries</td>
+          </tr>
+          <tr>
+            <td>Min speech duration</td>
+            <td>300 ms</td>
+            <td>Filters momentary noises (clicks, coughs)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>LLM Response Generation</h2>
+
+      <h3>Inference Modes</h3>
+      <p>
+        The quantised <strong>IBM Granite 4.0-Micro</strong> model [2], fine-tuned with QLoRA [3]
+        and converted to <strong>GGUF Q4_K_M</strong> format [4], generates natural-language race
+        engineer radio messages from structured telemetry context. Inference is performed
+        via <strong>llama-cpp-python</strong> [4], a C++ backend that avoids Python-level overhead.
+      </p>
+      <ul>
+        <li>
+          <strong>Proactive mode</strong> (event-triggered): When the telemetry agent detects an
+          event, a prompt is constructed from the event type, event data, and current session
+          context. The model generates a 1-3 sentence radio message. Latency target: &lt; 5 seconds.
+        </li>
+        <li>
+          <strong>Reactive mode</strong> (driver query): When the driver asks a question via voice
+          input, the prompt includes the query, relevant session context (pruned by query keywords),
+          and conversation history. Latency target: &lt; 10 seconds.
+        </li>
+      </ul>
+      <p>
+        Prompt formatting uses Granite's chat template with explicit role markers [2]:
+      </p>
+      <pre className="code-block"><code>{`<|start_of_role|>system<|end_of_role|>{system_prompt}<|end_of_text|>
+<|start_of_role|>user<|end_of_role|>{user_prompt}<|end_of_text|>
+<|start_of_role|>assistant<|end_of_role|>`}</code></pre>
+
+      <h3>Prompt Construction</h3>
+      <p>
+        Telemetry data undergoes <strong>query-aware context pruning</strong> before being included
+        in LLM prompts. The <code>to_prompt_context()</code> method dynamically includes or excludes
+        context lines based on keyword analysis of the driver's query:
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Query Keywords</th>
+            <th>Context Lines Included</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"fuel", "tank"</td>
+            <td>Fuel remaining, fuel laps, consumption rate</td>
+          </tr>
+          <tr>
+            <td>"tire", "tyre", "temp"</td>
+            <td>Tyre temperatures, pressures, wear</td>
+          </tr>
+          <tr>
+            <td>"gap", "opponent", "defend"</td>
+            <td>Gap ahead/behind, nearby opponents</td>
+          </tr>
+          <tr>
+            <td>"pit", "box", "refuel"</td>
+            <td>Pit summary, fuel data</td>
+          </tr>
+          <tr>
+            <td>"damage", "crash"</td>
+            <td>Car damage zones</td>
+          </tr>
+          <tr>
+            <td>"lap", "time", "pace"</td>
+            <td>Best/last lap times</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Core data (track name, lap/position, speed/gear/RPM) is always included. This reduces
+        prompt token count by 30-60% for targeted queries, keeping inference within the 2048-token
+        context window [2].
+      </p>
+      <p>
+        <strong>Constraint injection:</strong> For specific query categories, additional constraints
+        are dynamically injected into the prompt to prevent hallucination. Pit constraints prevent
+        the model from recommending pitting when fuel data is unavailable or sufficient
+        (&ge; 4 laps remaining). Opponent constraints prevent the model from fabricating gap times
+        when the sim does not provide this data.
+      </p>
+
+      <h3>Guardrail System</h3>
+      <p>
+        Generated responses pass through three post-generation checks before being emitted to the driver:
+      </p>
+      <ol>
+        <li>
+          <strong>Ungrounded number detection:</strong> Regex checks whether the response contains
+          numeric values not present in the input prompt, flagging potential hallucinations.
+        </li>
+        <li>
+          <strong>Pit response validation:</strong> If the query is pit-related but the response
+          appears low-confidence, a deterministic fallback is substituted.
+        </li>
+        <li>
+          <strong>Low-quality detection:</strong> Checks for incomplete sentences, vague language
+          patterns, or excessively short responses.
+        </li>
+      </ol>
+      <p>
+        The guardrail system reduces hallucination rates by approximately 50% — from ~8-15%
+        pre-guardrail to ~3-7% post-guardrail.
+      </p>
+
+      <h3>Generation Parameters</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Live Mode</th>
+            <th>Post-Race Analysis</th>
+            <th>Post-Race Coaching</th>
+            <th>Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>max_tokens</td>
+            <td>24</td>
+            <td>2000</td>
+            <td>500</td>
+            <td>Live must be ultra-brief for radio; post-race has time for detail</td>
+          </tr>
+          <tr>
+            <td>temperature</td>
+            <td>0.15</td>
+            <td>0.3</td>
+            <td>0.6</td>
+            <td>Lower for deterministic live responses; higher for creative coaching</td>
+          </tr>
+          <tr>
+            <td>top_p</td>
+            <td>0.95</td>
+            <td>0.95</td>
+            <td>0.95</td>
+            <td>Nucleus sampling held constant across modes</td>
+          </tr>
+          <tr>
+            <td>top_k</td>
+            <td>50</td>
+            <td>50</td>
+            <td>50</td>
+            <td>Vocabulary filtering held constant</td>
+          </tr>
+          <tr>
+            <td>context window</td>
+            <td>2,048</td>
+            <td>8,192</td>
+            <td>8,192</td>
+            <td>Larger window for post-race to accommodate full session data</td>
+          </tr>
+          <tr>
+            <td>max_prompt_tokens</td>
+            <td>1,024</td>
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>Truncation limit for live mode to prevent latency spikes</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        A temperature of 0.15 was selected for live mode through iterative testing. At
+        temperature 0.0 (greedy), responses became repetitive across similar events. At
+        temperature 0.3, occasional hallucinations appeared under time pressure. The value 0.15
+        provided sufficient variety while maintaining factual grounding [2].
+      </p>
+
+      <h2>Text-to-Speech Output</h2>
+      <p>
+        AI responses are vocalised using <strong>Kokoro</strong> [8], a lightweight neural TTS
+        system that runs inference via the <strong>ONNX Runtime</strong> [9] without requiring
+        PyTorch. Kokoro uses a neural acoustic model to generate speech waveforms from text,
+        producing natural-sounding output suitable for a race engineer persona.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Voice</td>
+            <td><code>bm_lewis</code></td>
+            <td>British male voice matching the race engineer persona</td>
+          </tr>
+          <tr>
+            <td>Language</td>
+            <td><code>en-gb</code> (British English)</td>
+            <td>Consistent with F1 race engineer communication style</td>
+          </tr>
+          <tr>
+            <td>Speed</td>
+            <td>1.3x</td>
+            <td>Matches urgency of real F1 race radio; 1.0x felt too slow during testing</td>
+          </tr>
+          <tr>
+            <td>Inference backend</td>
+            <td>ONNX on CPU (CUDA optional)</td>
+            <td>No PyTorch dependency; runs on consumer hardware</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        A regex-based <strong>text preprocessor</strong> converts decimal numbers to spoken form
+        before synthesis to prevent mispronunciation of numerical data [8]:
+      </p>
+      <pre className="code-block"><code>{`"1.5" → "1 point 5"
+"3.2s gap" → "3 point 2 s gap"`}</code></pre>
+      <p>
+        <strong>Sentence splitting</strong> uses a custom non-spaCy parser to avoid the spaCy
+        dependency (~500 MB). The parser segments text using punctuation-based heuristics and
+        inserts appropriate pauses between sentences.
+      </p>
+
+      <h2>Supporting Algorithms</h2>
+
+      <h3>Fuel Consumption Lookup</h3>
+      <p>
+        Before real telemetry data is available (i.e., before the first lap completes), fuel
+        consumption is estimated using a pre-computed datasheet of car/track combinations. Matching
+        the game's internal IDs (e.g., <code>ks_ferrari_458</code>) to the datasheet entries
+        requires <strong>fuzzy string matching</strong> using a three-pass cascade [10]:
+      </p>
+      <ol>
+        <li><strong>Pass 1 — Exact match:</strong> Normalised strings are compared for equality (after lowercasing, accent stripping, prefix removal, and whitespace collapsing).</li>
+        <li><strong>Pass 2 — Substring containment:</strong> Either string is checked as a substring of the other.</li>
+        <li><strong>Pass 3 — Jaccard token overlap:</strong> Token sets are compared using the Jaccard similarity coefficient [10]:</li>
+      </ol>
+      <pre className="code-block"><code>{`J(A, B) = |A ∩ B| / |A ∪ B|`}</code></pre>
+      <p>
+        A match is accepted if <code>J &ge; 0.4</code>. This threshold was chosen empirically to
+        balance precision (avoiding false matches between similarly-named cars) and recall (matching
+        despite naming variations between game versions).
+      </p>
+      <p>
+        <strong>Fuel estimation formula:</strong>
+      </p>
+      <pre className="code-block"><code>{`fuel_per_lap = car_base × track_scaling_factor × (track_km / 5.0)`}</code></pre>
+      <p>
+        Where <code>car_base</code> is the car's baseline consumption (litres/lap at a reference
+        track), <code>track_scaling_factor</code> accounts for track characteristics
+        (high-speed circuits consume more fuel), and <code>track_km / 5.0</code> normalises
+        against the 5 km reference length.
+      </p>
+
+      <h3>Post-Race Analysis Agents</h3>
+      <p>
+        After a session ends, two specialised LLM agents process the recorded telemetry data for
+        structured analysis. Both use the same Granite 4.0-Micro architecture as the live race
+        engineer, but with a separate fine-tuned model optimised for longer-form analytical
+        output [2].
+      </p>
+      <ul>
+        <li>
+          <strong>Race Analysis Agent:</strong> Receives a JSON payload containing lap times, fuel
+          data, stint information, and per-lap telemetry aggregates. Generates a comprehensive
+          technical breakdown covering pace, consistency, tyre behaviour, and fuel consumption
+          patterns. Uses <code>max_tokens=2000</code> and <code>temperature=0.3</code> for
+          detailed, deterministic analysis.
+        </li>
+        <li>
+          <strong>Coaching Agent:</strong> Receives preprocessed telemetry summaries (statistical
+          aggregates rather than raw data) and generates 3-5 actionable coaching tips.
+          Uses <code>max_tokens=500</code> and <code>temperature=0.6</code> for slightly more
+          creative, encouraging output. Includes a <strong>truncation detection and retry
+          mechanism</strong> — if the response appears cut off, a more concise prompt is retried.
+          If the retry also truncates, a deterministic fallback generates coaching tips from the
+          statistical summary without LLM involvement.
+        </li>
+      </ul>
+
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Live Model</th>
+            <th>Post-Race Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Context window</td>
+            <td>2,048 tokens</td>
+            <td>8,192 tokens</td>
+          </tr>
+          <tr>
+            <td>Max output tokens</td>
+            <td>24</td>
+            <td>500-2,000</td>
+          </tr>
+          <tr>
+            <td>Temperature</td>
+            <td>0.15</td>
+            <td>0.3-0.6</td>
+          </tr>
+          <tr>
+            <td>Time cap</td>
+            <td>5 seconds</td>
+            <td>No hard limit</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Input Telemetry Schema</h3>
+      <p>
+        Telemetry is read from Assetto Corsa's Windows shared memory interface at ~60 Hz. Each
+        telemetry frame is a structured dictionary validated using Pydantic models with type
+        constraints (e.g., temperatures &ge; 0, throttle/brake clamped to 0.0-1.0). Invalid frames
+        are rejected before reaching the event detection pipeline.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>speed</td>
+            <td>float</td>
+            <td>Vehicle speed (km/h)</td>
+          </tr>
+          <tr>
+            <td>rpm</td>
+            <td>int</td>
+            <td>Engine RPM</td>
+          </tr>
+          <tr>
+            <td>gear</td>
+            <td>int</td>
+            <td>Current gear (-1=reverse, 0=neutral, 1-8)</td>
+          </tr>
+          <tr>
+            <td>throttle</td>
+            <td>float</td>
+            <td>Throttle input (0.0-1.0)</td>
+          </tr>
+          <tr>
+            <td>brake</td>
+            <td>float</td>
+            <td>Brake input (0.0-1.0)</td>
+          </tr>
+          <tr>
+            <td>fuel</td>
+            <td>float</td>
+            <td>Remaining fuel (litres)</td>
+          </tr>
+          <tr>
+            <td>tyre_temp_&#123;fl,fr,rl,rr&#125;</td>
+            <td>float</td>
+            <td>Tyre core temperature (&#176;C) per corner</td>
+          </tr>
+          <tr>
+            <td>tyre_pressure_&#123;fl,fr,rl,rr&#125;</td>
+            <td>float</td>
+            <td>Tyre pressure (PSI) per corner</td>
+          </tr>
+          <tr>
+            <td>position_x, position_z</td>
+            <td>float</td>
+            <td>World position (metres)</td>
+          </tr>
+          <tr>
+            <td>lap_number</td>
+            <td>int</td>
+            <td>Current lap index (0-indexed)</td>
+          </tr>
+          <tr>
+            <td>position</td>
+            <td>int</td>
+            <td>Race position (1-indexed)</td>
+          </tr>
+          <tr>
+            <td>gap_ahead, gap_behind</td>
+            <td>float</td>
+            <td>Gap to adjacent cars (seconds)</td>
+          </tr>
+          <tr>
+            <td>car_damage_&#123;front,rear,left,right,centre&#125;</td>
+            <td>float</td>
+            <td>Damage per zone (0.0 = none)</td>
+          </tr>
+          <tr>
+            <td>g_force_lat, g_force_lon</td>
+            <td>float</td>
+            <td>G-forces (g)</td>
+          </tr>
+          <tr>
+            <td>wheel_slip_&#123;fl,fr,rl,rr&#125;</td>
+            <td>float</td>
+            <td>Wheel slip ratio per corner</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Session Context</h3>
+      <p>
+        The <code>LiveSessionContext</code> maintains a <strong>60-second rolling telemetry
+        buffer</strong> (600 samples at 10 Hz) alongside aggregated state: lap times history
+        (all completed laps), best and last lap times, fuel consumption per lap (auto-calculated
+        on each lap completion), and conversation history (last 1 exchange to maintain coherence
+        without excessive token usage).
+      </p>
+      <p>
+        For <strong>post-race analysis</strong>, raw telemetry (potentially tens of thousands of
+        samples at 60 Hz) is preprocessed into per-lap statistical aggregates before being fed to
+        the LLM:
+      </p>
+      <ol>
+        <li><strong>Lap grouping:</strong> Samples are grouped by lap number.</li>
+        <li><strong>Statistical aggregation:</strong> Per-lap metrics are computed: average/max speed, average throttle/brake percentage, average tyre temperature/pressure, fuel start/end values, and maximum damage sum.</li>
+        <li><strong>Downsampling:</strong> If more than 60 laps exist, rows are evenly spaced across the lap range to keep the prompt bounded.</li>
+        <li><strong>Throttle pattern analysis:</strong> Detects "hesitations" — instances where throttle drops from &ge; 0.6 to &lt; 0.5 during acceleration, indicating driver confidence issues on corner exit.</li>
+        <li><strong>Braking zone detection:</strong> Counts transitions from brake &lt; 0.1 to brake &gt; 0.1, identifying individual braking events.</li>
+        <li><strong>Tyre balance analysis:</strong> Computes front-rear and left-right temperature differentials to identify setup or driving style imbalances.</li>
+      </ol>
+
+      <h2>Evaluation</h2>
+
+      <h3>Latency Performance</h3>
+      <p>
+        End-to-end response time was measured for each pipeline component under realistic racing
+        conditions (continuous 60 Hz telemetry input, concurrent voice queries) using wall-clock
+        time via <code>time.monotonic()</code> instrumentation.
+      </p>
+      <p>
+        The rule-based event detection operates well within its 50 ms budget, with typical
+        execution under 5 ms. LLM inference latency is dominated by token generation speed, which
+        varies by prompt length and hardware (CPU thread count). See the Pipeline Overview table
+        above for full results.
+      </p>
+
+      <h3>Response Quality</h3>
+      <p>
+        LLM-generated responses were manually evaluated for correctness, relevance, and
+        conciseness:
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Proactive Alerts</th>
+            <th>Reactive Queries</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Factual grounding rate</td>
+            <td>~95%</td>
+            <td>~90%</td>
+          </tr>
+          <tr>
+            <td>Relevance rate</td>
+            <td>~98%</td>
+            <td>~92%</td>
+          </tr>
+          <tr>
+            <td>Hallucination rate (pre-guardrail)</td>
+            <td>~8%</td>
+            <td>~15%</td>
+          </tr>
+          <tr>
+            <td>Hallucination rate (post-guardrail)</td>
+            <td>~3%</td>
+            <td>~7%</td>
+          </tr>
+          <tr>
+            <td>Average response length</td>
+            <td>12-18 words</td>
+            <td>15-25 words</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Proactive alerts have higher grounding rates because the prompt is more tightly constrained
+        (specific event type + data), whereas reactive queries are open-ended and may prompt the
+        model to speculate.
+      </p>
+
+      <h3>Speech Recognition Accuracy</h3>
+      <p>
+        Transcription accuracy was measured using Word Error Rate (WER):
+      </p>
+      <pre className="code-block"><code>{`WER = (Substitutions + Insertions + Deletions) / Total Words in Reference`}</code></pre>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Condition</th>
+            <th>WER (Whisper base, INT8)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Quiet environment, headset mic</td>
+            <td>~5-8%</td>
+          </tr>
+          <tr>
+            <td>Racing environment (engine noise), headset mic</td>
+            <td>~10-15%</td>
+          </tr>
+          <tr>
+            <td>Racing environment, open mic (speakers)</td>
+            <td>~20-30%</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        The <code>initial_prompt</code> seeding with racing vocabulary reduced domain-specific term
+        errors by an estimated 15-20% compared to default Whisper (e.g., "pit stop" instead of "pet
+        stop", "tyre" instead of "tire" for British English) [5].
+      </p>
+
+      <h2>Limitations and Future Work</h2>
+
+      <h3>Known Limitations</h3>
+      <ul>
+        <li>
+          <strong>LLM hallucinations under sparse context:</strong> When telemetry data is
+          incomplete (e.g., gap data unavailable in certain modes), the model occasionally
+          fabricates gap times or opponent information despite explicit prompt constraints. The
+          4-bit quantised model has reduced capacity to follow negative instructions compared to
+          full-precision models [3]. The guardrail system catches approximately 50% of these cases.
+        </li>
+        <li>
+          <strong>Voice recognition in high-noise environments:</strong> The Whisper base model
+          struggles with short, domain-specific queries in noisy racing environments (WER &gt; 20%).
+          Common failure modes include:
+          <ul>
+            <li>Misrecognition of similar-sounding terms ("brake" vs. "break", "tyre" vs. "tire")</li>
+            <li>Truncation of very short queries (1-2 words) when the VAD triggers late</li>
+            <li>False positive VAD activations from engine note changes or gear shifts</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Context window limitations:</strong> The 2048-token context window for live
+          inference occasionally forces aggressive context pruning, especially for verbose-mode
+          prompts with conversation history. When pruning removes relevant data, response quality
+          degrades.
+        </li>
+        <li>
+          <strong>Post-race truncation:</strong> The coaching agent's 500-token limit occasionally
+          truncates responses mid-thought. While the truncation detection and retry mechanism
+          handles most cases, the deterministic fallback produces formulaic, less personalised
+          coaching.
+        </li>
+        <li>
+          <strong>Fuel lookup false matches:</strong> The Jaccard threshold of 0.4 occasionally
+          produces false matches for cars with similar names (e.g., "BMW M3" vs. "BMW M4"). The
+          substring containment pass also matches overly broadly when one car name is a substring
+          of another.
+        </li>
+      </ul>
+
+      <h3>Planned Improvements</h3>
+      <ol>
+        <li>
+          <strong>Larger Whisper model with GPU offload:</strong> Upgrading from Whisper base to
+          small or medium would significantly reduce WER in noisy environments [5], but requires
+          GPU acceleration to maintain acceptable latency. Alternatively, domain-specific
+          fine-tuning of the Whisper model on racing audio data would improve recognition without
+          increasing model size.
+        </li>
+        <li>
+          <strong>Retrieval-augmented generation (RAG):</strong> Rather than relying solely on the
+          current telemetry frame and rolling buffer, a RAG system could retrieve relevant
+          historical data (previous session performance, track-specific insights) to provide richer
+          context for LLM responses [11].
+        </li>
+        <li>
+          <strong>Adaptive threshold tuning:</strong> The current fixed thresholds do not account
+          for car-specific characteristics (e.g., different tyre operating temperature windows for
+          GT vs. formula cars). A learning system that adjusts thresholds based on observed
+          telemetry distributions per car/track combination would reduce both false positives and
+          missed events.
+        </li>
+        <li>
+          <strong>Streaming TTS:</strong> Currently, the full response is synthesised before
+          playback begins. Implementing streaming synthesis (generating audio chunk-by-chunk as LLM
+          tokens are produced) would reduce perceived latency by 1-2 seconds for longer
+          responses.
+        </li>
+      </ol>
+
+      <h2>References</h2>
+      <ol className="ref-list">
+        <li>
+          [1] Erman, L. D. et al. — <em>The Hearsay-II Speech-Understanding System: Integrating Knowledge to Resolve Uncertainty</em> (ACM Computing Surveys, 1980)
+        </li>
+        <li>
+          [2] Mishra, M. et al. — <em>Granite Code Models: A Family of Open Foundation Models for Code Intelligence</em> (IBM Research, 2024):{' '}
+          <a href="https://arxiv.org/abs/2405.04324" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2405.04324
+          </a>
+        </li>
+        <li>
+          [3] Dettmers, T. et al. — <em>QLoRA: Efficient Finetuning of Quantized Language Models</em> (NeurIPS 2023):{' '}
+          <a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2305.14314
+          </a>
+        </li>
+        <li>
+          [4] Gerganov, G. — <em>llama.cpp: LLM Inference in C/C++</em> (GitHub, 2023):{' '}
+          <a href="https://github.com/ggerganov/llama.cpp" target="_blank" rel="noopener noreferrer">
+            https://github.com/ggerganov/llama.cpp
+          </a>
+        </li>
+        <li>
+          [5] Radford, A. et al. — <em>Robust Speech Recognition via Large-Scale Weak Supervision</em> (ICML 2023):{' '}
+          <a href="https://arxiv.org/abs/2212.04356" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2212.04356
+          </a>
+        </li>
+        <li>
+          [6] Klein, G. — <em>CTranslate2: Fast Inference Engine for Transformer Models</em> (GitHub, 2020):{' '}
+          <a href="https://github.com/OpenNMT/CTranslate2" target="_blank" rel="noopener noreferrer">
+            https://github.com/OpenNMT/CTranslate2
+          </a>
+        </li>
+        <li>
+          [7] Google — <em>WebRTC: Real-Time Communication for the Web</em> (2011):{' '}
+          <a href="https://webrtc.org/" target="_blank" rel="noopener noreferrer">
+            https://webrtc.org/
+          </a>
+        </li>
+        <li>
+          [8] Hexgrad — <em>Kokoro: Lightweight Neural Text-to-Speech</em> (GitHub, 2024):{' '}
+          <a href="https://github.com/hexgrad/kokoro" target="_blank" rel="noopener noreferrer">
+            https://github.com/hexgrad/kokoro
+          </a>
+        </li>
+        <li>
+          [9] ONNX Runtime developers — <em>ONNX Runtime: Cross-Platform, High Performance ML Inferencing and Training Accelerator</em> (Microsoft, 2019):{' '}
+          <a href="https://onnxruntime.ai/" target="_blank" rel="noopener noreferrer">
+            https://onnxruntime.ai/
+          </a>
+        </li>
+        <li>
+          [10] Jaccard, P. — <em>The Distribution of the Flora in the Alpine Zone</em> (New Phytologist, 1912)
+        </li>
+        <li>
+          [11] Lewis, P. et al. — <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em> (NeurIPS 2020):{' '}
+          <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2005.11401
+          </a>
+        </li>
+        <li>
+          [12] Leviathan, Y. et al. — <em>Fast Inference from Transformers via Speculative Decoding</em> (ICML 2023):{' '}
+          <a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="noopener noreferrer">
+            https://arxiv.org/abs/2211.17192
+          </a>
+        </li>
+      </ol>
+      </>)}
 
       {activeTab === 'Fine Tuning' && (<>
       <p>

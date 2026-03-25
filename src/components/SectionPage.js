@@ -29,7 +29,7 @@ function SectionPage({ title, children }) {
     );
     h2s.forEach((h) => observer.observe(h));
     return () => observer.disconnect();
-  }, []);
+  }, [children]);
 
   return (
     <main className="section-page">
