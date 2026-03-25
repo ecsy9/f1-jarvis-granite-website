@@ -37,30 +37,22 @@ function Algorithms() {
         and the rule-based event detection system that operates alongside the LLM.
       </p>
 
-      <h2>Why Fine-Tuning?</h2>
+      <h2>Fine-Tuning Strategy</h2>
 
       <h3>Teaching the Model to Think Like an F1 Engineer</h3>
       <p>
-        Three broad strategies exist for adapting a foundation model to a specialist domain:
-        prompt engineering, retrieval-augmented generation (RAG), and fine-tuning. Prompt
-        engineering alone cannot reliably reproduce the terse, data-first communication style
-        of a race engineer — every response depends on careful prompt construction and there
+        Prompt engineering alone cannot reliably reproduce the terse, data-first communication
+        style of a race engineer — every response depends on careful prompt construction and there
         is no persistent memory of domain conventions between calls.
       </p>
       <p>
-        RAG was also considered: pairing the model with a live knowledge base of telemetry
-        logs and race data would allow factual recall. However, RAG introduces a retrieval
-        hop at every inference call — a non-trivial latency penalty in a real-time racing
-        environment where feedback must arrive mid-corner. It also requires maintaining and
-        indexing a retrieval corpus alongside the model.
-      </p>
-      <p>
         Fine-tuning was chosen because it bakes the engineering voice and domain reasoning
-        directly into the model weights. Once trained, the model generates race debriefs,
-        telemetry summaries, and strategic analysis without querying any external store. The
-        result is a model that consistently frames observations the way a real race engineer
-        would — prioritising lap delta, tyre state, and sector-by-sector breakdowns — making
-        it well-suited for generating debriefs and analysis at scale. [1]
+        directly into the model weights. This allows the model to generate race debriefs, telemetry
+        summaries, and strategic analysis that consistently reflects how a real race engineer would frame
+        observations — prioritising lap delta, tyre state, and sector-by-sector breakdowns. The live
+        inference layer pairs this with lightweight rule-based event detection (fuel thresholds, tyre
+        wear, gap changes), which feeds structured events to the model. This hybrid approach avoids
+        expensive data retrieval while keeping responses grounded in detected race conditions. [1]
       </p>
 
       <h3>QLoRA: Parameter-Efficient Fine-Tuning</h3>
