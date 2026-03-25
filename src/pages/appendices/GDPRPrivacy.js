@@ -84,10 +84,6 @@ function GDPRPrivacy() {
         machine runs the dashboard, as the application operates entirely locally and autonomously.
         The data remains under the control and responsibility of the user who operates the system.
       </p>
-      <p>
-        For any commercial or production deployment, a formal data controller must be named with
-        published contact details and a Data Protection Officer if required by applicable law.
-      </p>
 
       <h2>Storage and retention</h2>
       <p>
