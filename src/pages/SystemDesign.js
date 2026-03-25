@@ -1208,6 +1208,82 @@ TelemetryLoader
         <li><strong>Race engineer dataset</strong>: <code>{"{ \"prompt\": \"Telemetry: ... Advice:\", \"completion\": \"Box this lap...\" }"}</code></li>
         <li><strong>Analyst dataset</strong>: <code>{"{ \"input\": \"{...telemetry JSON...}\", \"output\": \"Race debrief...\", \"metadata\": { \"year\": 2024, \"grand_prix\": \"Monaco\", ... } }"}</code></li>
       </ul>
+
+      <h2>References</h2>
+      <ol className="ref-list">
+        <li>
+          Gamma, E., Helm, R., Johnson, R. and Vlissides, J. (1994) <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Reading, MA: Addison-Wesley.
+        </li>
+        <li>
+          Gerganov, G. (2023) <em>llama.cpp: Inference of Meta's LLaMA model in pure C/C++</em>.{' '}
+          <a href="https://github.com/ggerganov/llama.cpp" target="_blank" rel="noopener noreferrer">
+            https://github.com/ggerganov/llama.cpp
+          </a>
+        </li>
+        <li>
+          Google (2011) <em>WebRTC: Real-Time Communication for the Web</em>.{' '}
+          <a href="https://webrtc.org/" target="_blank" rel="noopener noreferrer">
+            https://webrtc.org/
+          </a>
+        </li>
+        <li>
+          Hexgrad (2024) <em>Kokoro: Lightweight Neural Text-to-Speech</em>.{' '}
+          <a href="https://github.com/hexgrad/kokoro" target="_blank" rel="noopener noreferrer">
+            https://github.com/hexgrad/kokoro
+          </a>
+        </li>
+        <li>
+          Hunter, J.D. (2007) 'Matplotlib: A 2D Graphics Environment', <em>Computing in Science &amp; Engineering</em>, 9(3), pp. 90-95.
+        </li>
+        <li>
+          Klein, G. (2020) <em>CTranslate2: Fast Inference Engine for Transformer Models</em>.{' '}
+          <a href="https://github.com/OpenNMT/CTranslate2" target="_blank" rel="noopener noreferrer">
+            https://github.com/OpenNMT/CTranslate2
+          </a>
+        </li>
+        <li>
+          Kunz, T. (2020) <em>Assetto Corsa Shared Memory Reference</em>.{' '}
+          <a href="https://assettocorsamods.net/threads/doc-shared-memory-reference.58/" target="_blank" rel="noopener noreferrer">
+            https://assettocorsamods.net/threads/doc-shared-memory-reference.58/
+          </a>
+        </li>
+        <li>
+          Mishra, M. <em>et al.</em> (2024) 'Granite Code Models: A Family of Open Foundation Models for Code Intelligence', <em>arXiv preprint arXiv:2405.04324</em>.
+        </li>
+        <li>
+          ONNX Runtime developers (2019) <em>ONNX Runtime: Cross-Platform, High Performance ML Inferencing and Training Accelerator</em>.{' '}
+          <a href="https://onnxruntime.ai/" target="_blank" rel="noopener noreferrer">
+            https://onnxruntime.ai/
+          </a>
+        </li>
+        <li>
+          Radford, A., Kim, J.W., Xu, T., Brockman, G., McLeavey, C. and Sutskever, I. (2023) 'Robust Speech Recognition via Large-Scale Weak Supervision', in <em>Proceedings of the International Conference on Machine Learning (ICML)</em>, pp. 28492-28518.
+        </li>
+        <li>
+          Riverbank Computing (2023) <em>PyQt5 Reference Guide</em>.{' '}
+          <a href="https://www.riverbankcomputing.com/static/Docs/PyQt5/" target="_blank" rel="noopener noreferrer">
+            https://www.riverbankcomputing.com/static/Docs/PyQt5/
+          </a>
+        </li>
+        <li>
+          Samuel, S. (2020) <em>pydantic: Data Validation Using Python Type Annotations</em>.{' '}
+          <a href="https://docs.pydantic.dev/" target="_blank" rel="noopener noreferrer">
+            https://docs.pydantic.dev/
+          </a>
+        </li>
+        <li>
+          SQLite Consortium (2000) <em>SQLite: A Self-Contained, Serverless, Zero-Configuration, Transactional SQL Database Engine</em>.{' '}
+          <a href="https://www.sqlite.org/" target="_blank" rel="noopener noreferrer">
+            https://www.sqlite.org/
+          </a>
+        </li>
+        <li>
+          The Qt Company (2023) <em>Signals &amp; Slots</em>, Qt Documentation.{' '}
+          <a href="https://doc.qt.io/qt-5/signalsandslots.html" target="_blank" rel="noopener noreferrer">
+            https://doc.qt.io/qt-5/signalsandslots.html
+          </a>
+        </li>
+      </ol>
       </>)}
 
       {activeTab === 'VR' && (
