@@ -104,37 +104,99 @@ function SystemDesign() {
         and fans out via signals to three independent consumers: the UI, the AI worker (for event
         detection), and the session recorder.
       </p>
-      <pre className="code-block"><code>{`+---------------------------+
-|     Assetto Corsa Game    |
-|  (Windows Shared Memory)  |
-+----------+----------------+
-           | ctypes mmap read @ 60 Hz
-           v
-+----------+----------------+
-|   AcTelemetryWorker       |
-|   (QThread)               |
-|   - Reads 3 memory blocks |
-|   - Validates/cleans data |
-|   - LapBuffer detection   |
-+--+----------+----------+--+
-   |          |          |
-   | realtime_sample (60 Hz), lap_completed, session_info_update
-   v          v          v
-+--------+ +------------------+ +-----------------+
-|MainWin | |AIRaceEngineer    | |SessionRecorder  |
-|(UI     | |Worker (QThread)  | |(QThread)        |
-|thread) | |- TelemetryAgent  | |- 60-sample      |
-|- Graphs| |- Rule detection  | |  batch writes   |
-|- Laps  | |- Stat. fallback  | |- SQLite DB      |
-+--------+ +------------------+ +--------+--------+
-                                         |
-                                         v
-                               +-----------------+
-                               | Post-Race Viewer|
-                               | LapViewerWindow |
-                               | - Timeline      |
-                               | - 16 graph types|
-                               +-----------------+`}</code></pre>
+      <div className="arch-diagram">
+        {/* Source */}
+        <div className="arch-node arch-node--game">
+          <div className="arch-node__header">
+            <span className="arch-node__title">Assetto Corsa Game</span>
+          </div>
+          <div className="arch-node__sub">Windows Shared Memory</div>
+        </div>
+
+        {/* Arrow */}
+        <div className="arch-connector">
+          <div className="arch-connector__line" />
+          <div className="arch-connector__label">ctypes mmap read @ 60 Hz</div>
+          <div className="arch-connector__arrow" />
+        </div>
+
+        {/* AcTelemetryWorker */}
+        <div className="arch-node arch-node--worker">
+          <div className="arch-node__header">
+            <span className="arch-node__title">AcTelemetryWorker</span>
+            <span className="arch-badge arch-badge--thread">QThread</span>
+          </div>
+          <ul className="arch-node__bullets">
+            <li>Reads 3 memory blocks — physics, graphics, static</li>
+            <li>Validates and cleans telemetry at 60 Hz</li>
+            <li>LapBuffer lap detection</li>
+          </ul>
+        </div>
+
+        {/* Fan-out */}
+        <div className="arch-fanout-wrap">
+          <div className="arch-fanout-wrap__vline" />
+          <div className="arch-fanout-wrap__label">realtime_sample (60 Hz) · lap_completed · session_info_update</div>
+          <div className="arch-fanout-wrap__hbar" />
+        </div>
+
+        {/* Three consumers */}
+        <div className="arch-row arch-row--3">
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--ui">
+              <div className="arch-node__header">
+                <span className="arch-node__title">MainWindow</span>
+                <span className="arch-badge arch-badge--ui">UI Thread</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>Live telemetry graphs</li>
+                <li>Lap overview</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--worker">
+              <div className="arch-node__header">
+                <span className="arch-node__title">AIRaceEngineerWorker</span>
+                <span className="arch-badge arch-badge--thread">QThread</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>TelemetryAgent</li>
+                <li>Rule-based detection</li>
+                <li>Statistical fallback</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--worker">
+              <div className="arch-node__header">
+                <span className="arch-node__title">SessionRecorder</span>
+                <span className="arch-badge arch-badge--thread">QThread</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>60-sample batch writes</li>
+                <li>SQLite database</li>
+              </ul>
+            </div>
+            <div className="arch-vline-sm" />
+            <div className="arch-node arch-node--viewer">
+              <div className="arch-node__header">
+                <span className="arch-node__title">LapViewerWindow</span>
+                <span className="arch-badge arch-badge--post">Post-Race</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>Session timeline</li>
+                <li>16 graph types</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h3>Data Components</h3>
       <table className="section-table">
@@ -188,31 +250,136 @@ function SystemDesign() {
       <h2>Sequence Diagrams</h2>
 
       <h3>Real-Time Telemetry Flow (Per Frame)</h3>
-      <pre className="code-block"><code>{`AC Game       AcTelemetryWorker    LapBuffer     MainWindow     SessionRecorder
-  |                 |                  |               |                |
-  |--shared mem.--->|                  |               |                |
-  |                 |--add_sample()--->|               |                |
-  |                 |--emit realtime_sample----------->|                |
-  |                 |--emit realtime_sample--------------------------------->|
-  |                 |                  |               |--buffer sample |
-  |                 |                  |               |                |--append to batch
-  |                 |      [every 5 samples]           |                |
-  |                 |                  |               |--update canvases (12Hz)
-  |                 |      [every 60 samples]          |                |
-  |                 |                  |               |                |--flush batch
-  |                 |                  |               |                |  (executemany)`}</code></pre>
+      <div className="seq-diagram">
+        <div className="seq-actors">
+          <div className="seq-actor seq-actor--game">
+            <span className="seq-actor__name">AC Game</span>
+            <span className="seq-actor__type">Shared Memory</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">AcTelemetry Worker</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+          <div className="seq-actor seq-actor--plain">
+            <span className="seq-actor__name">LapBuffer</span>
+            <span className="seq-actor__type">inline</span>
+          </div>
+          <div className="seq-actor seq-actor--ui">
+            <span className="seq-actor__name">MainWindow</span>
+            <span className="seq-actor__type">UI Thread</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">Session Recorder</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+        </div>
+        <div className="seq-body">
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">AC Game</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">AcTelemetryWorker</span>
+            <span className="seq-msg__label">: shared memory read</span>
+            <span className="seq-msg__note">60 Hz</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AcTelemetryWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">LapBuffer</span>
+            <span className="seq-msg__label">: add_sample()</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AcTelemetryWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">MainWindow</span>
+            <span className="seq-msg__label">: emit realtime_sample</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AcTelemetryWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">SessionRecorder</span>
+            <span className="seq-msg__label">: emit realtime_sample</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[every 5 samples — ~12 Hz]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">MainWindow</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">update canvases (Matplotlib)</span>
+          </div>
+          <div className="seq-note">[every 60 samples — batch flush]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">SessionRecorder</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">executemany() → SQLite batch insert</span>
+          </div>
+        </div>
+      </div>
 
       <h3>Lap Completion Flow</h3>
-      <pre className="code-block"><code>{`AcTelemetryWorker    LapBuffer      MainWindow    SessionRecorder
-  |                     |               |               |
-  |--lap_id incremented->|              |               |
-  |                     |--wait 10 frames (stabilisation)
-  |                     |--on_lap_complete->|           |
-  |--emit lap_completed------------------>|            |
-  |                     |               |--add to lap table
-  |--emit lap_completed---------------------------->|
-  |                     |               |           |--record_lap()
-  |                     |               |           |  (SQLite INSERT)`}</code></pre>
+      <div className="seq-diagram">
+        <div className="seq-actors">
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">AcTelemetry Worker</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+          <div className="seq-actor seq-actor--plain">
+            <span className="seq-actor__name">LapBuffer</span>
+            <span className="seq-actor__type">inline</span>
+          </div>
+          <div className="seq-actor seq-actor--ui">
+            <span className="seq-actor__name">MainWindow</span>
+            <span className="seq-actor__type">UI Thread</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">Session Recorder</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+        </div>
+        <div className="seq-body">
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AcTelemetryWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">LapBuffer</span>
+            <span className="seq-msg__label">: lap_id incremented</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">LapBuffer</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">wait 10 consecutive stable frames (~167 ms)</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">LapBuffer</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">MainWindow</span>
+            <span className="seq-msg__label">: on_lap_complete callback</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AcTelemetryWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">MainWindow</span>
+            <span className="seq-msg__label">: emit lap_completed</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">MainWindow</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">add to lap table</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AcTelemetryWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">SessionRecorder</span>
+            <span className="seq-msg__label">: emit lap_completed</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">SessionRecorder</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">record_lap() — SQLite INSERT</span>
+          </div>
+        </div>
+      </div>
 
       <h3>Event Detection Flow (TelemetryAgent)</h3>
       <p>
@@ -221,28 +388,87 @@ function SystemDesign() {
         at this stage. Emitted events are handed to <code>RaceEngineerAgent</code> for
         natural-language response generation (see AI Pipeline tab).
       </p>
-      <pre className="code-block"><code>{`AIRaceEngineerWorker (data processing stage)
-  |
-  |--receive realtime_sample (dict)
-  |--convert dict -> TelemetryData (Pydantic validation + normalisation)
-  |--LiveSessionContext.update(telemetry)
-  |--TelemetryAgent.detect_events(telemetry, context)   [< 50ms]
-  |    |
-  |    |--_check_fuel_events()         [laps_remaining <= 5 / 2?]
-  |    |--_check_tire_temp_events()    [any tire >= 100C / 110C?]
-  |    |--_check_tire_wear_events()    [any tire >= 70% / 85%?]
-  |    |--_check_wheel_slip_events()   [any slip >= 50 / 100?]
-  |    |--_check_gap_events()          [gap delta >= 1.0s?]
-  |    |--_check_opponent_events()     [gap_behind <= 0.8s? (hysteresis)]
-  |    |--_check_car_damage_events()   [total damage >= 5% / 20%?]
-  |    |--_check_position_change()     [position != previous?]
-  |    |--_check_lap_completion()      [lap_number incremented?]
-  |    |--_check_pit_window()          [fuel <= 5 laps OR wear >= 70%?]
-  |    |
-  |    |--return List[Event]  (< 50ms total)
-  |
-  |--[if no LLM events] -> statistical fallback (CoV, summary stats, no AI)
-  |--[if events] -> hand off to RaceEngineerAgent (-> AI Pipeline tab)`}</code></pre>
+      <div className="flow-diagram">
+        <div className="flow-actor flow-actor--thread">
+          <span className="flow-actor__name">AIRaceEngineerWorker</span>
+          <span className="flow-actor__type">QThread — data processing stage</span>
+        </div>
+        <div className="flow-steps">
+          <div className="flow-step">
+            <span className="flow-step__text">receive <code>realtime_sample</code></span>
+            <span className="flow-step__badge flow-step__badge--game">dict · 60 Hz</span>
+          </div>
+          <div className="flow-step">
+            <span className="flow-step__text">convert dict → <code>TelemetryData</code></span>
+            <span className="flow-step__badge">Pydantic validation</span>
+          </div>
+          <div className="flow-step">
+            <span className="flow-step__text"><code>LiveSessionContext.update(telemetry)</code></span>
+          </div>
+          <div className="flow-step flow-step--branch">
+            <span className="flow-step__text"><code>TelemetryAgent.detect_events(telemetry, context)</code></span>
+            <span className="flow-step__badge flow-step__badge--timing">&lt; 50 ms</span>
+          </div>
+        </div>
+        <div className="flow-sub">
+          <div className="flow-sub__label">TelemetryAgent — 10 independent detection rules</div>
+          <div className="flow-rule-grid">
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_fuel_events</span>
+              <span className="flow-rule__cond">laps_remaining &le; 5 / 2</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_tire_temp_events</span>
+              <span className="flow-rule__cond">any tire &ge; 100°C / 110°C</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_tire_wear_events</span>
+              <span className="flow-rule__cond">any tire &ge; 70% / 85%</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_wheel_slip_events</span>
+              <span className="flow-rule__cond">any slip &ge; 50 / 100</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_gap_events</span>
+              <span className="flow-rule__cond">gap delta &ge; 1.0s</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_opponent_events</span>
+              <span className="flow-rule__cond">gap_behind &le; 0.8s (hysteresis)</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_car_damage_events</span>
+              <span className="flow-rule__cond">total damage &ge; 5% / 20%</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_position_change</span>
+              <span className="flow-rule__cond">position != previous</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_lap_completion</span>
+              <span className="flow-rule__cond">lap_number incremented</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">_check_pit_window</span>
+              <span className="flow-rule__cond">fuel &le; 5 laps OR wear &ge; 70%</span>
+            </div>
+          </div>
+          <div className="flow-sub__return">→ return List[Event] · &lt; 50 ms total</div>
+        </div>
+        <div className="flow-router">
+          <div className="flow-route flow-route--fallback">
+            <span className="flow-route__cond">no events</span>
+            <span className="flow-route__arrow">→</span>
+            <span className="flow-route__dest">statistical fallback (CoV, summary stats — no AI)</span>
+          </div>
+          <div className="flow-route flow-route--ai">
+            <span className="flow-route__cond">events</span>
+            <span className="flow-route__arrow">→</span>
+            <span className="flow-route__dest">RaceEngineerAgent → AI Pipeline tab</span>
+          </div>
+        </div>
+      </div>
 
       <h2>Design Patterns</h2>
       <table className="section-table">
@@ -281,52 +507,209 @@ function SystemDesign() {
       <h2>Class Diagrams</h2>
 
       <h3>Data Layer</h3>
-      <pre className="code-block"><code>{`Session
-    Has: SessionMetadata (Pydantic)
-    Has: List[Lap]
-    Has: pd.DataFrame (full telemetry)
-    Has: List[AIComment] (optional)
-    Methods: get_lap(), get_fastest_lap(), calculate_consistency()
-
-Lap
-    Has: LapSummary (Pydantic)
-    Has: pd.DataFrame (lap telemetry)
-    Methods: get_speed_trace(), get_racing_line(), get_avg_tire_temps()
-
-SessionRecorder (QThread)
-    Uses: sqlite3.Connection
-    Tables: sessions, laps, telemetry, ai_commentary, voice_queries
-
-SessionExporter
-    Uses: sqlite3 (reads), CSV/ZIP (writes)
-    Methods: list_sessions(), export_session(), export_session_bundle(),
-             import_session_bundle()
-
-TelemetryLoader
-    Uses: pd.read_csv, JSON
-    Produces: Session (from CSV files)`}</code></pre>
+      <div className="cls-diagram">
+        <div className="cls-grid cls-grid--2">
+          <div className="cls-card cls-card--model">
+            <div className="cls-card__name">
+              <span className="cls-card__title">Session</span>
+              <span className="cls-card__badge cls-card__badge--plain">data model</span>
+            </div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--has">has</span><span className="cls-card__row-content">SessionMetadata</span><span className="cls-card__row-type">Pydantic</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--has">has</span><span className="cls-card__row-content">List[Lap]</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--has">has</span><span className="cls-card__row-content">pd.DataFrame</span><span className="cls-card__row-type">telemetry</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--has">has?</span><span className="cls-card__row-content">List[AIComment]</span></div>
+              <div className="cls-divider"/>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">get_lap()</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">get_fastest_lap()</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">calculate_consistency()</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--model">
+            <div className="cls-card__name">
+              <span className="cls-card__title">Lap</span>
+              <span className="cls-card__badge cls-card__badge--plain">data model</span>
+            </div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--has">has</span><span className="cls-card__row-content">LapSummary</span><span className="cls-card__row-type">Pydantic</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--has">has</span><span className="cls-card__row-content">pd.DataFrame</span><span className="cls-card__row-type">lap telemetry</span></div>
+              <div className="cls-divider"/>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">get_speed_trace()</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">get_racing_line()</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">get_avg_tire_temps()</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="cls-grid cls-grid--3">
+          <div className="cls-card cls-card--qthread">
+            <div className="cls-card__name">
+              <span className="cls-card__title">Session Recorder</span>
+              <span className="cls-card__badge cls-card__badge--thread">QThread</span>
+            </div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--uses">uses</span><span className="cls-card__row-content">sqlite3.Connection</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix">→</span><span className="cls-card__row-content">sessions, laps, telemetry</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix">→</span><span className="cls-card__row-content">ai_commentary, voice_queries</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">
+              <span className="cls-card__title">Session Exporter</span>
+              <span className="cls-card__badge cls-card__badge--plain">class</span>
+            </div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--uses">uses</span><span className="cls-card__row-content">sqlite3 (reads)</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--produces">out</span><span className="cls-card__row-content">CSV / ZIP bundles</span></div>
+              <div className="cls-divider"/>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">list_sessions()</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">export_session()</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">export_session_bundle()</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">import_session_bundle()</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">
+              <span className="cls-card__title">Telemetry Loader</span>
+              <span className="cls-card__badge cls-card__badge--plain">class</span>
+            </div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--uses">uses</span><span className="cls-card__row-content">pd.read_csv, JSON</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--produces">out</span><span className="cls-card__row-content">Session (from CSV)</span></div>
+              <div className="cls-divider"/>
+              <div className="cls-card__row"><span className="cls-card__row-prefix cls-card__row-prefix--method">fn</span><span className="cls-card__row-content">load_session(path)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h3>Pydantic Data Models</h3>
-      <pre className="code-block"><code>{`pydantic.BaseModel
-    +-- TireCorners (fl, fr, rl, rr: float)
-    +-- SessionMetadata (session_id, game, track, car, player, times, laps)
-    +-- LapSummary (lap_number, lap_time, fuel, speeds, valid)
-    +-- AIComment (timestamp, message, trigger, priority, lap_number)
-    +-- BrakePoint (distance, speed_before, speed_after, duration, pressure)
-    +-- Corner (number, entry/apex/exit distance+speed, type)
-
-    # Telemetry snapshot models (ai/race_engineer_core/telemetry.py)
-    +-- TelemetryData (full snapshot with nested models)
-    +-- TireTemps    (fl, fr, rl, rr: float, >= 0)
-    +-- TirePressure (fl, fr, rl, rr: float, >= 0)
-    +-- TireWear     (fl, fr, rl, rr: float, 0-100)
-    +-- WheelSlip    (fl, fr, rl, rr: float)
-    +-- GForces      (lateral, longitudinal: float)
-    +-- RideHeight   (front, rear: float)
-    +-- SuspensionTravel (fl, fr, rl, rr: float)
-
-    # Threshold configuration
-    +-- ThresholdsConfig (all event detection thresholds with defaults)`}</code></pre>
+      <div className="cls-diagram">
+        <div className="cls-parent">
+          <div className="cls-card cls-card--pydantic cls-card--center">
+            <div className="cls-card__name">
+              <span className="cls-card__title">pydantic.BaseModel</span>
+              <span className="cls-card__badge cls-card__badge--pydantic">base class</span>
+            </div>
+          </div>
+        </div>
+        <div className="cls-connector">
+          <div className="cls-connector__line"/>
+          <div className="cls-connector__label">inherits ↓</div>
+        </div>
+        <div className="cls-section-label">Data Layer Models</div>
+        <div className="cls-grid cls-grid--3">
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">TireCorners</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">fl, fr, rl, rr</span><span className="cls-card__row-type">: float</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">SessionMetadata</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">session_id, game, track</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-content">car, player, times, laps</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">LapSummary</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">lap_number, lap_time</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-content">fuel, speeds, valid</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="cls-grid cls-grid--3">
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">AIComment</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">timestamp, message</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-content">trigger, priority, lap_number</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">BrakePoint</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">distance, speed_before</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-content">speed_after, duration, pressure</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">Corner</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">number, entry/apex/exit</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-content">distance+speed, type</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="cls-section-label">Telemetry Snapshot Models</div>
+        <div className="cls-grid cls-grid--4">
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">TelemetryData</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">full snapshot</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-content">with nested models</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">TireTemps</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">fl, fr, rl, rr</span><span className="cls-card__row-type">≥ 0</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">TirePressure</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">fl, fr, rl, rr</span><span className="cls-card__row-type">≥ 0</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">TireWear</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">fl, fr, rl, rr</span><span className="cls-card__row-type">0–100</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="cls-grid cls-grid--4">
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">WheelSlip</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">fl, fr, rl, rr</span><span className="cls-card__row-type">float</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">GForces</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">lateral</span></div>
+              <div className="cls-card__row"><span className="cls-card__row-content">longitudinal</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">RideHeight</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">front, rear</span><span className="cls-card__row-type">float</span></div>
+            </div>
+          </div>
+          <div className="cls-card cls-card--pydantic">
+            <div className="cls-card__name"><span className="cls-card__title">SuspensionTravel</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">fl, fr, rl, rr</span><span className="cls-card__row-type">float</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="cls-section-label">Config</div>
+        <div className="cls-parent">
+          <div className="cls-card cls-card--pydantic cls-card--center">
+            <div className="cls-card__name">
+              <span className="cls-card__title">ThresholdsConfig</span>
+              <span className="cls-card__badge cls-card__badge--pydantic">Pydantic</span>
+            </div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-card__row-content">all event detection thresholds with defaults</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h2>Data Storage</h2>
       <p>
@@ -337,37 +720,64 @@ TelemetryLoader
       </p>
 
       <h3>Entity-Relationship Diagram</h3>
-      <pre className="code-block"><code>{`+==================+       +==================+       +===================+
-|    sessions      |       |      laps        |       |    telemetry      |
-+==================+       +==================+       +===================+
-| PK session_id    |<------| FK session_id    |       | PK telemetry_id   |
-|    start_time    |  1:N  | PK lap_id        |       | FK session_id     |----+
-|    end_time      |       |    lap_number    |       |    lap_number     |    |
-|    game          |       |    lap_time      |       |    elapsed_time   |    |
-|    track_name    |       |    sector1_time  |       |    pos_x, pos_z   |    |
-|    car_model     |       |    sector2_time  |       |    speed          |    |
-|    player_name   |       |    sector3_time  |       |    gear, rpm      |    |
-|    total_laps    |       |    valid         |       |    throttle, brake|    |
-|    best_lap_time |       |    fuel_start    |       |    fuel           |    |
-|    total_distance|       |    fuel_end      |       |    steer_angle    |    |
-|    ai_enabled    |       |    avg_speed     |       |    g_force_lat/lon|    |
-|    notes         |       |    max_speed     |       |    tyre_press_*   |    |
-|    session_type  |       |    min_speed     |       |    tyre_temp_*    |    |
-+==================+       |    timestamp     |       |    tyre_wear_*    |    |
-        |                  +==================+       |    wheel_slip_*   |    |
-        | 1:N                                         |    suspension_*   |    |
-        v                                             |    camber_*       |    |
-+==================+       +===================+      |    ride_height_*  |    |
-| ai_commentary    |       |  voice_queries    |      |    car_damage_*   |    |
-+==================+       +===================+      |    is_in_pit      |    |
-| PK commentary_id |       | PK query_id       |      |    timestamp      |    |
-| FK session_id    |       | FK session_id     |      +===================+    |
-|    timestamp     |       |    timestamp      |             |                 |
-|    message       |       |    query_text     |             +--- sessions ----+
-|    trigger       |       |    response_text  |              (FK session_id)
-|    priority      |       |    lap_number     |
-|    lap_number    |       +===================+
-+==================+`}</code></pre>
+      <div className="er-diagram">
+        {/* Hub: sessions */}
+        <div className="er-hub">
+          <div className="er-table er-table--sessions">
+            <div className="er-table__name">sessions</div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--pk">PK</span><span className="er-table__colname">session_id</span><span className="er-table__coltype">INTEGER</span></div>
+            <div className="er-table__col"><span className="er-table__colname">start_time · end_time</span><span className="er-table__coltype">REAL</span></div>
+            <div className="er-table__col"><span className="er-table__colname">game · track_name · car_model</span></div>
+            <div className="er-table__col"><span className="er-table__colname">player_name · total_laps</span></div>
+            <div className="er-table__col"><span className="er-table__colname">best_lap_time · total_distance</span></div>
+            <div className="er-table__col"><span className="er-table__colname">ai_enabled · notes · session_type</span></div>
+          </div>
+        </div>
+        {/* 1:N relationship strip */}
+        <div className="er-rel-strip">
+          <span className="er-rel-badge">1 : N</span>
+          <span className="er-rel-badge">1 : N</span>
+          <span className="er-rel-badge">1 : N</span>
+          <span className="er-rel-badge">1 : N</span>
+        </div>
+        {/* Satellite tables */}
+        <div className="er-grid er-grid--4">
+          <div className="er-table er-table--laps">
+            <div className="er-table__name">laps</div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--pk">PK</span><span className="er-table__colname">lap_id</span></div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--fk">FK</span><span className="er-table__colname">session_id</span></div>
+            <div className="er-table__col"><span className="er-table__colname">lap_number · lap_time</span></div>
+            <div className="er-table__col"><span className="er-table__colname">sector1/2/3_time</span></div>
+            <div className="er-table__col"><span className="er-table__colname">valid · fuel_start/end</span></div>
+            <div className="er-table__col"><span className="er-table__colname">avg/max/min_speed</span></div>
+          </div>
+          <div className="er-table er-table--telemetry">
+            <div className="er-table__name">telemetry</div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--pk">PK</span><span className="er-table__colname">telemetry_id</span></div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--fk">FK</span><span className="er-table__colname">session_id</span></div>
+            <div className="er-table__col"><span className="er-table__colname">lap_number · elapsed_time</span></div>
+            <div className="er-table__col"><span className="er-table__colname">speed · gear · rpm</span></div>
+            <div className="er-table__col"><span className="er-table__colname">throttle · brake · fuel</span></div>
+            <div className="er-table__col"><span className="er-table__colname">tyre_temp/press/wear_*</span></div>
+          </div>
+          <div className="er-table er-table--commentary">
+            <div className="er-table__name">ai_commentary</div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--pk">PK</span><span className="er-table__colname">commentary_id</span></div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--fk">FK</span><span className="er-table__colname">session_id</span></div>
+            <div className="er-table__col"><span className="er-table__colname">timestamp · lap_number</span></div>
+            <div className="er-table__col"><span className="er-table__colname">message · trigger</span></div>
+            <div className="er-table__col"><span className="er-table__colname">priority</span></div>
+          </div>
+          <div className="er-table er-table--voice">
+            <div className="er-table__name">voice_queries</div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--pk">PK</span><span className="er-table__colname">query_id</span></div>
+            <div className="er-table__col"><span className="er-table__key er-table__key--fk">FK</span><span className="er-table__colname">session_id</span></div>
+            <div className="er-table__col"><span className="er-table__colname">timestamp · lap_number</span></div>
+            <div className="er-table__col"><span className="er-table__colname">query_text</span></div>
+            <div className="er-table__col"><span className="er-table__colname">response_text</span></div>
+          </div>
+        </div>
+      </div>
       <ul>
         <li><strong>sessions 1:N laps</strong> — Each session has many laps</li>
         <li><strong>sessions 1:N telemetry</strong> — Each session has ~60 &times; laps &times; lap_duration telemetry rows</li>
@@ -555,40 +965,129 @@ TelemetryLoader
       </table>
 
       <h3>Telemetry Backend API</h3>
-      <pre className="code-block"><code>{`AcTelemetryWorker (QThread)
-  Signals (outbound):
-      realtime_sample(dict)                    # Every frame (~60 Hz)
-      lap_completed(int, list, bool, int)      # Lap finished
-      session_info_update(dict)                # Track/car/player metadata
-      live_data_update(dict)                   # Current speed/gear/fuel
-      status_update(str)                       # Status messages
-      session_reset()                          # AC restarted mid-session
-  Methods:
-      start()                                  # Begin polling loop
-      stop()                                   # Signal shutdown`}</code></pre>
+      <div className="api-card">
+        <div className="api-card__header api-card__header--thread">
+          <span className="api-card__name">AcTelemetryWorker</span>
+          <span className="api-card__type-badge api-card__type-badge--thread">QThread</span>
+        </div>
+        <div className="api-section__label">Signals (outbound)</div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--signal">▸</span>
+          <span className="api-row__sig">realtime_sample(dict)</span>
+          <span className="api-row__desc">every frame · ~60 Hz</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--signal">▸</span>
+          <span className="api-row__sig">lap_completed(int, list, bool, int)</span>
+          <span className="api-row__desc">lap finished</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--signal">▸</span>
+          <span className="api-row__sig">session_info_update(dict)</span>
+          <span className="api-row__desc">track / car / player metadata</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--signal">▸</span>
+          <span className="api-row__sig">live_data_update(dict)</span>
+          <span className="api-row__desc">current speed / gear / fuel</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--signal">▸</span>
+          <span className="api-row__sig">status_update(str)</span>
+          <span className="api-row__desc">status messages</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--signal">▸</span>
+          <span className="api-row__sig">session_reset()</span>
+          <span className="api-row__desc">AC restarted mid-session</span>
+        </div>
+        <div className="api-section__label">Methods</div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">start()</span>
+          <span className="api-row__desc">begin polling loop</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">stop()</span>
+          <span className="api-row__desc">signal shutdown</span>
+        </div>
+      </div>
 
       <h3>Data Layer API</h3>
-      <pre className="code-block"><code>{`SessionRecorder (QThread)
-  Methods:
-      start_session(game, track, car, player, session_type)
-      end_session()
-      record_telemetry_sample(dict sample)
-      record_lap(lap_number, lap_time, fuel_start, fuel_end, ...)
-      record_ai_commentary(message, trigger, priority, lap_number)
-      record_voice_query(query_text, response_text, lap_number)
-      start() / stop()
-
-SessionExporter
-  Methods:
-      list_sessions() -> List[dict]
-      export_session(session_id) -> str (path)
-      export_session_bundle(session_id, file_path)
-      import_session_bundle(file_path) -> int (session_id)
-      delete_session(session_id)
-
-TelemetryLoader
-  Static Methods:
-      load_session(path) -> Session`}</code></pre>
+      <div className="api-card">
+        <div className="api-card__header api-card__header--thread">
+          <span className="api-card__name">SessionRecorder</span>
+          <span className="api-card__type-badge api-card__type-badge--thread">QThread</span>
+        </div>
+        <div className="api-section__label">Methods</div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">start_session(game, track, car, player, session_type)</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">end_session()</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">record_telemetry_sample(dict sample)</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">record_lap(lap_number, lap_time, fuel_start, fuel_end, ...)</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">record_ai_commentary(message, trigger, priority, lap_number)</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">record_voice_query(query_text, response_text, lap_number)</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">start() / stop()</span>
+        </div>
+        <div className="api-card__header api-card__header--plain api-card__header--sep">
+          <span className="api-card__name">SessionExporter</span>
+          <span className="api-card__type-badge api-card__type-badge--plain">class</span>
+        </div>
+        <div className="api-section__label">Methods</div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">list_sessions()</span>
+          <span className="api-row__ret">→ List[dict]</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">export_session(session_id)</span>
+          <span className="api-row__ret">→ str path</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">export_session_bundle(session_id, file_path)</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">import_session_bundle(file_path)</span>
+          <span className="api-row__ret">→ int session_id</span>
+        </div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">delete_session(session_id)</span>
+        </div>
+        <div className="api-card__header api-card__header--plain api-card__header--sep">
+          <span className="api-card__name">TelemetryLoader</span>
+          <span className="api-card__type-badge api-card__type-badge--plain">class</span>
+        </div>
+        <div className="api-section__label">Static Methods</div>
+        <div className="api-row">
+          <span className="api-row__prefix api-row__prefix--method">fn</span>
+          <span className="api-row__sig">load_session(path)</span>
+          <span className="api-row__ret">→ Session</span>
+        </div>
+      </div>
       </>)}
 
       {activeTab === 'AI Pipeline' && (<>
@@ -607,48 +1106,94 @@ TelemetryLoader
         AI-specific components and their interactions.
       </p>
 
-      <pre className="code-block"><code>{`Events from TelemetryAgent (Data Pipeline)
-            |
-            v
-+------------------------------------------+
-| AIRaceEngineerWorker (QThread + asyncio) |
-| - RaceEngineerAgent (prompt + LLM)       |
-| - Guardrail checks                       |
-| - Rule-based fallback                    |
-+-----+-----+---------+-------------------+
-      |     |         |
-      |     |         +----> ai_commentary signal --> MainWindow (comms transcript)
-      |     |
-      v     v
-+----------+ +-------------+
-|VoiceInput| |TTSOutput    |
-|Worker    | |Worker       |
-|(QThread) | |(QThread)    |
-|- Whisper | |- Kokoro TTS |
-|- WebRTC  | |- Priority Q |
-|  VAD     | +------+------+
-+----+-----+        |
-     |               v
-     v          Speaker / Audio Out
-PTTController
-(keyboard/joystick)
+      <div className="arch-diagram">
+        {/* Launcher */}
+        <div className="arch-node arch-node--launcher">
+          <div className="arch-node__header">
+            <span className="arch-node__title">Unified Launcher</span>
+            <span className="arch-badge arch-badge--red">main.py</span>
+          </div>
+          <div className="arch-node__sub">
+            StartupLoaderThread — downloads GGUF models, imports modules, prewarms LLM
+          </div>
+        </div>
 
-=== Post-Race (Jarvis Post) ===
+        {/* Fan-out */}
+        <div className="arch-fanout-wrap">
+          <div className="arch-fanout-wrap__vline" />
+          <div className="arch-fanout-wrap__hbar" />
+        </div>
 
-LapViewerWindow
-      |
-      v
-+------------------+
-| AIPipelineBridge |
-+---+-----------+--+
-    |           |
-    v           v
-RaceAnalysis  Coaching
-Agent         Agent
-(BaseAgent)   (BaseAgent)
-    |           |
-    v           v
-LocalLLMInference (shared singleton)`}</code></pre>
+        {/* Three modes */}
+        <div className="arch-row arch-row--3">
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--live">
+              <div className="arch-node__header">
+                <span className="arch-node__title">Jarvis Live</span>
+                <span className="arch-badge arch-badge--red">Real-Time</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>AcTelemetryWorker (60 Hz)</li>
+                <li>MainWindow — dashboard</li>
+                <li>AIRaceEngineerWorker</li>
+                <li>VoiceInputWorker + VAD</li>
+                <li>TTSOutputWorker (Kokoro)</li>
+                <li>PTTController</li>
+                <li>SessionRecorder → SQLite</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--post">
+              <div className="arch-node__header">
+                <span className="arch-node__title">Jarvis Post</span>
+                <span className="arch-badge arch-badge--thread">Post-Race</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>SessionPickerDialog</li>
+                <li>SessionExporter (SQLite → Session)</li>
+                <li>LapViewerWindow</li>
+                <li>AIPipelineBridge</li>
+                <li>RaceAnalysisAgent</li>
+                <li>CoachingAgent</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--settings">
+              <div className="arch-node__header">
+                <span className="arch-node__title">Settings</span>
+                <span className="arch-badge arch-badge--ui">UI</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>LauncherWindow</li>
+                <li>Voice mode config</li>
+                <li>PTT button binding</li>
+                <li>AI verbosity level</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Down to SQLite */}
+        <div className="arch-connector">
+          <div className="arch-connector__line" />
+          <div className="arch-connector__label">telemetry_sessions.db</div>
+          <div className="arch-connector__arrow" />
+        </div>
+
+        <div className="arch-node arch-node--db">
+          <div className="arch-node__header">
+            <span className="arch-node__title">SQLite Database</span>
+          </div>
+          <div className="arch-node__sub">sessions · laps · telemetry · ai_commentary · voice_queries</div>
+        </div>
+      </div>
 
       <h3>AI Component Descriptions</h3>
       <table className="section-table">
@@ -738,81 +1283,300 @@ LocalLLMInference (shared singleton)`}</code></pre>
         End-to-end flow when the driver asks a question via voice, through transcription, LLM
         generation, and TTS playback.
       </p>
-      <pre className="code-block"><code>{`Microphone      VoiceInputWorker    AIRaceEngineerWorker    TTSOutputWorker
-                (QThread)           (QThread)                (QThread)
-    |                |                    |                       |
-    |--audio frame-->|                    |                       |
-    |                |--VAD: is_speech?   |                       |
-    |                |  [speech detected] |                       |
-    |                |--buffer audio      |                       |
-    |                |  [silence 150ms]   |                       |
-    |                |--transcribe()      |                       |
-    |                |  (faster-whisper)  |                       |
-    |                |                    |                       |
-    |                |--speech_detected-->|                       |
-    |                |  signal (str)      |                       |
-    |                |                    |--build reactive prompt |
-    |                |                    |  (context pruning)     |
-    |                |                    |--LLM generate()        |
-    |                |                    |--guardrail checks      |
-    |                |                    |                       |
-    |                |                    |--ai_commentary-------->|
-    |                |                    |  signal (str)         |--synthesize()
-    |                |                    |                       |  (Kokoro TTS)
-    |                |<---pause()---------|                       |--play audio
-    |                |  (prevent echo)    |                       |
-    |                |                    |                       |--playback_finished
-    |                |<---resume()--------|                       |  signal`}</code></pre>
+      <div className="seq-diagram">
+        <div className="seq-actors">
+          <div className="seq-actor seq-actor--entry">
+            <span className="seq-actor__name">Microphone</span>
+            <span className="seq-actor__type">hardware</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">VoiceInput Worker</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">AIRaceEngineer Worker</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">TTS Output Worker</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+        </div>
+        <div className="seq-body">
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">Microphone</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">VoiceInputWorker</span>
+            <span className="seq-msg__label">: audio frame</span>
+            <span className="seq-msg__note">16 kHz</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">VoiceInputWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">VAD check — is_speech? (WebRTC, 30 ms frames)</span>
+          </div>
+          <div className="seq-note">[speech detected]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">VoiceInputWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">buffer audio + 150 ms padding</span>
+          </div>
+          <div className="seq-note">[silence 150 ms — utterance complete]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">VoiceInputWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">transcribe() via faster-whisper</span>
+            <span className="seq-msg__note">&lt; 1 s</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">VoiceInputWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">AIRaceEngineerWorker</span>
+            <span className="seq-msg__label">: speech_detected signal (str)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AIRaceEngineerWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">build reactive prompt (query-aware context pruning)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AIRaceEngineerWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">LocalLLMInference.generate()</span>
+            <span className="seq-msg__note">2–5 s</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AIRaceEngineerWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">guardrail checks (hallucination, pit validation)</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AIRaceEngineerWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">TTSOutputWorker</span>
+            <span className="seq-msg__label">: ai_commentary signal (str)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">TTSOutputWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">synthesize via Kokoro TTS (ONNX)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">TTSOutputWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">play audio (winsound / PyAudio)</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AIRaceEngineerWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">VoiceInputWorker</span>
+            <span className="seq-msg__label">: pause() — prevent echo capture</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">AIRaceEngineerWorker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">VoiceInputWorker</span>
+            <span className="seq-msg__label">: resume() after playback_finished signal</span>
+          </div>
+        </div>
+      </div>
 
       <h3>Post-Race Analysis Flow (AI Stage)</h3>
       <p>
         After session data is loaded from SQLite/CSV (see Data Pipeline tab),
         the user triggers LLM analysis via the post-race viewer.
       </p>
-      <pre className="code-block"><code>{`LapViewerWindow                   AIPipelineBridge
-(QMainWindow)                     (plain class)
-    |                                  |
-    |--[user clicks Analyse]           |
-    |--generate()--------------------->|
-    |                                  |--RaceAnalysisAgent
-    |                                  |  .analyse_stream()
-    |<--streaming text-----------------|
-    |                                  |
-    |--[user clicks lap]               |
-    |--generate_coach()--------------->|
-    |                                  |--CoachingAgent
-    |                                  |  .analyse_stream()
-    |<--streaming text-----------------|`}</code></pre>
+      <div className="seq-diagram">
+        <div className="seq-actors">
+          <div className="seq-actor seq-actor--ui">
+            <span className="seq-actor__name">Session Picker</span>
+            <span className="seq-actor__type">QDialog</span>
+          </div>
+          <div className="seq-actor seq-actor--plain">
+            <span className="seq-actor__name">Session Exporter</span>
+            <span className="seq-actor__type">plain class</span>
+          </div>
+          <div className="seq-actor seq-actor--ui">
+            <span className="seq-actor__name">LapViewer Window</span>
+            <span className="seq-actor__type">QMainWindow</span>
+          </div>
+          <div className="seq-actor seq-actor--plain">
+            <span className="seq-actor__name">AIPipeline Bridge</span>
+            <span className="seq-actor__type">plain class</span>
+          </div>
+        </div>
+        <div className="seq-body">
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">SessionPicker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">SessionExporter</span>
+            <span className="seq-msg__label">: list_sessions()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">SessionExporter</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">SessionPicker</span>
+            <span className="seq-msg__label">: session list (return)</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[user selects session]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">SessionPicker</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">SessionExporter</span>
+            <span className="seq-msg__label">: export_session()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">SessionExporter</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">write CSVs to disk</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">LapViewerWindow</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">load_session() via TelemetryLoader</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[user clicks Analyse]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">LapViewerWindow</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">AIPipelineBridge</span>
+            <span className="seq-msg__label">: generate()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">AIPipelineBridge</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">RaceAnalysisAgent.analyse_stream()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">AIPipelineBridge</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">LapViewerWindow</span>
+            <span className="seq-msg__label">: streaming text</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[user clicks lap for coaching]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">LapViewerWindow</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">AIPipelineBridge</span>
+            <span className="seq-msg__label">: generate_coach()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">AIPipelineBridge</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">CoachingAgent.analyse_stream()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">AIPipelineBridge</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">LapViewerWindow</span>
+            <span className="seq-msg__label">: streaming text</span>
+          </div>
+        </div>
+      </div>
 
       <h3>Application Startup Flow</h3>
       <p>
         The 11-stage startup loader that imports modules, downloads models, and prewarms the LLM.
       </p>
-      <pre className="code-block"><code>{`main.py           LoadingScreen     StartupLoaderThread     UnifiedLauncher
-                  (QWidget)         (QThread)               (QDialog)
-    |                  |                  |                       |
-    |--create app      |                  |                       |
-    |--show()--------->|                  |                       |
-    |--start()------------------------------>|                    |
-    |                  |                  |--Stage 1: App shell   |
-    |                  |<--stage_update---|                       |
-    |                  |                  |--Stage 2: Native DLLs |
-    |                  |                  |--Stage 3: UI imports  |
-    |                  |                  |--Stage 4: Telemetry   |
-    |                  |                  |--Stage 5: AI stack    |
-    |                  |                  |--Stage 6: GGUF models |
-    |                  |                  |  (download if needed) |
-    |                  |                  |--Stage 7: Voice/Whisper|
-    |                  |                  |--Stage 8: TTS/Kokoro  |
-    |                  |                  |--Stage 9: Persistence |
-    |                  |<--all_done(dict)-|                       |
-    |--Stage 10: Fonts (main thread)      |                       |
-    |--Stage 11: Complete                 |                       |
-    |--close()-------->|                  |                       |
-    |--exec_()-------------------------------------------------->|
-    |                                     [user picks action]     |
-    |<--ACTION_LIVE / ACTION_POST / ACTION_SETTINGS / ACTION_QUIT-|
-    |--[loop: re-show launcher after each session ends]           |`}</code></pre>
+      <div className="seq-diagram">
+        <div className="seq-actors">
+          <div className="seq-actor seq-actor--entry">
+            <span className="seq-actor__name">main.py</span>
+            <span className="seq-actor__type">entry point</span>
+          </div>
+          <div className="seq-actor seq-actor--ui">
+            <span className="seq-actor__name">Loading Screen</span>
+            <span className="seq-actor__type">QWidget</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">Startup Loader</span>
+            <span className="seq-actor__type">QThread</span>
+          </div>
+          <div className="seq-actor seq-actor--ui">
+            <span className="seq-actor__name">Unified Launcher</span>
+            <span className="seq-actor__type">QDialog</span>
+          </div>
+        </div>
+        <div className="seq-body">
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">main.py</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">LoadingScreen</span>
+            <span className="seq-msg__label">: show()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">main.py</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">StartupLoaderThread</span>
+            <span className="seq-msg__label">: start()</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">StartupLoaderThread</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">Stage 1–5: app shell, DLLs, UI, telemetry, AI stack</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">StartupLoaderThread</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">LoadingScreen</span>
+            <span className="seq-msg__label">: stage_update signal × 5</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">StartupLoaderThread</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">Stage 6: download GGUF models (if not cached)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">StartupLoaderThread</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">Stages 7–9: Whisper, Kokoro TTS, persistence</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">StartupLoaderThread</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">LoadingScreen</span>
+            <span className="seq-msg__label">: all_done(component_dict)</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">main.py</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">Stages 10–11: fonts + complete (main thread)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">main.py</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">LoadingScreen</span>
+            <span className="seq-msg__label">: close()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">main.py</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">UnifiedLauncher</span>
+            <span className="seq-msg__label">: exec_()</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[user picks action]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">UnifiedLauncher</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--entry">main.py</span>
+            <span className="seq-msg__label">: ACTION_LIVE / ACTION_POST / ACTION_SETTINGS / ACTION_QUIT</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">main.py</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">loop — re-show launcher after each session ends</span>
+          </div>
+        </div>
+      </div>
 
       <h2>Design Patterns</h2>
 
