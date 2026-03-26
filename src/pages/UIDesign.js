@@ -21,9 +21,161 @@ function UIDesign() {
         ))}
       </div>
 
-      {activeTab === 'VR' && (
-        <p style={{ color: '#555', fontStyle: 'italic' }}>VR content coming soon.</p>
-      )}
+      {activeTab === 'VR' && (<>
+
+      <p>
+        The VR component of the system renders interactive telemetry charts directly inside an
+        Unreal Engine 4.27 VR scene. Each chart is an independent actor instance displaying a
+        chosen metric from a loaded <code>.jsession</code> telemetry file, allowing users to
+        compose a fully custom 3D dashboard by placing chart actors freely in world space.
+      </p>
+
+      <h2>Telemetry Visualizer Charts</h2>
+      <p>
+        <code>ATelemetryVisualizer</code> is a C++ Unreal actor that renders a Kantan Charts
+        <code>USimpleCartesianPlot</code> onto a <code>UWidgetComponent</code> surface. A single
+        keypress (<strong>'O'</strong>) opens a file dialog, parses the selected JSON session file,
+        and broadcasts the data to every chart instance in the level simultaneously. Per-instance
+        configuration (metric type, draw resolution, world-scale, line colour, line thickness)
+        lets users tailor each chart without touching code.
+      </p>
+
+      <h3>Design Principles</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Principle</th>
+            <th>Implementation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Visibility of System Status</strong></td>
+            <td>
+              All chart instances update simultaneously via a broadcast after file load — the user
+              sees every metric respond at once, with no manual refresh required. Axis ranges are
+              computed dynamically from the actual data min/max (with padding), so the scale always
+              reflects the loaded session.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Consistency &amp; Standards</strong></td>
+            <td>
+              Grouped metrics (Tyre Pressure, Tyre Temperature, Tyre Wear, Wheel Slip, Suspension
+              Travel) always use the same colour mapping across every chart: FL = green, FR = blue,
+              RL = orange, RR = red-pink. Users learn the colour legend once and it applies
+              everywhere.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Flexibility &amp; Efficiency of Use</strong></td>
+            <td>
+              A single keypress (<strong>'O'</strong>) triggers the file-load flow for all charts
+              in the scene. Per-instance metric selection (via the Unreal Details panel dropdown)
+              lets expert users compose custom multi-metric dashboard layouts. Draw size, world
+              scale, line colour, and thickness are all exposed as per-instance properties.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Aesthetic &amp; Minimalist Design</strong></td>
+            <td>
+              Charts use a near-black background (<code>0.03, 0.03, 0.07, 0.92</code> alpha) and
+              high-contrast lines chosen for VR headset legibility. No extraneous UI chrome is
+              rendered. Grouped metrics consolidate multiple data series onto a single chart actor,
+              reducing scene complexity (one 4-line chart vs. four separate actors).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Error Prevention &amp; Tolerance</strong></td>
+            <td>
+              Zero-range safety guards expand the axis by ±1 when min ≈ max, preventing a
+              degenerate plot. Failed datapoint insertions are counted and logged as warnings.
+              Null-guards on <code>WidgetTree</code> creation prevent crashes when widget
+              initialisation is incomplete.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Metric Types</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Metrics</th>
+            <th>Lines per Chart</th>
+            <th>Colour Scheme</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Single-value</strong></td>
+            <td>Speed, RPM, Gear, Throttle, Brake, Fuel, Steer Angle, G-Forces, Elapsed Time, Lap Number, Position</td>
+            <td>1</td>
+            <td>Configurable per-instance (<code>LineColor</code> property)</td>
+          </tr>
+          <tr>
+            <td><strong>4-Corner Grouped</strong></td>
+            <td>Tyre Pressure, Tyre Temperature, Tyre Wear, Wheel Slip, Suspension Travel</td>
+            <td>4</td>
+            <td>FL = green, FR = blue, RL = orange, RR = red-pink</td>
+          </tr>
+          <tr>
+            <td><strong>Front/Rear Grouped</strong></td>
+            <td>Ride Height</td>
+            <td>2</td>
+            <td>Front = green, Rear = red</td>
+          </tr>
+          <tr>
+            <td><strong>5-Zone Grouped</strong></td>
+            <td>Car Damage</td>
+            <td>5</td>
+            <td>Front = green, Rear = red, Left = blue, Right = orange, Centre = yellow</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Key Design Decisions</h3>
+
+      <div className="design-decision">
+        <strong>Widget Lifecycle Ordering — attach before populate:</strong> The
+        <code> UChartContainerWidget</code> must be assigned to the <code>UWidgetComponent</code>{' '}
+        <em>before</em> data is pushed via <code>BP_AddSeriesWithId</code> and{' '}
+        <code>BP_AddDatapoint</code>. Attaching first triggers <code>TakeWidget()</code> →{' '}
+        <code>SynchronizeProperties()</code>, which binds the Slate chart's datasource interface.
+        Populating data before attachment causes axes to render but leaves all data lines invisible —
+        a subtle ordering bug with no compile-time or runtime error.
+      </div>
+
+      <div className="design-decision">
+        <strong>Native Win32 File Dialog (commdlg.h) instead of DesktopPlatform:</strong> Unreal's{' '}
+        <code>IDesktopPlatform</code> module is editor-only and causes linker errors in Shipping
+        builds. The implementation uses <code>GetOpenFileName</code> from <code>commdlg.h</code>{' '}
+        directly, which is available in all build configurations. After the dialog closes,{' '}
+        <code>SetInputMode(FInputModeGameOnly)</code> is called to recapture mouse look, preventing
+        the "lost mouse after alt-tab" issue that occurs when a Win32 dialog temporarily gives the
+        OS cursor control.
+      </div>
+
+      <div className="design-decision">
+        <strong>Consistent colour-coding across all 4-corner grouped metrics:</strong> The same
+        FL/FR/RL/RR colour mapping (green/blue/orange/red-pink) is enforced by the shared{' '}
+        <code>GetSubSeries()</code> function, which returns a <code>TArray&lt;FTelemetrySubSeries&gt;</code>{' '}
+        (JsonKey, DisplayName, Color) for each metric enum value. This means Tyre Pressure, Tyre
+        Temperature, Tyre Wear, Wheel Slip, and Suspension Travel all share identical colour
+        semantics — a user who reads the legend for one metric can immediately interpret any other.
+      </div>
+
+      <div className="design-decision">
+        <strong>Automatic down-sampling for VR performance:</strong> Datasets exceeding 6,000
+        datapoints are uniformly down-sampled before being pushed to the chart widget. This keeps
+        frame times stable in VR (where dropping below 90 fps causes discomfort) while preserving
+        overall shape and trend visibility. The threshold and step are applied per-series, so
+        grouped charts with multiple lines each benefit from the reduction.
+      </div>
+
+      </>)}
+
 
       {activeTab === '2D Dashboards' && (<>
 
