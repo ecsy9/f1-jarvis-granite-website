@@ -533,59 +533,54 @@ TelemetryLoader
 
       <h2>System Architecture</h2>
       <p>
-        The system follows a <strong>multi-threaded, event-driven architecture</strong> built on
-        PyQt5's signal/slot mechanism. Two major operating modes share a common data and UI
-        foundation: <strong>Jarvis Live</strong> (real-time dashboard with AI race engineer)
-        and <strong>Jarvis Post</strong> (post-race analysis with LLM-powered debrief agents).
+        The AI layer sits downstream of the data pipeline (see Data Pipeline tab). Once
+        telemetry has been acquired and validated, events are handed to the AI subsystem for
+        LLM inference, voice I/O, and post-race analysis. The diagram below shows only the
+        AI-specific components and their interactions.
       </p>
 
-      <pre className="code-block"><code>{`+=====================================================================+
-|                     UNIFIED LAUNCHER (main.py)                      |
-|  +------------------+   +------------------+   +-----------------+  |
-|  | Start Jarvis Live |   | Start Jarvis Post|   |    Settings     |  |
-|  +--------+---------+   +--------+---------+   +--------+--------+  |
-|           |                      |                       |          |
-+===========|======================|=======================|==========+
-            |                      |                       |
-            v                      v                       v
-+========================+  +======================+  +==============+
-| JARVIS LIVE            |  | JARVIS POST          |  | LauncherWindow|
-| (Real-Time Dashboard)  |  | (Post-Race Analysis) |  | (Settings UI) |
-|                        |  |                      |  +==============+
-| +--------------------+ |  | +------------------+ |
-| | AC Telemetry       | |  | | Session Picker   | |
-| | Worker (QThread)   | |  | | Dialog           | |
-| +--------+-----------+ |  | +--------+---------+ |
-|          |              |  |          |            |
-|    realtime_sample      |  |   SessionExporter    |
-|    signal (60Hz)        |  |   loads from SQLite  |
-|          |              |  |          |            |
-|    +-----+------+       |  | +--------v---------+ |
-|    |            |       |  | | LapViewerWindow   | |
-|    v            v       |  | | + Timeline Ctrl   | |
-| MainWindow  AI Race     |  | | + AI Pipeline     | |
-| (Dashboard) Engineer    |  | |   Bridge          | |
-| + Canvases  (QThread)   |  | +------------------+ |
-|    |            |       |  +======================+
-|    |     +------+------+|
-|    |     |      |      ||
-|    |     v      v      v|
-|    | Voice   TTS    Session|
-|    | Input   Output Recorder|
-|    | Worker  Worker (QThread)|
-|    | (QThread)(QThread)     |
-|    |     |                  |
-|    |     v                  |
-|    | PTT Controller         |
-|    | (keyboard/joystick)    |
-+============================+
+      <pre className="code-block"><code>{`Events from TelemetryAgent (Data Pipeline)
             |
             v
-    +===============+
-    | SQLite Database|
-    | (telemetry_   |
-    |  sessions.db) |
-    +===============+`}</code></pre>
++------------------------------------------+
+| AIRaceEngineerWorker (QThread + asyncio) |
+| - RaceEngineerAgent (prompt + LLM)       |
+| - Guardrail checks                       |
+| - Rule-based fallback                    |
++-----+-----+---------+-------------------+
+      |     |         |
+      |     |         +----> ai_commentary signal --> MainWindow (comms transcript)
+      |     |
+      v     v
++----------+ +-------------+
+|VoiceInput| |TTSOutput    |
+|Worker    | |Worker       |
+|(QThread) | |(QThread)    |
+|- Whisper | |- Kokoro TTS |
+|- WebRTC  | |- Priority Q |
+|  VAD     | +------+------+
++----+-----+        |
+     |               v
+     v          Speaker / Audio Out
+PTTController
+(keyboard/joystick)
+
+=== Post-Race (Jarvis Post) ===
+
+LapViewerWindow
+      |
+      v
++------------------+
+| AIPipelineBridge |
++---+-----------+--+
+    |           |
+    v           v
+RaceAnalysis  Coaching
+Agent         Agent
+(BaseAgent)   (BaseAgent)
+    |           |
+    v           v
+LocalLLMInference (shared singleton)`}</code></pre>
 
       <h3>AI Component Descriptions</h3>
       <table className="section-table">
@@ -593,11 +588,6 @@ TelemetryLoader
           <tr><th>Component</th><th>Type</th><th>Description</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>Unified Launcher</strong></td>
-            <td><code>QDialog</code></td>
-            <td>Main menu offering three entry points: Jarvis Live, Jarvis Post, or Settings. Loops back after each session ends.</td>
-          </tr>
           <tr>
             <td><strong>StartupLoaderThread</strong></td>
             <td><code>QThread</code></td>
@@ -706,33 +696,25 @@ TelemetryLoader
     |                |                    |                       |--playback_finished
     |                |<---resume()--------|                       |  signal`}</code></pre>
 
-      <h3>Post-Race Analysis Flow</h3>
+      <h3>Post-Race Analysis Flow (AI Stage)</h3>
       <p>
-        How a recorded session is loaded, analysed by LLM agents, and presented to the user.
+        After session data is loaded from SQLite/CSV (see Data Pipeline tab),
+        the user triggers LLM analysis via the post-race viewer.
       </p>
-      <pre className="code-block"><code>{`SessionPickerDialog    SessionExporter    LapViewerWindow    AIPipelineBridge
-(QDialog)              (plain class)      (QMainWindow)      (plain class)
-    |                      |                   |                   |
-    |--list_sessions()---->|                   |                   |
-    |<--session list-------|                   |                   |
-    |                      |                   |                   |
-    |--[user selects]      |                   |                   |
-    |--export_session()--->|                   |                   |
-    |                      |--write CSVs       |                   |
-    |                      |                   |<--load_session()  |
-    |                      |                   |  (TelemetryLoader)|
-    |                      |                   |                   |
-    |                      |                   |--[user clicks Analyse]
-    |                      |                   |--generate()------->|
-    |                      |                   |                   |--RaceAnalysisAgent
-    |                      |                   |                   |  .analyse_stream()
-    |                      |                   |<--streaming text---|
-    |                      |                   |                   |
-    |                      |                   |--[user clicks lap] |
-    |                      |                   |--generate_coach()->|
-    |                      |                   |                   |--CoachingAgent
-    |                      |                   |                   |  .analyse_stream()
-    |                      |                   |<--streaming text---|`}</code></pre>
+      <pre className="code-block"><code>{`LapViewerWindow                   AIPipelineBridge
+(QMainWindow)                     (plain class)
+    |                                  |
+    |--[user clicks Analyse]           |
+    |--generate()--------------------->|
+    |                                  |--RaceAnalysisAgent
+    |                                  |  .analyse_stream()
+    |<--streaming text-----------------|
+    |                                  |
+    |--[user clicks lap]               |
+    |--generate_coach()--------------->|
+    |                                  |--CoachingAgent
+    |                                  |  .analyse_stream()
+    |<--streaming text-----------------|`}</code></pre>
 
       <h3>Application Startup Flow</h3>
       <p>
@@ -850,14 +832,8 @@ class CoachingAgent(BaseAgent):
 
       <h2>Class Diagrams</h2>
 
-      <h3>Core QThread Workers</h3>
+      <h3>AI QThread Workers</h3>
       <pre className="code-block"><code>{`QtCore.QThread
-    |
-    +-- AcTelemetryWorker
-    |     Signals: lap_completed, status_update, session_info_update,
-    |              live_data_update, realtime_sample, session_reset
-    |     Uses: LapBuffer, ctypes.Structure (SPageFilePhysics,
-    |            SPageFileGraphics, SPageFileStatic)
     |
     +-- AIRaceEngineerWorker
     |     Signals: ai_commentary, driver_query_received, status_update,
@@ -874,10 +850,6 @@ class CoachingAgent(BaseAgent):
     |     Signals: status_update, error_occurred, playback_started,
     |              playback_finished
     |     Uses: KokoroTTSClient, pyaudio, asyncio.PriorityQueue
-    |
-    +-- SessionRecorder
-    |     Signals: status_update, error_occurred, session_started
-    |     Uses: sqlite3.Connection, threading.RLock
     |
     +-- StartupLoaderThread
           Signals: stage_update, all_done, fatal_error`}</code></pre>
@@ -911,54 +883,23 @@ PTTController (QObject)
     Uses: pynput.keyboard.Listener, pygame.joystick
     Signals: ptt_pressed, ptt_released, status_update`}</code></pre>
 
-      <h3>UI Class Hierarchy</h3>
-      <pre className="code-block"><code>{`QMainWindow
-    +-- MainWindow (live dashboard)
-    |     Contains: TrackMapCanvas, TimeSeriesCanvas (x5),
-    |               MultiLineCanvas, DeltaCanvas, QTableWidget,
-    |               QTextEdit (comms transcript)
-    |
-    +-- LapViewerWindow (post-race viewer)
-          Contains: TrackMapCanvas (post_race variant),
-                    TimeSeriesCanvas (post_race variant),
-                    TimelineController, AIPipelineBridge
-
-QDialog
-    +-- UnifiedLauncher (main menu)
-    +-- LauncherWindow (settings)
-    +-- SessionPickerDialog (session selection)
-
-QWidget
-    +-- LoadingScreen (startup splash)
-    +-- PTTBindingWidget (PTT config UI)
-
-FigureCanvas (matplotlib)
-    +-- TrackMapCanvas (speed-colored track path)
-    +-- TimeSeriesCanvas (single-line: speed, RPM, etc.)
-    +-- MultiLineCanvas (4-line: tire temps by corner)
-    +-- DeltaCanvas (delta-to-best visualization)`}</code></pre>
-
       <h2>Thread Model</h2>
+      <p>
+        Data pipeline threads (AcTelemetryWorker, SessionRecorder) are documented in the
+        Data Pipeline tab. The AI layer adds the following threads:
+      </p>
       <table className="section-table">
         <thead>
           <tr><th>Thread</th><th>Type</th><th>Lifetime</th><th>Frequency</th><th>Purpose</th></tr>
         </thead>
         <tbody>
-          <tr><td>Main (UI) thread</td><td>Qt event loop</td><td>Application lifetime</td><td>Event-driven</td><td>All UI rendering, signal dispatch</td></tr>
-          <tr><td>AcTelemetryWorker</td><td>QThread</td><td>Session lifetime</td><td>~60 Hz poll</td><td>Read shared memory, emit samples</td></tr>
           <tr><td>AIRaceEngineerWorker</td><td>QThread + asyncio</td><td>Session lifetime</td><td>~5 Hz (throttled)</td><td>Event detection + LLM inference</td></tr>
           <tr><td>VoiceInputWorker</td><td>QThread</td><td>Session lifetime</td><td>~33 Hz (30ms frames)</td><td>Audio capture + VAD + Whisper STT</td></tr>
           <tr><td>TTSOutputWorker</td><td>QThread + asyncio</td><td>Session lifetime</td><td>On-demand</td><td>Kokoro synthesis + audio playback</td></tr>
-          <tr><td>SessionRecorder</td><td>QThread</td><td>Session lifetime</td><td>1 Hz flush</td><td>Batch SQLite writes</td></tr>
           <tr><td>StartupLoaderThread</td><td>QThread</td><td>~5–30 seconds</td><td>One-shot</td><td>Module imports + model downloads</td></tr>
           <tr><td>PTTController</td><td>QObject (timers)</td><td>Session lifetime</td><td>60 Hz (joystick poll)</td><td>Input device monitoring</td></tr>
         </tbody>
       </table>
-      <p>
-        All inter-thread communication uses Qt signals (thread-safe, queued connections)
-        or <code>asyncio.Queue</code> (for the AI worker's internal async loop). No raw shared
-        mutable state is used between threads.
-      </p>
 
       <h2>Packages and APIs</h2>
 
@@ -1062,10 +1003,9 @@ TTSOutputWorker (QThread)
         <li>Gerganov, G. (2023) <em>llama.cpp: Inference of Meta's LLaMA model in pure C/C++</em>. <a href="https://github.com/ggerganov/llama.cpp" target="_blank" rel="noopener noreferrer">https://github.com/ggerganov/llama.cpp</a></li>
         <li>Google (2011) <em>WebRTC: Real-Time Communication for the Web</em>. <a href="https://webrtc.org/" target="_blank" rel="noopener noreferrer">https://webrtc.org/</a></li>
         <li>Hexgrad (2024) <em>Kokoro: Lightweight Neural Text-to-Speech</em>. <a href="https://github.com/hexgrad/kokoro" target="_blank" rel="noopener noreferrer">https://github.com/hexgrad/kokoro</a></li>
-        <li>Hunter, J.D. (2007) 'Matplotlib: A 2D Graphics Environment', <em>Computing in Science &amp; Engineering</em>, 9(3), pp. 90–95.</li>
         <li>Klein, G. (2020) <em>CTranslate2: Fast Inference Engine for Transformer Models</em>. <a href="https://github.com/OpenNMT/CTranslate2" target="_blank" rel="noopener noreferrer">https://github.com/OpenNMT/CTranslate2</a></li>
-        <li>Kunz, T. (2020) <em>Assetto Corsa Shared Memory Reference</em>. <a href="https://assettocorsamods.net/threads/doc-shared-memory-reference.58/" target="_blank" rel="noopener noreferrer">assettocorsamods.net</a></li>
         <li>Mishra, M. et al. (2024) 'Granite Code Models: A Family of Open Foundation Models for Code Intelligence', <em>arXiv preprint arXiv:2405.04324</em>.</li>
+        <li>Radford, A., Kim, J.W., Xu, T., Brockman, G., McLeavey, C. and Sutskever, I. (2023) 'Robust Speech Recognition via Large-Scale Weak Supervision', in <em>Proceedings of ICML</em>, pp. 28492–28518.</li>
       </ol>
       </>)}
 
