@@ -474,10 +474,11 @@ laps_remaining = fuel_remaining / fuel_per_lap`}
 
       {activeTab === 'AI Pipeline' && (<>
       <p>
-        A detailed account of the algorithms that execute during a live race session: how telemetry
-        events are detected, how the LLM generates natural-language responses, how driver voice input
-        is processed, how speech is synthesised, and how post-race analysis is produced. For
-        fine-tuning methodology and training data, see the Fine Tuning tab.
+        This tab covers the algorithms that operate within the AI pipeline: LLM inference and
+        prompt engineering, voice input (VAD + Whisper STT), text-to-speech output, post-race
+        analysis agents, and end-to-end evaluation. Telemetry event detection and the data
+        pipeline are documented in the <strong>Telemetry Data</strong> tab; model training
+        and fine-tuning are in the <strong>Fine Tuning</strong> tab.
       </p>
 
       <h2>Pipeline Overview</h2>
@@ -556,26 +557,6 @@ laps_remaining = fuel_remaining / fuel_per_lap`}
         "Box box box! Fuel critical, pit this lap.") to ensure the driver always receives a
         message.
       </p>
-      <p>
-        The rule-based telemetry agent evaluates 12 event categories against configurable
-        thresholds. Each event type has an
-        independent <strong>cooldown timer</strong> (5-60 seconds depending on severity) to
-        prevent alert fatigue. Events are sorted by a 4-level priority enum (CRITICAL, HIGH,
-        MEDIUM, LOW) before being queued to the communications transcript and TTS.
-      </p>
-      <p>Additional detection features include:</p>
-      <ul>
-        <li>
-          <strong>Position change:</strong> First-change suppression avoids alerting on the
-          initial position assignment at session start.
-        </li>
-        <li>
-          <strong>Fuel laps remaining:</strong> Calculated as <code>current_fuel /
-          fuel_consumption_per_lap</code>, where consumption is either looked up from a
-          pre-computed datasheet (see Fuel Consumption Lookup below) or calculated from real
-          telemetry after the first completed lap.
-        </li>
-      </ul>
 
       <h2>Voice Input Pipeline</h2>
 
@@ -897,36 +878,7 @@ laps_remaining = fuel_remaining / fuel_per_lap`}
         inserts appropriate pauses between sentences.
       </p>
 
-      <h2>Supporting Algorithms</h2>
-
-      <h3>Fuel Consumption Lookup</h3>
-      <p>
-        Before real telemetry data is available (i.e., before the first lap completes), fuel
-        consumption is estimated using a pre-computed datasheet of car/track combinations. Matching
-        the game's internal IDs (e.g., <code>ks_ferrari_458</code>) to the datasheet entries
-        requires <strong>fuzzy string matching</strong> using a three-pass cascade:
-      </p>
-      <ol>
-        <li><strong>Pass 1 -- Exact match:</strong> Normalised strings are compared for equality (after lowercasing, accent stripping, prefix removal, and whitespace collapsing).</li>
-        <li><strong>Pass 2 -- Substring containment:</strong> Either string is checked as a substring of the other.</li>
-        <li><strong>Pass 3 -- Jaccard token overlap:</strong> Token sets are compared using the Jaccard similarity coefficient:</li>
-      </ol>
-      <pre className="code-block"><code>{`J(A, B) = |A ∩ B| / |A ∪ B|`}</code></pre>
-      <p>
-        A match is accepted if <code>J &ge; 0.4</code>. This threshold was chosen empirically to
-        balance precision (avoiding false matches between similarly-named cars) and recall (matching
-        despite naming variations between game versions).
-      </p>
-      <p>
-        <strong>Fuel estimation formula:</strong>
-      </p>
-      <pre className="code-block"><code>{`fuel_per_lap = car_base × track_scaling_factor × (track_km / 5.0)`}</code></pre>
-      <p>
-        Where <code>car_base</code> is the car's baseline consumption (litres/lap at a reference
-        track), <code>track_scaling_factor</code> accounts for track characteristics
-        (high-speed circuits consume more fuel), and <code>track_km / 5.0</code> normalises
-        against the 5 km reference length.
-      </p>
+      <h2>Post-Race Analysis</h2>
 
       <h3>Post-Race Analysis Agents</h3>
       <p>
@@ -982,95 +934,6 @@ laps_remaining = fuel_remaining / fuel_per_lap`}
             <td>Time cap</td>
             <td>8 seconds</td>
             <td>No hard limit</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Input Telemetry Schema</h3>
-      <p>
-        Telemetry is read from Assetto Corsa's Windows shared memory interface at ~60 Hz. Each
-        telemetry frame is a structured dictionary validated using Pydantic models with type
-        constraints (e.g., temperatures &ge; 0, throttle/brake clamped to 0.0-1.0). Invalid frames
-        are rejected before reaching the event detection pipeline.
-      </p>
-      <table className="section-table">
-        <thead>
-          <tr>
-            <th>Field</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>speed</td>
-            <td>float</td>
-            <td>Vehicle speed (km/h)</td>
-          </tr>
-          <tr>
-            <td>rpm</td>
-            <td>int</td>
-            <td>Engine RPM</td>
-          </tr>
-          <tr>
-            <td>gear</td>
-            <td>int</td>
-            <td>Current gear (-1=reverse, 0=neutral, 1-8)</td>
-          </tr>
-          <tr>
-            <td>throttle</td>
-            <td>float</td>
-            <td>Throttle input (0.0-1.0)</td>
-          </tr>
-          <tr>
-            <td>brake</td>
-            <td>float</td>
-            <td>Brake input (0.0-1.0)</td>
-          </tr>
-          <tr>
-            <td>fuel</td>
-            <td>float</td>
-            <td>Remaining fuel (litres)</td>
-          </tr>
-          <tr>
-            <td>tyre_temp_&#123;fl,fr,rl,rr&#125;</td>
-            <td>float</td>
-            <td>Tyre core temperature (&#176;C) per corner</td>
-          </tr>
-          <tr>
-            <td>tyre_pressure_&#123;fl,fr,rl,rr&#125;</td>
-            <td>float</td>
-            <td>Tyre pressure (PSI) per corner</td>
-          </tr>
-          <tr>
-            <td>position_x, position_z</td>
-            <td>float</td>
-            <td>World position (metres)</td>
-          </tr>
-          <tr>
-            <td>lap_number</td>
-            <td>int</td>
-            <td>Current lap index</td>
-          </tr>
-          <tr>
-            <td>position</td>
-            <td>int</td>
-            <td>Race position (1-indexed)</td>
-          </tr>
-          <tr>
-            <td>car_damage_&#123;front,rear,left,right,centre&#125;</td>
-            <td>float</td>
-            <td>Damage per zone (0.0 = none)</td>
-          </tr>
-          <tr>
-            <td>g_force_lat, g_force_lon</td>
-            <td>float</td>
-            <td>G-forces (g)</td>
-          </tr>
-          <tr>
-            <td>wheel_slip_&#123;fl,fr,rl,rr&#125;</td>
-            <td>float</td>
-            <td>Wheel slip ratio per corner</td>
           </tr>
         </tbody>
       </table>
@@ -1262,6 +1125,95 @@ laps_remaining = fuel_remaining / fuel_per_lap`}
         </li>
       </ol>
 
+      <h2>LLM Configuration</h2>
+
+      <h3>Verbosity Levels</h3>
+      <p>
+        The LLM response length is controlled by three verbosity modes, each with a dedicated
+        prompt template:
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Max Length</th>
+            <th>Style</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Minimal</td>
+            <td>&lt;15 words</td>
+            <td>Urgent, clipped</td>
+            <td>"Box box! Fuel critical."</td>
+          </tr>
+          <tr>
+            <td>Moderate (default)</td>
+            <td>1–2 sentences</td>
+            <td>Direct, informative</td>
+            <td>"Fuel for two more laps. We need to box this lap, confirm box."</td>
+          </tr>
+          <tr>
+            <td>Verbose</td>
+            <td>Up to 4 sentences</td>
+            <td>Detailed with reasoning</td>
+            <td>"Fuel is critical at 1.8 laps remaining. Gap behind is 3.2 seconds so we have clean air for an in-lap. Box this lap, we'll switch to hards for the final stint."</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Conversation History</h3>
+      <p>
+        The race engineer maintains a rolling conversation history of the last 3 driver–engineer
+        exchanges. This allows the LLM to maintain context across interactions — for example,
+        if the driver asks "what about the rears?" after a fronts discussion, the model has
+        the prior exchange available to interpret the follow-up correctly.
+      </p>
+
+      <h3>Inference Parameters</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Max Tokens</td>
+            <td>48</td>
+            <td>Enforces brevity for live radio-style responses</td>
+          </tr>
+          <tr>
+            <td>Temperature</td>
+            <td>0.3</td>
+            <td>Low variance for consistent, deterministic outputs</td>
+          </tr>
+          <tr>
+            <td>Top K</td>
+            <td>50</td>
+            <td>Limits token sampling pool</td>
+          </tr>
+          <tr>
+            <td>Top P (nucleus)</td>
+            <td>0.95</td>
+            <td>Cumulative probability cutoff for sampling</td>
+          </tr>
+          <tr>
+            <td>Context Window</td>
+            <td>2,048 tokens</td>
+            <td>Maximum input + output length per inference call</td>
+          </tr>
+          <tr>
+            <td>Generation Timeout</td>
+            <td>5 seconds</td>
+            <td>Prevents blocking the telemetry pipeline on slow hardware</td>
+          </tr>
+        </tbody>
+      </table>
+
       <h2>References</h2>
       <ol className="ref-list">
         <li>
@@ -1362,8 +1314,9 @@ laps_remaining = fuel_remaining / fuel_per_lap`}
       <p>
         A detailed account of the machine learning approach underpinning Jarvis:
         why fine-tuning was chosen over alternative LLM strategies, how QLoRA makes it
-        feasible, how two specialised models were trained for distinct inference contexts,
-        and the rule-based event detection system that operates alongside the LLM.
+        feasible, and how two specialised models were trained for distinct inference contexts.
+        Runtime LLM behaviour and voice pipeline algorithms are covered in the <strong>AI Pipeline</strong> tab;
+        the data pipeline and event detection algorithms are in the <strong>Telemetry Data</strong> tab.
       </p>
 
       <h2>Fine-Tuning Strategy</h2>
@@ -1819,186 +1772,6 @@ Output: "### 1. Overall Performance and Result
         The final GGUF models are hosted on Hugging Face Hub and automatically downloaded on
         first launch, with a progress dialog informing the user of download status.
       </p>
-
-      <h2>Inference Architecture</h2>
-
-      <h3>Two-Layer Detection System</h3>
-      <p>
-        The live AI race engineer operates as a two-layer system: a fast rule-based telemetry
-        agent for event detection, and a slower LLM agent for natural language response
-        generation.
-      </p>
-
-      <table className="section-table">
-        <thead>
-          <tr>
-            <th>Layer</th>
-            <th>Component</th>
-            <th>Latency</th>
-            <th>Function</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1 — Detection</td>
-            <td>TelemetryAgent (rule-based)</td>
-            <td>&lt;50ms</td>
-            <td>Evaluates telemetry against thresholds; emits typed events with priority levels</td>
-          </tr>
-          <tr>
-            <td>2 — Generation</td>
-            <td>RaceEngineerAgent (LLM)</td>
-            <td>~2–5s</td>
-            <td>Receives events + session context; generates natural language response via GGUF inference</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Event Detection Thresholds</h3>
-      <p>
-        The rule-based TelemetryAgent monitors live telemetry against configurable thresholds
-        to detect race-critical events without LLM involvement:
-      </p>
-      <table className="section-table">
-        <thead>
-          <tr>
-            <th>Event Category</th>
-            <th>Warning Threshold</th>
-            <th>Critical Threshold</th>
-            <th>Cooldown</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Fuel Remaining</td>
-            <td>≤ 5 laps</td>
-            <td>≤ 2 laps</td>
-            <td>60s / 45s</td>
-          </tr>
-          <tr>
-            <td>Tire Temperature</td>
-            <td>≥ 100°C</td>
-            <td>≥ 110°C</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td>Tire Wear</td>
-            <td>≥ 70%</td>
-            <td>≥ 85%</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td>Wheel Slip</td>
-            <td>≥ 50.0 ratio</td>
-            <td>≥ 100.0 ratio</td>
-            <td>Speed &gt; 10 km/h filter</td>
-          </tr>
-          <tr>
-            <td>Gap Change</td>
-            <td colSpan="2">≥ 1.0s change (ahead or behind)</td>
-            <td>—</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Event Priority System</h3>
-      <p>
-        Detected events are assigned one of four priority levels that determine how they
-        are queued and whether they interrupt ongoing LLM generation:
-      </p>
-      <ul>
-        <li><strong>CRITICAL (0):</strong> Immediate interrupts — fuel critical, brake failure, collision</li>
-        <li><strong>HIGH (1):</strong> Urgent alerts — pit now, tire failure, wheel slip critical</li>
-        <li><strong>MEDIUM (2):</strong> Queued normally — pit window open, gap changes, lap summary</li>
-        <li><strong>LOW (3):</strong> Skipped if busy — sector times, minor telemetry updates</li>
-      </ul>
-
-      <h3>Verbosity Levels</h3>
-      <p>
-        The LLM response length is controlled by three verbosity modes, each with a dedicated
-        prompt template:
-      </p>
-      <table className="section-table">
-        <thead>
-          <tr>
-            <th>Mode</th>
-            <th>Max Length</th>
-            <th>Style</th>
-            <th>Example</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Minimal</td>
-            <td>&lt;15 words</td>
-            <td>Urgent, clipped</td>
-            <td>"Box box! Fuel critical."</td>
-          </tr>
-          <tr>
-            <td>Moderate (default)</td>
-            <td>1–2 sentences</td>
-            <td>Direct, informative</td>
-            <td>"Fuel for two more laps. We need to box this lap, confirm box."</td>
-          </tr>
-          <tr>
-            <td>Verbose</td>
-            <td>Up to 4 sentences</td>
-            <td>Detailed with reasoning</td>
-            <td>"Fuel is critical at 1.8 laps remaining. Gap behind is 3.2 seconds so we have clean air for an in-lap. Box this lap, we'll switch to hards for the final stint."</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Conversation History</h3>
-      <p>
-        The race engineer maintains a rolling conversation history of the last 3 driver–engineer
-        exchanges. This allows the LLM to maintain context across interactions — for example,
-        if the driver asks "what about the rears?" after a fronts discussion, the model has
-        the prior exchange available to interpret the follow-up correctly.
-      </p>
-
-      <h3>Inference Parameters</h3>
-      <table className="section-table">
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Value</th>
-            <th>Purpose</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Max Tokens</td>
-            <td>48</td>
-            <td>Enforces brevity for live radio-style responses</td>
-          </tr>
-          <tr>
-            <td>Temperature</td>
-            <td>0.3</td>
-            <td>Low variance for consistent, deterministic outputs</td>
-          </tr>
-          <tr>
-            <td>Top K</td>
-            <td>50</td>
-            <td>Limits token sampling pool</td>
-          </tr>
-          <tr>
-            <td>Top P (nucleus)</td>
-            <td>0.95</td>
-            <td>Cumulative probability cutoff for sampling</td>
-          </tr>
-          <tr>
-            <td>Context Window</td>
-            <td>2,048 tokens</td>
-            <td>Maximum input + output length per inference call</td>
-          </tr>
-          <tr>
-            <td>Generation Timeout</td>
-            <td>5 seconds</td>
-            <td>Prevents blocking the telemetry pipeline on slow hardware</td>
-          </tr>
-        </tbody>
-      </table>
 
       <h2>References</h2>
       <ol className="ref-list">
