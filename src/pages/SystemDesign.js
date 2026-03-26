@@ -2040,7 +2040,552 @@ TTSOutputWorker (QThread)
       </>)}
 
       {activeTab === 'VR' && (<>
-        <p style={{ color: '#555', fontStyle: 'italic' }}>VR content coming soon.</p>
+
+      <p>
+        This section covers the system design of the VR Telemetry Visualizer — an Unreal Engine
+        4.27 C++ subsystem that renders interactive telemetry charts as in-world 3D actors inside
+        a VR scene. Further VR subsections will be added here as the system grows.
+      </p>
+
+      <h2>Telemetry Visualizer — System Architecture</h2>
+      <p>
+        The visualizer follows a <strong>broadcast-on-load</strong> architecture. A single actor
+        instance owns the file I/O and JSON parsing; a <code>TActorIterator</code> then fans out
+        the parsed data to every <code>ATelemetryVisualizer</code> in the level so that all charts
+        refresh simultaneously from one file load. Each actor independently manages its own Kantan
+        Charts widget lifecycle, from construction through datasource binding to data population.
+      </p>
+      <pre className="code-block"><code>{`
+  Press 'O'
+      |
+      v
+  ATelemetryVisualizer (any instance)
+      |-- GetOpenFileName()  [Win32 commdlg.h]
+      |-- FFileHelper::LoadFileToString()
+      |-- FJsonSerializer::Deserialize()
+      |-- extract "telemetry" object + "elapsed_time" array
+      |
+      v
+  TActorIterator<ATelemetryVisualizer>  (fan-out broadcast)
+      |-- LoadMetricFromJson(JsonObj, ElapsedTime)  --> instance 0
+      |-- LoadMetricFromJson(JsonObj, ElapsedTime)  --> instance 1
+      |-- ...
+      |-- LoadMetricFromJson(JsonObj, ElapsedTime)  --> instance N
+
+  Per instance (LoadMetricFromJson):
+      CreateWidget<UChartContainerWidget>
+          └── WidgetTree->ConstructWidget<USimpleCartesianPlot>
+                  └── set as RootWidget
+      WidgetComp->SetWidget(Container)   <-- binds datasource interface
+      GetSubSeries()  --> TArray<FTelemetrySubSeries>
+      BP_AddSeriesWithId()   (per sub-series)
+      BP_AddDatapoint()      (loop, with optional down-sampling)
+      ConfigureChart()       (axes, range, colours, style)
+      Plot->SynchronizeProperties()
+`}</code></pre>
+
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Type</th>
+            <th>Responsibility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ATelemetryVisualizer</code></td>
+            <td>C++ AActor (Unreal)</td>
+            <td>
+              Owns the file dialog, JSON parse, broadcast, widget lifecycle, data population, and
+              chart configuration. One instance per chart placed in the VR scene. Exposes
+              per-instance properties (<code>TargetMetric</code>, <code>ChartDrawSize</code>,{' '}
+              <code>VisualScale</code>, <code>LineColor</code>, <code>LineThickness</code>) via
+              the Unreal Details panel.
+            </td>
+          </tr>
+          <tr>
+            <td><code>UChartContainerWidget</code></td>
+            <td>C++ UUserWidget (UMG)</td>
+            <td>
+              Minimal shell widget created at runtime to host the <code>USimpleCartesianPlot</code>.
+              Has no custom logic — exists solely because Kantan Charts requires its plot to be
+              the root of a UUserWidget tree for the datasource binding to initialise correctly.
+            </td>
+          </tr>
+          <tr>
+            <td><code>USimpleCartesianPlot</code></td>
+            <td>Kantan Charts plugin widget</td>
+            <td>
+              Renders the actual line chart. Exposes <code>BP_AddSeriesWithId</code>,{' '}
+              <code>BP_AddDatapoint</code>, axis configuration, fixed-range plot scale, per-series
+              style overrides, and <code>SynchronizeProperties</code> to flush changes to the
+              underlying Slate widget.
+            </td>
+          </tr>
+          <tr>
+            <td><code>ETelemetryMetric</code></td>
+            <td>C++ UENUM</td>
+            <td>
+              Enumerates every supported metric (Speed, RPM, Gear, Throttle, Brake, Fuel,
+              SteerAngle, GForceLat, GForceLon, TyrePressure, TyreTemp, TyreWear, WheelSlip,
+              Suspension, RideHeight, CarDamage, ElapsedTime, LapNumber, PosX, PosZ). Exposed to
+              the Unreal Details panel so users pick a metric per actor instance without recompiling.
+            </td>
+          </tr>
+          <tr>
+            <td><code>FTelemetrySubSeries</code></td>
+            <td>Plain C++ struct</td>
+            <td>
+              Holds <code>JsonKey</code> (the key to look up in the telemetry JSON object),{' '}
+              <code>DisplayName</code> (chart legend label), and <code>Color</code> (line colour).
+              Returned as a <code>TArray</code> by <code>GetSubSeries()</code> — one entry for
+              single-line metrics, 2–5 entries for grouped metrics.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Sequence Diagram</h2>
+      <div className="seq-diagram">
+        <div className="seq-actors">
+          <div className="seq-actor seq-actor--entry">
+            <span className="seq-actor__name">User</span>
+            <span className="seq-actor__type">VR headset</span>
+          </div>
+          <div className="seq-actor seq-actor--thread">
+            <span className="seq-actor__name">ATelemetryVisualizer[0]</span>
+            <span className="seq-actor__type">UE4 Actor</span>
+          </div>
+          <div className="seq-actor seq-actor--plain">
+            <span className="seq-actor__name">Win32 API</span>
+            <span className="seq-actor__type">commdlg.h</span>
+          </div>
+          <div className="seq-actor seq-actor--plain">
+            <span className="seq-actor__name">TActorIterator</span>
+            <span className="seq-actor__type">broadcast</span>
+          </div>
+          <div className="seq-actor seq-actor--game">
+            <span className="seq-actor__name">ATelemetryVisualizer[N]</span>
+            <span className="seq-actor__type">each instance</span>
+          </div>
+        </div>
+        <div className="seq-body">
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">User</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__label">: press 'O' key</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">Win32 API</span>
+            <span className="seq-msg__label">: GetOpenFileName(OFN_NOCHANGEDIR)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">Win32 API</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__label">: file path (or cancel → early return)</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">SetInputMode(GameOnly) — recapture mouse look</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">FFileHelper::LoadFileToString()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">FJsonSerializer::Deserialize() — extract "telemetry" object + elapsed_time array</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[broadcast — TActorIterator fans out to all instances in the level]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">TActorIterator</span>
+            <span className="seq-msg__label">: iterate ATelemetryVisualizer actors</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">TActorIterator</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__label">: LoadMetricFromJson(JsonObj, ElapsedTime)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--thread">ATelemetryVisualizer[0]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">LoadMetricFromJson(self) — same widget lifecycle as [N]</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[each instance — widget creation, data population, chart configuration]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">CreateWidget&lt;UChartContainerWidget&gt;</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">WidgetTree→ConstructWidget&lt;USimpleCartesianPlot&gt; — set as RootWidget</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">WidgetComp→SetWidget(Container) — triggers TakeWidget() → binds datasource</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">BP_AddSeriesWithId() — per sub-series from GetSubSeries()</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">BP_AddDatapoint() loop — down-sample if &gt; 6 000 pts</span>
+            <span className="seq-msg__note">per sub-series</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">ConfigureChart() — axes, FixedRange, colours, line style, anti-aliasing</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">ATelemetryVisualizer[N]</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">Plot→SynchronizeProperties() — flush UPROPERTY changes to Slate</span>
+          </div>
+        </div>
+      </div>
+
+      <h2>Design Patterns</h2>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Pattern</th>
+            <th>Where Used</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Observer (Broadcast)</strong></td>
+            <td><code>OnOpenFilePressed</code> → <code>TActorIterator</code> fan-out</td>
+            <td>
+              Single file parse triggers all chart instances. Decouples file I/O from per-chart
+              widget logic — adding a new chart actor to the scene requires no code changes.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Strategy (Sub-Series)</strong></td>
+            <td><code>GetSubSeries()</code> switch on <code>ETelemetryMetric</code></td>
+            <td>
+              Each metric enum value maps to a different sub-series strategy (1, 2, 4, or 5 lines)
+              without conditional logic in the data population loop. The loop always iterates the
+              returned array uniformly.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Factory</strong></td>
+            <td><code>FTelemetrySubSeries</code> construction inside <code>GetSubSeries()</code></td>
+            <td>
+              Encapsulates JsonKey, DisplayName, and Color per sub-series. Callers iterate the
+              returned array without needing to know the group structure of the metric.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Template Method</strong></td>
+            <td><code>LoadMetricFromJson</code></td>
+            <td>
+              Enforces a fixed skeleton — create widget → attach → add series → populate →
+              configure → sync — regardless of metric type. Sub-series count and JSON keys vary
+              but the sequence is invariant.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Null Object / Guard</strong></td>
+            <td>WidgetTree null-check, zero-range expansion, datapoint fail counting</td>
+            <td>
+              Defensive patterns that handle edge cases (uninitialised widget tree, flat
+              single-value datasets, malformed JSON arrays) without altering the main flow or
+              requiring callers to check return values.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Class Diagram</h2>
+      <div className="arch-diagram">
+
+        {/* ATelemetryVisualizer — main actor, full-width */}
+        <div className="arch-node arch-node--live">
+          <div className="arch-node__header">
+            <span className="arch-node__title">ATelemetryVisualizer</span>
+            <span className="arch-badge arch-badge--red">AActor</span>
+          </div>
+          <div className="arch-node__sub">TelemetryVisualizer.h / TelemetryVisualizer.cpp</div>
+          <ul className="arch-node__bullets">
+            <li>− WidgetComp: UWidgetComponent &nbsp;·&nbsp; − RootComp: USceneComponent</li>
+            <li>+ TargetMetric: ETelemetryMetric &nbsp;·&nbsp; + ChartDrawSize: FVector2D</li>
+            <li>+ VisualScale: float &nbsp;·&nbsp; + LineColor: FLinearColor &nbsp;·&nbsp; + LineThickness: float</li>
+            <li>+ OnOpenFilePressed() — opens Win32 dialog, parses JSON, broadcasts to all instances</li>
+            <li>+ LoadMetricFromJson(JsonObj, ElapsedTime) — full widget lifecycle + data population</li>
+            <li>+ GetSubSeries() [static] → TArray&lt;FTelemetrySubSeries&gt;</li>
+            <li>+ MetricDisplayName() [static] &nbsp;·&nbsp; + MetricYAxisLabel() [static]</li>
+            <li>− ApplyWidgetSettings() &nbsp;·&nbsp; − ConfigureChart()</li>
+          </ul>
+        </div>
+
+        {/* Fan-out to supporting types */}
+        <div className="arch-fanout-wrap">
+          <div className="arch-fanout-wrap__vline" />
+          <div className="arch-fanout-wrap__label">WidgetComp → &nbsp;·&nbsp; renders via &nbsp;·&nbsp; TargetMetric uses &nbsp;·&nbsp; GetSubSeries() returns</div>
+          <div className="arch-fanout-wrap__hbar" />
+        </div>
+
+        <div className="arch-row arch-row--2">
+
+          {/* Left column: UChartContainerWidget → USimpleCartesianPlot */}
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--worker">
+              <div className="arch-node__header">
+                <span className="arch-node__title">UChartContainerWidget</span>
+                <span className="arch-badge arch-badge--thread">UUserWidget</span>
+              </div>
+              <div className="arch-node__sub">minimal shell — no custom logic</div>
+              <ul className="arch-node__bullets">
+                <li>− WidgetTree: UWidgetTree</li>
+                <li>Created at runtime via CreateWidget&lt;&gt;</li>
+                <li>Hosts USimpleCartesianPlot as RootWidget</li>
+              </ul>
+            </div>
+            <div className="arch-vline-sm" />
+            <div className="arch-node arch-node--post">
+              <div className="arch-node__header">
+                <span className="arch-node__title">USimpleCartesianPlot</span>
+                <span className="arch-badge">Kantan Charts</span>
+              </div>
+              <div className="arch-node__sub">plugin widget — Slate line chart renderer</div>
+              <ul className="arch-node__bullets">
+                <li>+ BP_AddSeriesWithId() &nbsp;·&nbsp; + BP_AddDatapoint()</li>
+                <li>+ SetPlotScaleByRange() — FixedRange with padding</li>
+                <li>+ SetXAxisConfig() &nbsp;·&nbsp; + SetYAxisConfig()</li>
+                <li>+ AddSeriesStyleOverride() — per-series colour</li>
+                <li>+ SynchronizeProperties() — flush UPROPERTY changes to Slate</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Right column: ETelemetryMetric → FTelemetrySubSeries */}
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--settings">
+              <div className="arch-node__header">
+                <span className="arch-node__title">ETelemetryMetric</span>
+                <span className="arch-badge arch-badge--ui">UENUM</span>
+              </div>
+              <div className="arch-node__sub">exposed in Unreal Details panel — one value per actor instance</div>
+              <ul className="arch-node__bullets">
+                <li>Speed, RPM, Gear, Throttle, Brake, Fuel</li>
+                <li>SteerAngle, GForceLat, GForceLon</li>
+                <li>TyrePressure, TyreTemp, TyreWear</li>
+                <li>WheelSlip, Suspension, RideHeight</li>
+                <li>CarDamage, ElapsedTime, LapNumber, PosX, PosZ</li>
+              </ul>
+            </div>
+            <div className="arch-vline-sm" />
+            <div className="arch-node arch-node--viewer">
+              <div className="arch-node__header">
+                <span className="arch-node__title">FTelemetrySubSeries</span>
+                <span className="arch-badge">plain struct</span>
+              </div>
+              <div className="arch-node__sub">returned as TArray by GetSubSeries() — 1–5 entries per metric</div>
+              <ul className="arch-node__bullets">
+                <li>+ JsonKey: FString — key in telemetry JSON object</li>
+                <li>+ DisplayName: FString — chart legend label</li>
+                <li>+ Color: FLinearColor — line colour for this sub-series</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <h2>Data Storage</h2>
+      <p>
+        The VR Telemetry Visualizer has <strong>no database</strong>. It reads{' '}
+        <code>.jsession</code> files directly at runtime. These files are produced by the Data
+        Pipeline's session recorder and CSV exporter — the VR system is a pure consumer of that
+        output. All telemetry arrays inside the file share the same length as{' '}
+        <code>elapsed_time</code>, which the visualizer uses as the shared X-axis across every
+        chart instance.
+      </p>
+      <pre className="code-block"><code>{`{
+  "version": 1,
+  "metadata": {
+    "game": "ac",
+    "track_name": "monza",
+    "car_model": "lotus_exos_125",
+    "player_name": "...",
+    "total_laps": 6,
+    "best_lap_time": 101.97,
+    "notes": "..."
+  },
+  "laps": [
+    {
+      "lap_number": 0,
+      "lap_time": 159.86,
+      "fuel_start": 55.0,
+      "fuel_end": 51.44,
+      "avg_speed": 147.89,
+      "max_speed": 281.80,
+      "min_speed": 0.0,
+      "valid": 1
+    }
+  ],
+  "telemetry": {
+    "elapsed_time": [0.0, 0.016, 0.033, ...],
+    "speed":        [0.0, 0.5,   1.2,   ...],
+    "rpm":          [800, 820,   850,   ...],
+    "gear":         [0,   0,     1,     ...],
+    "throttle":     [0.0, 0.1,   0.3,   ...],
+    "brake":        [0.0, 0.0,   0.0,   ...],
+    "tyre_pressure_fl": [...],
+    "tyre_pressure_fr": [...],
+    "tyre_pressure_rl": [...],
+    "tyre_pressure_rr": [...],
+    "tyre_temp_fl": [...],
+    "...": "all other metric arrays, same length as elapsed_time"
+  }
+}`}</code></pre>
+
+      <h2>Packages and APIs</h2>
+
+      <h3>Unreal Module Dependencies</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Module</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Core, CoreUObject, Engine, InputCore</code></td>
+            <td>Unreal Engine fundamentals — object model, actor lifecycle, input binding.</td>
+          </tr>
+          <tr>
+            <td><code>UMG, Slate, SlateCore</code></td>
+            <td>
+              Widget system for in-world UI. UMG provides <code>UWidgetComponent</code> and{' '}
+              <code>UUserWidget</code>; Slate provides the underlying render layer that Kantan
+              Charts draws into.
+            </td>
+          </tr>
+          <tr>
+            <td><code>Json, JsonUtilities</code></td>
+            <td>
+              <code>FJsonSerializer::Deserialize</code> and <code>FFileHelper::LoadFileToString</code>{' '}
+              for parsing <code>.jsession</code> files at runtime.
+            </td>
+          </tr>
+          <tr>
+            <td><code>KantanChartsUMG, KantanChartsSlate, KantanChartsDatasource</code></td>
+            <td>
+              Kantan Charts plugin — provides <code>USimpleCartesianPlot</code> (UMG widget),
+              its Slate renderer, and the datasource interface that is bound during{' '}
+              <code>SynchronizeProperties()</code>.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>External API (Win32)</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>API</th>
+            <th>Header</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>GetOpenFileName</code></td>
+            <td><code>commdlg.h</code></td>
+            <td>
+              Native Windows file-open dialog. Used instead of Unreal's{' '}
+              <code>IDesktopPlatform</code> module because <code>DesktopPlatform</code> is
+              editor-only and causes linker errors in Shipping builds.{' '}
+              <code>OFN_NOCHANGEDIR</code> prevents the dialog from altering the process working
+              directory.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Internal C++ API</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Signature</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>OnOpenFilePressed</code></td>
+            <td><code>void()</code></td>
+            <td>
+              Bound to the 'O' key in <code>BeginPlay</code>. Opens the Win32 file dialog, loads
+              and parses the JSON session file, then broadcasts parsed data to all{' '}
+              <code>ATelemetryVisualizer</code> instances via <code>TActorIterator</code>.
+            </td>
+          </tr>
+          <tr>
+            <td><code>LoadMetricFromJson</code></td>
+            <td><code>void(TSharedPtr&lt;FJsonObject&gt;, TArray&lt;float&gt;)</code></td>
+            <td>
+              Receives the full telemetry JSON object and the pre-extracted elapsed time array.
+              Executes the full widget creation, data population, and chart configuration sequence
+              for this actor's configured metric.
+            </td>
+          </tr>
+          <tr>
+            <td><code>GetSubSeries</code></td>
+            <td><code>static TArray&lt;FTelemetrySubSeries&gt;(ETelemetryMetric, FLinearColor)</code></td>
+            <td>
+              Returns the sub-series definitions for a given metric: 1 entry for single-value
+              metrics, 2 for Ride Height, 4 for 4-corner metrics (tyre/suspension), 5 for Car
+              Damage. The data population loop iterates this array uniformly regardless of metric
+              type.
+            </td>
+          </tr>
+          <tr>
+            <td><code>MetricDisplayName</code></td>
+            <td><code>static FString(ETelemetryMetric)</code></td>
+            <td>Human-readable metric name derived from UENUM reflection, used as the chart title.</td>
+          </tr>
+          <tr>
+            <td><code>MetricYAxisLabel</code></td>
+            <td><code>static FString(ETelemetryMetric)</code></td>
+            <td>
+              Unit string for the Y-axis label (e.g. <code>"km/h"</code>, <code>"PSI"</code>,{' '}
+              <code>"°C"</code>) to make charts self-describing without external documentation.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
       </>)}
 
     </SectionPage>
