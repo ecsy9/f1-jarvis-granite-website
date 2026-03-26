@@ -6,6 +6,7 @@ const TABS = ['Fine Tuning', 'Telemetry Data', 'AI Pipeline'];
 
 function Algorithms() {
   const [activeTab, setActiveTab] = useState('Fine Tuning');
+  const [blockTab, setBlockTab] = useState('Physics');
 
   return (
     <SectionPage title="Algorithms">
@@ -54,85 +55,103 @@ function Algorithms() {
         <li>~3.4 million individual data points</li>
       </ul>
 
-      <h3>Physics Block (<code>acpmf_physics</code>)</h3>
-      <p>Updated at ~60 Hz. Contains all live vehicle dynamics, tyre state, and damage values.</p>
-      <table className="section-table">
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Unit</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>speedKmh</code></td><td>float</td><td>km/h</td><td>Vehicle speed</td></tr>
-          <tr><td><code>rpms</code></td><td>int</td><td>RPM</td><td>Engine revolutions per minute</td></tr>
-          <tr><td><code>gas</code></td><td>float</td><td>0.0–1.0</td><td>Throttle pedal position</td></tr>
-          <tr><td><code>brake</code></td><td>float</td><td>0.0–1.0</td><td>Brake pedal position</td></tr>
-          <tr><td><code>fuel</code></td><td>float</td><td>litres</td><td>Remaining fuel</td></tr>
-          <tr><td><code>gear</code></td><td>int</td><td>—</td><td>Raw gear index (0=R, 1=N, 2=1st, …) — remapped in preprocessing</td></tr>
-          <tr><td><code>steerAngle</code></td><td>float</td><td>radians</td><td>Steering wheel angle</td></tr>
-          <tr><td><code>tyreTemp[4]</code></td><td>float[4]</td><td>°C</td><td>Core tyre temperature per wheel (FL, FR, RL, RR)</td></tr>
-          <tr><td><code>tyrePressure[4]</code></td><td>float[4]</td><td>PSI</td><td>Tyre pressure per wheel</td></tr>
-          <tr><td><code>tyreWear[4]</code></td><td>float[4]</td><td>0.0–1.0</td><td>Tyre wear fraction per wheel</td></tr>
-          <tr><td><code>wheelSlip[4]</code></td><td>float[4]</td><td>—</td><td>Wheel slip ratio per tyre</td></tr>
-          <tr><td><code>camberRAD[4]</code></td><td>float[4]</td><td>radians</td><td>Camber angle per wheel — converted to degrees in preprocessing</td></tr>
-          <tr><td><code>suspensionTravel[4]</code></td><td>float[4]</td><td>metres</td><td>Suspension travel per corner — converted to mm in preprocessing</td></tr>
-          <tr><td><code>rideHeight[2]</code></td><td>float[2]</td><td>metres</td><td>Front/rear ride height</td></tr>
-          <tr><td><code>carDamage[5]</code></td><td>float[5]</td><td>%</td><td>Damage per zone (front / rear / left / right / centre)</td></tr>
-          <tr><td><code>accG[3]</code></td><td>float[3]</td><td>g</td><td>Lateral, longitudinal, vertical G-force</td></tr>
-          <tr><td><code>drs</code></td><td>int</td><td>0/1</td><td>DRS active flag</td></tr>
-          <tr><td><code>tc</code></td><td>float</td><td>0.0–1.0</td><td>Traction control intervention level</td></tr>
-          <tr><td><code>heading</code></td><td>float</td><td>radians</td><td>Vehicle heading angle</td></tr>
-          <tr><td><code>velocity[3]</code></td><td>float[3]</td><td>m/s</td><td>Velocity vector (X, Y, Z)</td></tr>
-        </tbody>
-      </table>
+      {/* Unified tabbed memory block table */}
+      <div className="block-table">
+        <div className="block-table__tabs">
+          {[
+            { id: 'Physics',  label: 'Physics',  sub: 'acpmf_physics' },
+            { id: 'Graphics', label: 'Graphics', sub: 'acpmf_graphics' },
+            { id: 'Static',   label: 'Static',   sub: 'acpmf_static' },
+          ].map(({ id, label, sub }) => (
+            <button
+              key={id}
+              className={`block-table__tab${blockTab === id ? ' block-table__tab--active' : ''}`}
+              onClick={() => setBlockTab(id)}
+            >
+              {label} <span className="block-table__tab-sub">{sub}</span>
+            </button>
+          ))}
+        </div>
+        <p className="block-table__desc">
+          {blockTab === 'Physics'  && 'Updated at ~60 Hz. Contains all live vehicle dynamics, tyre state, and damage values.'}
+          {blockTab === 'Graphics' && 'Updated at ~60 Hz. Contains session state, lap counters, position, and car coordinates.'}
+          {blockTab === 'Static'   && 'Written once at session start. Contains car, track, and configuration metadata used to initialise fuel lookup and thresholds.'}
+        </p>
 
-      <h3>Graphics Block (<code>acpmf_graphics</code>)</h3>
-      <p>Updated at ~60 Hz. Contains session state, lap counters, position, and car coordinates.</p>
-      <table className="section-table">
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>status</code></td><td>int</td><td>Session status (0=OFF, 1=REPLAY, 2=LIVE, 3=PAUSE)</td></tr>
-          <tr><td><code>session</code></td><td>int</td><td>Session type (practice, qualifying, race)</td></tr>
-          <tr><td><code>completedLaps</code></td><td>int</td><td>Laps completed this session — monitored for lap detection</td></tr>
-          <tr><td><code>position</code></td><td>int</td><td>Current race position</td></tr>
-          <tr><td><code>iCurrentTime</code></td><td>int</td><td>Current lap time (ms)</td></tr>
-          <tr><td><code>iLastTime</code></td><td>int</td><td>Last completed lap time (ms) — used as ground truth for lap accuracy</td></tr>
-          <tr><td><code>iBestTime</code></td><td>int</td><td>Best lap time (ms)</td></tr>
-          <tr><td><code>sessionTimeLeft</code></td><td>float</td><td>Remaining session time (seconds)</td></tr>
-          <tr><td><code>distanceTraveled</code></td><td>float</td><td>Total distance travelled (metres)</td></tr>
-          <tr><td><code>isInPit</code></td><td>int</td><td>Pit lane flag (0/1)</td></tr>
-          <tr><td><code>currentSectorIndex</code></td><td>int</td><td>Current track sector (0-based)</td></tr>
-          <tr><td><code>lastSectorTime</code></td><td>int</td><td>Last sector time (ms)</td></tr>
-          <tr><td><code>carCoordinates[3]</code></td><td>float[3]</td><td>World position (X, Y, Z) — validated in preprocessing</td></tr>
-          <tr><td><code>tyreCompound</code></td><td>wchar[33]</td><td>Active tyre compound name</td></tr>
-          <tr><td><code>numberOfLaps</code></td><td>int</td><td>Total scheduled laps</td></tr>
-        </tbody>
-      </table>
+        {blockTab === 'Physics' && (
+          <table className="section-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Unit</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>speedKmh</code></td><td>float</td><td>km/h</td><td>Vehicle speed</td></tr>
+              <tr><td><code>rpms</code></td><td>int</td><td>RPM</td><td>Engine revolutions per minute</td></tr>
+              <tr><td><code>gas</code></td><td>float</td><td>0.0–1.0</td><td>Throttle pedal position</td></tr>
+              <tr><td><code>brake</code></td><td>float</td><td>0.0–1.0</td><td>Brake pedal position</td></tr>
+              <tr><td><code>fuel</code></td><td>float</td><td>litres</td><td>Remaining fuel</td></tr>
+              <tr><td><code>gear</code></td><td>int</td><td>—</td><td>Raw gear index (0=R, 1=N, 2=1st, …) — remapped in preprocessing</td></tr>
+              <tr><td><code>steerAngle</code></td><td>float</td><td>radians</td><td>Steering wheel angle</td></tr>
+              <tr><td><code>tyreTemp[4]</code></td><td>float[4]</td><td>°C</td><td>Core tyre temperature per wheel (FL, FR, RL, RR)</td></tr>
+              <tr><td><code>tyrePressure[4]</code></td><td>float[4]</td><td>PSI</td><td>Tyre pressure per wheel</td></tr>
+              <tr><td><code>tyreWear[4]</code></td><td>float[4]</td><td>0.0–1.0</td><td>Tyre wear fraction per wheel</td></tr>
+              <tr><td><code>wheelSlip[4]</code></td><td>float[4]</td><td>—</td><td>Wheel slip ratio per tyre</td></tr>
+              <tr><td><code>camberRAD[4]</code></td><td>float[4]</td><td>radians</td><td>Camber angle per wheel — converted to degrees in preprocessing</td></tr>
+              <tr><td><code>suspensionTravel[4]</code></td><td>float[4]</td><td>metres</td><td>Suspension travel per corner — converted to mm in preprocessing</td></tr>
+              <tr><td><code>rideHeight[2]</code></td><td>float[2]</td><td>metres</td><td>Front/rear ride height</td></tr>
+              <tr><td><code>carDamage[5]</code></td><td>float[5]</td><td>%</td><td>Damage per zone (front / rear / left / right / centre)</td></tr>
+              <tr><td><code>accG[3]</code></td><td>float[3]</td><td>g</td><td>Lateral, longitudinal, vertical G-force</td></tr>
+              <tr><td><code>drs</code></td><td>int</td><td>0/1</td><td>DRS active flag</td></tr>
+              <tr><td><code>tc</code></td><td>float</td><td>0.0–1.0</td><td>Traction control intervention level</td></tr>
+              <tr><td><code>heading</code></td><td>float</td><td>radians</td><td>Vehicle heading angle</td></tr>
+              <tr><td><code>velocity[3]</code></td><td>float[3]</td><td>m/s</td><td>Velocity vector (X, Y, Z)</td></tr>
+            </tbody>
+          </table>
+        )}
 
-      <h3>Static Block (<code>acpmf_static</code>)</h3>
-      <p>Written once at session start. Contains car, track, and configuration metadata used to initialise fuel lookup and thresholds.</p>
-      <table className="section-table">
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>carModel</code></td><td>wchar[33]</td><td>Player car identifier — key for fuel lookup table</td></tr>
-          <tr><td><code>track</code></td><td>wchar[33]</td><td>Track identifier — key for track scale factor lookup</td></tr>
-          <tr><td><code>playerName</code></td><td>wchar[33]</td><td>Player display name</td></tr>
-          <tr><td><code>playerNick</code></td><td>wchar[33]</td><td>Player nickname</td></tr>
-          <tr><td><code>sectorCount</code></td><td>int</td><td>Number of track sectors</td></tr>
-          <tr><td><code>maxRpm</code></td><td>int</td><td>Redline RPM</td></tr>
-          <tr><td><code>maxFuel</code></td><td>float</td><td>Fuel tank capacity (litres)</td></tr>
-          <tr><td><code>maxTorque</code></td><td>float</td><td>Peak engine torque (Nm)</td></tr>
-          <tr><td><code>maxPower</code></td><td>float</td><td>Peak engine power (W)</td></tr>
-          <tr><td><code>suspensionMaxTravel[4]</code></td><td>float[4]</td><td>Max suspension travel per corner (m)</td></tr>
-          <tr><td><code>tyreRadius[4]</code></td><td>float[4]</td><td>Tyre radius per wheel (m)</td></tr>
-          <tr><td><code>maxTurboBoost</code></td><td>float</td><td>Maximum turbo boost pressure (bar)</td></tr>
-          <tr><td><code>smVersion</code></td><td>wchar[15]</td><td>Shared memory version string</td></tr>
-          <tr><td><code>acVersion</code></td><td>wchar[15]</td><td>Game version string</td></tr>
-          <tr><td><code>numCars</code></td><td>int</td><td>Number of cars in session</td></tr>
-        </tbody>
-      </table>
+        {blockTab === 'Graphics' && (
+          <table className="section-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>status</code></td><td>int</td><td>Session status (0=OFF, 1=REPLAY, 2=LIVE, 3=PAUSE)</td></tr>
+              <tr><td><code>session</code></td><td>int</td><td>Session type (practice, qualifying, race)</td></tr>
+              <tr><td><code>completedLaps</code></td><td>int</td><td>Laps completed this session — monitored for lap detection</td></tr>
+              <tr><td><code>position</code></td><td>int</td><td>Current race position</td></tr>
+              <tr><td><code>iCurrentTime</code></td><td>int</td><td>Current lap time (ms)</td></tr>
+              <tr><td><code>iLastTime</code></td><td>int</td><td>Last completed lap time (ms) — used as ground truth for lap accuracy</td></tr>
+              <tr><td><code>iBestTime</code></td><td>int</td><td>Best lap time (ms)</td></tr>
+              <tr><td><code>sessionTimeLeft</code></td><td>float</td><td>Remaining session time (seconds)</td></tr>
+              <tr><td><code>distanceTraveled</code></td><td>float</td><td>Total distance travelled (metres)</td></tr>
+              <tr><td><code>isInPit</code></td><td>int</td><td>Pit lane flag (0/1)</td></tr>
+              <tr><td><code>currentSectorIndex</code></td><td>int</td><td>Current track sector (0-based)</td></tr>
+              <tr><td><code>lastSectorTime</code></td><td>int</td><td>Last sector time (ms)</td></tr>
+              <tr><td><code>carCoordinates[3]</code></td><td>float[3]</td><td>World position (X, Y, Z) — validated in preprocessing</td></tr>
+              <tr><td><code>tyreCompound</code></td><td>wchar[33]</td><td>Active tyre compound name</td></tr>
+              <tr><td><code>numberOfLaps</code></td><td>int</td><td>Total scheduled laps</td></tr>
+            </tbody>
+          </table>
+        )}
+
+        {blockTab === 'Static' && (
+          <table className="section-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>carModel</code></td><td>wchar[33]</td><td>Player car identifier — key for fuel lookup table</td></tr>
+              <tr><td><code>track</code></td><td>wchar[33]</td><td>Track identifier — key for track scale factor lookup</td></tr>
+              <tr><td><code>playerName</code></td><td>wchar[33]</td><td>Player display name</td></tr>
+              <tr><td><code>playerNick</code></td><td>wchar[33]</td><td>Player nickname</td></tr>
+              <tr><td><code>sectorCount</code></td><td>int</td><td>Number of track sectors</td></tr>
+              <tr><td><code>maxRpm</code></td><td>int</td><td>Redline RPM</td></tr>
+              <tr><td><code>maxFuel</code></td><td>float</td><td>Fuel tank capacity (litres)</td></tr>
+              <tr><td><code>maxTorque</code></td><td>float</td><td>Peak engine torque (Nm)</td></tr>
+              <tr><td><code>maxPower</code></td><td>float</td><td>Peak engine power (W)</td></tr>
+              <tr><td><code>suspensionMaxTravel[4]</code></td><td>float[4]</td><td>Max suspension travel per corner (m)</td></tr>
+              <tr><td><code>tyreRadius[4]</code></td><td>float[4]</td><td>Tyre radius per wheel (m)</td></tr>
+              <tr><td><code>maxTurboBoost</code></td><td>float</td><td>Maximum turbo boost pressure (bar)</td></tr>
+              <tr><td><code>smVersion</code></td><td>wchar[15]</td><td>Shared memory version string</td></tr>
+              <tr><td><code>acVersion</code></td><td>wchar[15]</td><td>Game version string</td></tr>
+              <tr><td><code>numCars</code></td><td>int</td><td>Number of cars in session</td></tr>
+            </tbody>
+          </table>
+        )}
+      </div>
 
       <h2>Data Preprocessing</h2>
       <p>

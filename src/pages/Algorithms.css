@@ -30,3 +30,85 @@
   color: #f0f0f0;
   border-bottom-color: #DC0000;
 }
+
+/* ── Memory block unified table ──────────────────────────── */
+.block-table {
+  margin: 1.25rem 0 1.75rem;
+  border: 1px solid #252525;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0b0b0b;
+}
+
+.block-table__tabs {
+  display: flex;
+  background: #111;
+  border-bottom: 2px solid #1e1e1e;
+}
+
+.block-table__tab {
+  background: none;
+  border: none;
+  border-right: 1px solid #1e1e1e;
+  padding: 0.7rem 1.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  position: relative;
+}
+.block-table__tab:last-child { border-right: none; }
+.block-table__tab:hover {
+  color: #ddd;
+  background: rgba(255,255,255,0.04);
+}
+
+.block-table__tab--active {
+  color: #fff;
+  background: rgba(220, 0, 0, 0.08);
+}
+.block-table__tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #DC0000;
+}
+
+.block-table__tab-sub {
+  font-family: 'SFMono-Regular', 'Consolas', monospace;
+  font-size: 0.65rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #555;
+}
+.block-table__tab--active .block-table__tab-sub { color: #888; }
+
+.block-table__desc {
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  color: #666;
+  border-bottom: 1px solid #161616;
+  margin: 0;
+  font-style: italic;
+  background: #0d0d0d;
+}
+
+.block-table .section-table {
+  margin: 0;
+  border-radius: 0;
+  border: none;
+  display: table;
+  width: 100%;
+}
