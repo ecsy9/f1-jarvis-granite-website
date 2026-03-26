@@ -24,23 +24,16 @@ function UIDesign() {
       {activeTab === 'VR' && (<>
 
       <p>
-        The VR component of the system renders interactive telemetry charts directly inside an
-        Unreal Engine 4.27 VR scene. Each chart is an independent actor instance displaying a
-        chosen metric from a loaded <code>.jsession</code> telemetry file, allowing users to
-        compose a fully custom 3D dashboard by placing chart actors freely in world space.
+        The VR Racing &amp; Engineering Hub is an Unreal Engine 4.27 virtual reality environment
+        built on a proven VR lab template and transformed into a motorsport engineering space. It
+        combines an immersive environment (sim rig, F1 tyres, engineering workstations), interactive
+        media displays (video playback, Convai AI presentations), detailed vehicle assets (Lewis
+        Hamilton's Ferrari, the UCL Formula Student car, and a TORCS car with custom IBM livery),
+        and the <code>ATelemetryVisualizer</code> C++ telemetry chart system — all within a single
+        VR scene navigated via grab interaction and teleportation.
       </p>
 
-      <h2>Telemetry Visualizer Charts</h2>
-      <p>
-        <code>ATelemetryVisualizer</code> is a C++ Unreal actor that renders a Kantan Charts
-        <code>USimpleCartesianPlot</code> onto a <code>UWidgetComponent</code> surface. A single
-        keypress (<strong>'O'</strong>) opens a file dialog, parses the selected JSON session file,
-        and broadcasts the data to every chart instance in the level simultaneously. Per-instance
-        configuration (metric type, draw resolution, world-scale, line colour, line thickness)
-        lets users tailor each chart without touching code.
-      </p>
-
-      <h3>Design Principles</h3>
+      <h2>Design Principles</h2>
       <table className="section-table">
         <thead>
           <tr>
@@ -52,50 +45,246 @@ function UIDesign() {
           <tr>
             <td><strong>Visibility of System Status</strong></td>
             <td>
-              All chart instances update simultaneously via a broadcast after file load — the user
-              sees every metric respond at once, with no manual refresh required. Axis ranges are
-              computed dynamically from the actual data min/max (with padding), so the scale always
-              reflects the loaded session.
+              Telemetry charts: all instances update simultaneously on file load; axis ranges
+              dynamically match data bounds so the scale always reflects the loaded session.
+              Media displays: video play/pause state is directly user-controllable via Blueprint
+              interaction. Elevator screens show available teleport destinations, giving the user
+              a clear map of the navigable space.
             </td>
           </tr>
           <tr>
             <td><strong>Consistency &amp; Standards</strong></td>
             <td>
-              Grouped metrics (Tyre Pressure, Tyre Temperature, Tyre Wear, Wheel Slip, Suspension
-              Travel) always use the same colour mapping across every chart: FL = green, FR = blue,
-              RL = orange, RR = red-pink. Users learn the colour legend once and it applies
-              everywhere.
+              Grouped tyre and suspension metrics always use the same FL/FR/RL/RR colour mapping
+              (green/blue/orange/red-pink) across every chart instance. Emissive screen materials
+              consistently mimic real backlit displays across all screens in the environment. VR
+              interaction patterns — grab, teleport, locomotion — are inherited from the proven VR
+              lab template, giving users a familiar foundation.
             </td>
           </tr>
           <tr>
             <td><strong>Flexibility &amp; Efficiency of Use</strong></td>
             <td>
-              A single keypress (<strong>'O'</strong>) triggers the file-load flow for all charts
-              in the scene. Per-instance metric selection (via the Unreal Details panel dropdown)
-              lets expert users compose custom multi-metric dashboard layouts. Draw size, world
-              scale, line colour, and thickness are all exposed as per-instance properties.
+              A single keypress (<strong>'O'</strong>) loads all telemetry charts simultaneously.
+              Per-instance metric selection lets users compose custom 3D dashboard layouts freely in
+              world space. Convai AI presentations are dynamic — slides update by changing hosted
+              image URLs without rebuilding the project. Expert users can adjust chart draw size,
+              world scale, line colour, and line thickness per chart instance.
             </td>
           </tr>
           <tr>
             <td><strong>Aesthetic &amp; Minimalist Design</strong></td>
             <td>
-              Charts use a near-black background (<code>0.03, 0.03, 0.07, 0.92</code> alpha) and
-              high-contrast lines chosen for VR headset legibility. No extraneous UI chrome is
-              rendered. Grouped metrics consolidate multiple data series onto a single chart actor,
-              reducing scene complexity (one 4-line chart vs. four separate actors).
+              Dark chart backgrounds with high-contrast lines, no extraneous chrome. Environment
+              set dressing is thematic — sim rig, F1 tyres, engineering workstations — without
+              visual clutter. Emissive/unlit screen materials keep displays bright and vivid without
+              dependence on scene lighting conditions.
             </td>
           </tr>
           <tr>
             <td><strong>Error Prevention &amp; Tolerance</strong></td>
             <td>
-              Zero-range safety guards expand the axis by ±1 when min ≈ max, preventing a
-              degenerate plot. Failed datapoint insertions are counted and logged as warnings.
-              Null-guards on <code>WidgetTree</code> creation prevent crashes when widget
-              initialisation is incomplete.
+              Chart zero-range safety guards expand the axis by ±1 when min ≈ max, preventing
+              degenerate plots. Datapoint failure counting with log warnings surfaces parsing issues
+              without crashing. Mesh optimisation (9.5 M → 250 K triangles on the Formula Student
+              car) prevents VR frame-rate drops. The <code>OFN_NOCHANGEDIR</code> flag on the Win32
+              file dialog prevents working directory corruption. Collision generation on all objects
+              prevents player clipping through the environment.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Recognition Rather Than Recall</strong></td>
+            <td>
+              The metric dropdown uses human-readable display names from UENUM reflection (e.g.
+              "Tyre Pressure (all)" rather than an internal JSON key). The FL/FR/RL/RR colour
+              legend is consistent across all grouped metrics — learn the mapping once, recognise
+              it everywhere. F1 tyres, the sim rig, and engineering workstations are immediately
+              recognisable motorsport elements that require no explanation.
             </td>
           </tr>
         </tbody>
       </table>
+
+      <h2>VR Environment &amp; Interaction</h2>
+      <p>
+        The project was built upon a pre-existing VR Chemistry Lab template, which provided the
+        external building architecture and core VR mechanics — player locomotion, grab interaction,
+        and a <strong>working elevator with destination screens</strong> that teleports the player
+        to preset locations in the space. Inheriting these proven systems allowed the team to focus
+        entirely on domain-specific motorsport content rather than VR infrastructure.
+      </p>
+      <p>
+        The internal layout was completely reconfigured from a laboratory into a racing and
+        engineering environment. Set dressing includes:
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>Implementation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sim Racer Setup</strong></td>
+            <td>
+              Multiple static mesh actors (seat, wheel, pedals, monitor stand, display) merged into
+              a single cohesive rig actor for scene organisation. Collision generated on all
+              components for VR interaction.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>F1 Tyres</strong></td>
+            <td>
+              Highly detailed tyre meshes placed as recognisable motorsport landmarks. All tyre
+              assets required collision generation for proper physical presence in the VR scene.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Engineering Workstations</strong></td>
+            <td>
+              Custom computer workstation meshes arranged to simulate a telemetry engineering
+              deck. Screens are live media surfaces (see Interactive Media below). Collision
+              generated on all furniture and hardware assets.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Elevator Navigation</strong></td>
+            <td>
+              Retained from the VR lab template. Screens inside the elevator show available
+              destinations; the player selects a floor to teleport to a pre-configured location
+              in the hub — providing clear spatial navigation without a minimap.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="design-decision">
+        <strong>Design Decision — Building on an Existing VR Lab Template:</strong> Rather than
+        constructing a VR environment from scratch, the team adopted a pre-built VR Chemistry Lab
+        template as the base. This eliminated the need to implement locomotion, grab mechanics, and
+        building architecture, significantly reducing development risk and time. The proven
+        interaction model also meant the VR controls were already tuned for comfort and usability,
+        letting the team direct all remaining effort toward the motorsport-specific content:
+        telemetry charts, vehicle assets, media displays, and AI presentations.
+      </div>
+
+      <h2>Interactive Media &amp; Displays</h2>
+      <p>
+        Several categories of interactive content are embedded into the VR environment as in-world
+        screens and displays, allowing users to engage with race footage, data visualisations, and
+        AI-driven slide presentations without leaving the VR scene.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Implementation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Video Playback</strong></td>
+            <td>
+              Unreal Engine's <code>FileMediaSource</code> streams local video files onto virtual
+              screen meshes in the VR scene. <code>MediaPlayer</code> and <code>MediaTexture</code>{' '}
+              assets are bound to Blueprints that expose play and pause controls, allowing the user
+              to actively control playback while in VR.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Emissive Screen Materials</strong></td>
+            <td>
+              Specialised material assets applied to screen meshes use an <strong>Emissive
+              (Unlit)</strong> shading model, bypassing standard scene lighting. This makes
+              displayed images appear significantly brighter and accurately mimics the backlit,
+              glowing nature of real-world monitors and TVs in a darkened environment.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>AI Presentations (Convai)</strong></td>
+            <td>
+              Custom presentation slides were created and uploaded to imgbb.com; direct image URLs
+              were extracted and injected into a Convai Character's knowledge base. In Unreal
+              Engine, the Convai Character ID is linked via Blueprint to a virtual screen, allowing
+              the AI avatar to dynamically present slides on VR monitors — slide content can be
+              updated by changing hosted URLs without rebuilding the project.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="design-decision">
+        <strong>Design Decision — Emissive (Unlit) Screen Materials:</strong> Standard lit
+        materials applied to screen meshes would appear washed out or shadowed depending on the VR
+        environment's local lighting conditions — a screen in a dimly lit corner would look dark,
+        which is physically incorrect for a self-illuminating display. By using an Emissive/Unlit
+        shading model, the screen surface emits its own colour without receiving or casting scene
+        light, consistently mimicking the bright backlit appearance of real monitors regardless of
+        where they are placed in the scene.
+      </div>
+
+      <h2>Vehicle Assets</h2>
+      <p>
+        Three vehicle assets are displayed in the VR hub, each sourced and optimised differently to
+        meet VR performance requirements.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Source</th>
+            <th>Optimisation</th>
+            <th>Final Triangle Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Lewis Hamilton's Ferrari</strong></td>
+            <td>Pre-made 3D model — static mesh import into UE4</td>
+            <td>None required — model was already VR-performant at import</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>UCL Formula Student Car</strong></td>
+            <td>UCL team 3D model</td>
+            <td>
+              Blender Decimate modifier applied: 9.5 M → 250 K triangles. Materials re-applied
+              in UE4 after geometry reduction.
+            </td>
+            <td>~250,000</td>
+          </tr>
+          <tr>
+            <td><strong>TORCS car1-ow1 (IBM Livery)</strong></td>
+            <td>
+              Custom Python pipeline (<code>export_car.py</code>) parsing TORCS AC3D{' '}
+              <code>.acc</code> meshes and SGI <code>.rgb</code> textures
+            </td>
+            <td>
+              Script-level: fan triangulation of AC3D polygons, SGI → PNG conversion with vertical
+              flip for UE4 origin convention. Already low-poly from TORCS source.
+            </td>
+            <td>2,640 (body) + 4 × 302 (wheels)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        All three vehicles required collision generation in Unreal Engine to enable proper VR
+        interaction — without it, the player would clip through the geometry. The TORCS export
+        pipeline produced Wavefront OBJ + MTL files with the IBM livery, secondary wheel textures,
+        and shadow decals correctly mapped. Textures were imported into UE4 first to allow
+        automatic material generation before the mesh was brought in.
+      </p>
+
+      <h2>Telemetry Visualizer Charts</h2>
+      <p>
+        <code>ATelemetryVisualizer</code> is a C++ Unreal actor that renders a Kantan Charts
+        <code>USimpleCartesianPlot</code> onto a <code>UWidgetComponent</code> surface. A single
+        keypress (<strong>'O'</strong>) opens a file dialog, parses the selected JSON session file,
+        and broadcasts the data to every chart instance in the level simultaneously. Per-instance
+        configuration (metric type, draw resolution, world-scale, line colour, line thickness)
+        lets users tailor each chart without touching code.
+      </p>
 
       <h3>Metric Types</h3>
       <table className="section-table">

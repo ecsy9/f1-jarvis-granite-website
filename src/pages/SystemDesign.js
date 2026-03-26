@@ -2042,10 +2042,314 @@ TTSOutputWorker (QThread)
       {activeTab === 'VR' && (<>
 
       <p>
-        This section covers the system design of the VR Telemetry Visualizer — an Unreal Engine
-        4.27 C++ subsystem that renders interactive telemetry charts as in-world 3D actors inside
-        a VR scene. Further VR subsections will be added here as the system grows.
+        This section covers the system design of the VR Racing &amp; Engineering Hub — an Unreal
+        Engine 4.27 virtual reality environment encompassing environment design, vehicle asset
+        pipelines, interactive media systems, AI-driven presentations, and telemetry visualisation.
+        Each subsystem is described below. The Telemetry Visualizer (further down) receives the
+        most detailed treatment as it involved the most custom C++ development.
       </p>
+
+      <h2>VR Environment — System Architecture</h2>
+      <p>
+        The hub is built on a <strong>pre-existing VR Chemistry Lab template</strong> (UE 4.27).
+        The template provided the external building architecture, core VR locomotion (teleport arc
+        and smooth thumbstick), VR grab/interaction mechanics, and a working elevator with in-world
+        destination screens that teleports the player to preset locations. The interior was
+        completely reconfigured from a laboratory into a racing and engineering space — entirely
+        through Unreal Editor level design (static mesh placement, material assignment, collision
+        generation) with no C++ or Blueprint modification to the template's core VR systems.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Source</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Building Exterior &amp; Structure</strong></td>
+            <td>VR Lab template (unmodified)</td>
+            <td>Physical shell, windows, and ambient lighting rig for the entire hub.</td>
+          </tr>
+          <tr>
+            <td><strong>VR Locomotion</strong></td>
+            <td>VR Lab template (unmodified)</td>
+            <td>Teleport arc targeting and smooth thumbstick locomotion for player movement.</td>
+          </tr>
+          <tr>
+            <td><strong>VR Grab Interaction</strong></td>
+            <td>VR Lab template (unmodified)</td>
+            <td>Pick up, inspect, and place objects using VR motion controllers.</td>
+          </tr>
+          <tr>
+            <td><strong>Elevator + Teleport Screens</strong></td>
+            <td>VR Lab template (unmodified)</td>
+            <td>
+              In-world navigation — screens inside the elevator display available destinations;
+              selecting one teleports the player to a pre-configured location in the hub.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Interior Layout &amp; Set Dressing</strong></td>
+            <td>Custom (level design)</td>
+            <td>
+              Sim racer rig (multiple static meshes merged into a cohesive actor), high-detail F1
+              tyres, custom computer workstations simulating an engineering telemetry deck.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Object Collisions</strong></td>
+            <td>Custom (per-object, UE editor)</td>
+            <td>
+              Generated for every placed asset — furniture, vehicles, tyres, workstations. Required
+              to enable VR interaction: picking up objects, bumping into surfaces, standing on
+              geometry.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="design-decision">
+        <strong>Design Decision — Build on an Existing VR Template:</strong> Core VR mechanics
+        (locomotion, comfort tuning, controller interaction) are notoriously difficult to implement
+        correctly — latency, locomotion sickness, and input handling each require significant
+        effort. By inheriting a proven VR lab template, the team eliminated that risk entirely and
+        redirected all development effort to domain-specific content: the racing environment,
+        telemetry charts, vehicle assets, and AI integration. No template code was modified,
+        keeping the foundation stable and upgradeable.
+      </div>
+
+      <h2>Vehicle Asset Pipeline</h2>
+      <p>
+        Three vehicle assets were brought into the VR environment through different import
+        pipelines, each requiring different levels of pre-processing before Unreal Engine import.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Vehicle</th>
+            <th>Source Format</th>
+            <th>Pipeline</th>
+            <th>Key Steps</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Lewis Hamilton's Ferrari</strong></td>
+            <td>Pre-made 3D model</td>
+            <td>Direct import</td>
+            <td>Import as static mesh into UE4. Generate collision.</td>
+            <td>Static mesh actor (scene centrepiece)</td>
+          </tr>
+          <tr>
+            <td><strong>UCL Formula Student Car</strong></td>
+            <td>High-poly 3D model (~9.5 M triangles)</td>
+            <td>Blender → UE4</td>
+            <td>
+              1) Import into Blender.
+              2) Decimate modifier: 9.5 M → 250 K triangles.
+              3) Export FBX.
+              4) Import into UE4.
+              5) Re-apply materials and textures.
+              6) Generate collision.
+            </td>
+            <td>Optimised static mesh (~250 K tris)</td>
+          </tr>
+          <tr>
+            <td><strong>TORCS car1-ow1 (IBM Livery)</strong></td>
+            <td>TORCS AC3D <code>.acc</code> mesh + SGI <code>.rgb</code> textures</td>
+            <td>Custom Python script (<code>export_car.py</code>) → UE4</td>
+            <td>
+              1) Parse <code>.acc</code> files — extract vertices, normals, UVs.
+              2) Fan-triangulate polygons.
+              3) Convert <code>.rgb</code> → <code>.png</code> via Pillow (vertical flip for UE4
+              origin convention).
+              4) Write Wavefront OBJ + MTL.
+              5) Import textures into UE4 first (auto-generates materials), then OBJ meshes.
+              6) Generate collision.
+            </td>
+            <td>
+              Car body: 1,954 verts / 2,640 tris.
+              4 × wheels: 240 verts / 302 tris each.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>TORCS Export — File Mapping</h3>
+      <pre className="code-block"><code>{`TORCS Source Files                            Export Output
+─────────────────                             ────────────
+cars/car1-ow1/car1-ow1.acc          →         car1-ow1.obj + car1-ow1.mtl
+drivers/scr_server/0/car1-ow1.rgb   →         car1-ow1_livery.png  (IBM livery, 512×512)
+cars/car1-ow1/tex-wheel.rgb         →         tex-wheel.png         (128×128)
+cars/car1-ow1/shadow.rgb            →         shadow.png            (shadow decal)
+wheels/openwheel1-1/wheel*.acc      →         wheel_front_left.obj
+                                              wheel_front_right.obj
+                                              wheel_rear_left.obj
+                                              wheel_rear_right.obj
+wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as-is)`}</code></pre>
+      <p>
+        The <code>.acc</code> format is a TORCS-extended AC3D format: each vertex line carries 6
+        values (<code>x y z nx ny nz</code>) and each surface reference line carries 9 values
+        (vertex index + 4 UV channels). The script extracts only the base UV channel and applies
+        fan triangulation for quads and n-gons. Output was validated by checking all
+        vertex/UV/normal indices are in-bounds and rendering a matplotlib 3D wireframe preview
+        before UE4 import.
+      </p>
+
+      <div className="design-decision">
+        <strong>Design Decision — Custom Python Export Script:</strong> No existing tool could
+        correctly parse the TORCS-extended AC3D format, which uses non-standard per-vertex normals
+        inlined into the vertex block and a multi-channel UV layout that standard AC3D parsers
+        ignore. Writing <code>export_car.py</code> was therefore necessary. The script is
+        fully re-runnable (<code>python export_car.py</code>) and produces deterministic output,
+        making it a reproducible pipeline rather than a one-off manual conversion — useful if
+        livery textures or geometry need updating.
+      </div>
+
+      <h2>Interactive Media System</h2>
+      <p>
+        Virtual screens in the environment display video and static imagery through two parallel
+        systems: a dynamic video pipeline using UE4's Media Framework, and a static imagery
+        approach using emissive/unlit materials applied directly to screen mesh surfaces.
+      </p>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>UE4 Type</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>FileMediaSource</code></td>
+            <td>UE4 Media Framework</td>
+            <td>Points to a local video file on disk; provides the stream source for the MediaPlayer.</td>
+          </tr>
+          <tr>
+            <td><code>MediaPlayer</code></td>
+            <td>UE4 Media Framework</td>
+            <td>Controls playback state — play, pause, seek. Consumes the FileMediaSource stream.</td>
+          </tr>
+          <tr>
+            <td><code>MediaTexture</code></td>
+            <td>UE4 Media Framework</td>
+            <td>Receives decoded video frames from the MediaPlayer and exposes them as a texture for materials.</td>
+          </tr>
+          <tr>
+            <td>Media Blueprint</td>
+            <td>UE4 Blueprint actor</td>
+            <td>
+              Binds VR controller input to play/pause commands on the MediaPlayer, allowing the
+              user to control video playback while in VR without leaving the scene.
+            </td>
+          </tr>
+          <tr>
+            <td>Emissive Screen Material</td>
+            <td>UE4 Material (Unlit shading model)</td>
+            <td>
+              Displays static logos and images on TV mesh objects. Bypasses scene lighting —
+              the image appears self-lit, accurately mimicking a real backlit screen regardless
+              of the surrounding VR environment's lighting conditions.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Dynamic video content uses the <code>FileMediaSource</code> → <code>MediaPlayer</code> →{' '}
+        <code>MediaTexture</code> pipeline, with a Blueprint actor bridging controller input to
+        playback commands. Static imagery (logos, branding, infographics) uses emissive/unlit
+        materials applied directly to the screen mesh. Standard lit materials were avoided for
+        static screens because they receive scene lighting — a screen in a dimly lit corner would
+        appear dark, which is physically incorrect for a self-illuminating display.
+      </p>
+
+      <h2>AI-Driven Presentations (Convai)</h2>
+      <p>
+        AI avatar characters present slides dynamically on VR monitors. Slide content is decoupled
+        from the UE4 build — images are hosted externally and referenced by URL in the Convai
+        character's knowledge base, so slides can be updated without recompiling or repackaging
+        the project.
+      </p>
+      <pre className="code-block"><code>{`Slide Authoring        Image Hosting          Convai Platform          UE4 VR Scene
+      |                      |                       |                       |
+      |--create slides------->|                       |                       |
+      |                      |--upload to imgbb.com  |                       |
+      |                      |--generate direct URLs |                       |
+      |                      |                       |<--inject image URLs   |
+      |                      |                       |   into Character      |
+      |                      |                       |   knowledge base      |
+      |                      |                       |                       |
+      |                      |                       |--Convai Character ID->|
+      |                      |                       |                       |--link to Blueprint
+      |                      |                       |                       |--bind to screen mesh
+      |                      |                       |                       |
+      |                      |                       |  [at runtime in VR]   |
+      |                      |                       |<--user interacts------|
+      |                      |                       |--fetch slide URLs---->|
+      |                      |                       |--present on screen--->|`}</code></pre>
+
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Platform</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Presentation Slides</strong></td>
+            <td>Authored externally</td>
+            <td>Source imagery for the AI to present on VR monitors.</td>
+          </tr>
+          <tr>
+            <td><strong>imgbb.com</strong></td>
+            <td>Image hosting service</td>
+            <td>
+              Hosts slide images and provides direct-link URLs with no authentication required —
+              URLs are stable and can be referenced directly from Convai.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Convai Character</strong></td>
+            <td>Convai cloud platform</td>
+            <td>
+              AI avatar with a knowledge base containing the slide image URLs. Processes user
+              interaction at runtime and decides which slide to display.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Convai Character ID</strong></td>
+            <td>UE4 Blueprint binding</td>
+            <td>
+              Links a specific Convai Character to a Blueprint actor in the VR scene, connecting
+              the cloud AI to the in-world presentation screen.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Virtual Screen (target)</strong></td>
+            <td>UE4 static mesh + material</td>
+            <td>
+              The physical screen surface in the VR environment onto which the Convai character
+              renders slides during user interaction.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="design-decision">
+        <strong>Design Decision — External Image Hosting for Slide Content:</strong> Embedding
+        slide images directly in the UE4 project would require a full recompile and repackage
+        every time presentation content changes. By hosting slides on imgbb.com and injecting the
+        URLs into Convai's knowledge base, the VR build is completely decoupled from presentation
+        content. The Convai character fetches images at runtime, so updating a slide is a
+        matter of replacing the hosted image URL — no UE4 editor interaction required.
+      </div>
 
       <h2>Telemetry Visualizer — System Architecture</h2>
       <p>
