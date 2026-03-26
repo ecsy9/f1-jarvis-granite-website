@@ -19,7 +19,7 @@ function MonthlyVideo() {
         }}
       >
         <video
-          src="/videos/comp0016-presentation.mp4"
+          src={`${process.env.PUBLIC_URL}/videos/comp0016-presentation.mp4`}
           controls
           style={{
             position: 'absolute',

@@ -132,7 +132,7 @@ function Home() {
                 </div>
               </div>
               <div className="deliverable-row__img-wrap">
-                <img src="/images/deliverables/jarvis-live.png" alt="Jarvis Live screenshot" className="deliverable-row__img" />
+                <img src={`${process.env.PUBLIC_URL}/images/deliverables/jarvis-live.png`} alt="Jarvis Live screenshot" className="deliverable-row__img" />
               </div>
             </div>
 
@@ -146,7 +146,7 @@ function Home() {
                 </div>
               </div>
               <div className="deliverable-row__img-wrap">
-                <img src="/images/deliverables/jarvis-post.png" alt="Jarvis Post screenshot" className="deliverable-row__img" />
+                <img src={`${process.env.PUBLIC_URL}/images/deliverables/jarvis-post.png`} alt="Jarvis Post screenshot" className="deliverable-row__img" />
               </div>
             </div>
 
@@ -160,7 +160,7 @@ function Home() {
                 </div>
               </div>
               <div className="deliverable-row__img-wrap">
-                <img src="/images/deliverables/jarvis-vr.png" alt="Jarvis VR screenshot" className="deliverable-row__img" />
+                <img src={`${process.env.PUBLIC_URL}/images/deliverables/jarvis-vr.png`} alt="Jarvis VR screenshot" className="deliverable-row__img" />
               </div>
             </div>
           </div>
