@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './SectionPage.css';
 
-function SectionPage({ title, children }) {
+function SectionPage({ title, children, activeTab }) {
   const contentRef = useRef(null);
   const [headings, setHeadings] = useState([]);
   const [activeId, setActiveId] = useState('');
@@ -42,6 +42,11 @@ function SectionPage({ title, children }) {
           {headings.length > 1 && (
             <nav className="section-toc" aria-label="On this page">
               <p className="section-toc__heading">On this page</p>
+              {activeTab && (
+                <div className="section-toc__active-tab">
+                  <strong>Current section:</strong> {activeTab}
+                </div>
+              )}
               <ul className="section-toc__list">
                 {headings.map(({ id, label }) => (
                   <li key={id}>

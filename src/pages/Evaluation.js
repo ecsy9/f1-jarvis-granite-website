@@ -248,13 +248,13 @@ function Evaluation() {
 
       <h2>Critical evaluation of the project</h2>
       <h3>User interface / user experience (if applicable)</h3>
-      <p>F1 Jarvis dashboard offers clear, responsive, professional UI with strong real-time feedback, supporting efficient analysis, while maintaining good usability overall.</p>
+      <p>F1 Jarvis Granite dashboard offers clear, responsive, professional UI with strong real-time feedback, supporting efficient analysis, while maintaining good usability overall.</p>
 
       <h3>Functionality</h3>
-      <p>F1 Jarvis TORCS delivers robust telemetry, normalization, low-latency dashboards, promising AI features, reliable demos, and progress toward scalable, production-ready performance.</p>
+      <p>F1 Jarvis Granite delivers robust telemetry, normalization, low-latency dashboards, promising AI features, reliable demos, and progress toward scalable, production-ready performance.</p>
 
       <h3>Stability</h3>
-      <p>F1 Jarvis TORCS shows reliable telemetry ingestion, low latency, stable dashboards, and promising performance, with strong foundations for further robustness improvements.</p>
+      <p>F1 Jarvis Granite shows reliable telemetry ingestion, low latency, stable dashboards, and promising performance, with strong foundations for further robustness improvements.</p>
 
       <h3>Efficiency</h3>
       <p>The F1 Jarvis Granite platform achieves low latency (under 500ms) for core telemetry and 2D dashboard with efficient resource usage in tests, but VR and AI features show higher demands needing optimisation.</p>
@@ -271,11 +271,10 @@ function Evaluation() {
       <h2>Future work</h2>
       <ul>
         <li>Integration with professional Formula 1 systems or proprietary F1 data sources</li>
-        <li>Support for racing simulators beyond TORCS and Assetto Corsa (though modular architecture permits future expansion)</li>
+        <li>Support for racing simulators beyond Assetto Corsa (modular architecture permits future expansion)</li>
         <li>Real-time control commands sent back to vehicles (read-only telemetry analysis only)</li>
         <li>Hardware development beyond sensor integration protocols for real time support</li>
         <li>Commercial deployment or production-grade system hardening for enterprise use</li>
-        <li>TORCS in-game overlay (designated as extension/enhancement, included in documentation for future implementation post-deadline)</li>
         <li>ThingSpeak integration for cloud-based sensor streaming and historical data access</li>
       </ul>
     </SectionPage>

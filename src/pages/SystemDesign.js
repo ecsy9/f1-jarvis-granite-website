@@ -8,7 +8,75 @@ function SystemDesign() {
   const [activeTab, setActiveTab] = useState('Data Pipeline');
 
   return (
-    <SectionPage title="System Design">
+    <SectionPage title="System Design" activeTab={activeTab}>
+      <h2>Overall System Architecture</h2>
+      <p>The system flows from Assetto Corsa telemetry through deterministic data processing, LLM-powered responses, persistent storage, and finally post-race analysis or VR visualization:</p>
+      <pre className="code-block"><code>{`                    ASSETTO CORSA GAME
+                  (Windows Shared Memory)
+                      @ 60 Hz
+                          │
+                          ↓
+        ┌─────────────────────────────────┐
+        │    Data Pipeline (Live)         │
+        │  Deterministic, Rule-Based      │
+        ├─────────────────────────────────┤
+        │                                 │
+        │  • AcTelemetryWorker            │
+        │    - Read, validate, normalize  │
+        │    - Detect lap boundaries      │
+        │                                 │
+        │  • TelemetryAgent               │
+        │    - 10 event detection rules   │
+        │    - < 50ms latency             │
+        │                                 │
+        └────────┬──────────┬──────────┬──┘
+                 │          │          │
+          [UI Update]   [Events]  [Storage]
+                 │          ↓          ↓
+                 │    ┌──────────────────────────────┐
+                 │    │ AI Pipeline (Live)           │
+                 │    │ LLM-Powered Responses        │
+                 │    ├──────────────────────────────┤
+                 │    │ • AIRaceEngineerWorker       │
+                 │    │ • RaceEngineerAgent (LLM)    │
+                 │    │ • LocalLLMInference (Granite)│
+                 │    │ • TTSOutputWorker (Kokoro)   │
+                 │    │ • VoiceInputWorker (Whisper) │
+                 │    └────────────┬─────────────────┘
+                 │                 │
+                 │            [Audio Out]
+                 │                 │
+                 ↓                 ↓
+        ┌──────────────────────────────────┐
+        │   SQLite Data Persistence        │
+        ├──────────────────────────────────┤
+        │                                  │
+        │  • Sessions, Laps, Telemetry     │
+        │  • AI Commentary, Voice Queries  │
+        │                                  │
+        └────────┬───────────┬──────────┬──┘
+                 │           │          │
+         [Session telemetry] │      [VR Data]
+                 │           ↓          │
+                 ↓                      ↓
+        ┌──────────────────────────────────────┐
+        │   SessionExporter (CSV/Bundle)       │
+        │   • Exports telemetry + commentary   │
+        │   • Enables sharing & archiving      │
+        └────────┬────────────────────┬────────┘
+                 │                    │
+                 ↓                    ↓
+        ┌─────────────────────┐  ┌─────────────────────┐
+        │ Post-Race Analysis  │  │ VR Integration      │
+        │ (Offline)           │  │ (Coming Soon)       │
+        │                     │  │                     │
+        │ • Load from DB/CSV  │  │ Receives:           │
+        │ • 16 graphs         │  │ • Live telemetry    │
+        │ • Lap comparison    │  │ • AI commentary     │
+        │ • LLM debrief       │  │ • Session history   │
+        │ • Coaching feedback │  │ • Exported data     │
+        └─────────────────────┘  └─────────────────────┘`}</code></pre>
+
       <div className="algo-tabs">
         {TABS.map(tab => (
           <button
