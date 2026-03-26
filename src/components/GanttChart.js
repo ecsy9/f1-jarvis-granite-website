@@ -118,7 +118,7 @@ const TASKS = [
     id: 17, name: 'Website', start: 18, end: 21, cat: 'other',
     deliverable: 'All',
     desc: '',
-    members: ['ece','athena','elinor'],
+    members: ['ece','oltun','elinor','athena','eima'],
   },
   {
     id: 18, name: 'Documentation & Finalisation', start: 18, end: 21, cat: 'other',

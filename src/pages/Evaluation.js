@@ -205,7 +205,7 @@ function Evaluation() {
           </tr>
           <tr>
             <td>UI Design</td>
-            <td>40%</td><td>5%</td><td>25%</td><td>30%</td><td>0%</td>
+            <td>30%</td><td>25%</td><td>25%</td><td>20%</td><td>0%</td>
           </tr>
           <tr>
             <td>System Design</td>
@@ -213,7 +213,7 @@ function Evaluation() {
           </tr>
           <tr>
             <td>Implementation</td>
-            <td>0%</td><td>30%</td><td>30%</td><td>25%</td><td>15%</td>
+            <td>20%</td><td>20%</td><td>20%</td><td>20%</td><td>20%</td>
           </tr>
           <tr>
             <td>Testing</td>
@@ -221,7 +221,7 @@ function Evaluation() {
           </tr>
           <tr>
             <td>Evaluation and Future Work</td>
-            <td>40%</td><td>30%</td><td>20%</td><td>0%</td><td>10%</td>
+            <td>30%</td><td>30%</td><td>20%</td><td>0%</td><td>20%</td>
           </tr>
           <tr>
             <td>User and Deployment Manuals</td>
@@ -238,10 +238,10 @@ function Evaluation() {
           <tr>
             <td><strong>Overall contribution</strong></td>
             <td><strong>23%</strong></td>
-            <td><strong>17%</strong></td>
-            <td><strong>20%</strong></td>
-            <td><strong>20%</strong></td>
-            <td><strong>21%</strong></td>
+            <td><strong>18%</strong></td>
+            <td><strong>19%</strong></td>
+            <td><strong>19%</strong></td>
+            <td><strong>22%</strong></td>
           </tr>
         </tbody>
       </table>
