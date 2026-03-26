@@ -2,13 +2,32 @@ import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
 import './Algorithms.css';
 
-const TABS = ['Data Pipeline', 'AI Pipeline', 'VR'];
+const TABS = ['Whole System', 'Data Pipeline', 'AI Pipeline', 'VR'];
 
 function SystemDesign() {
-  const [activeTab, setActiveTab] = useState('Data Pipeline');
+  const [activeTab, setActiveTab] = useState('Whole System');
 
   return (
     <SectionPage title="System Design" activeTab={activeTab}>
+      <div className="algo-tabs">
+        {TABS.map(tab => (
+          <button
+            key={tab}
+            className={`algo-tab${activeTab === tab ? ' algo-tab--active' : ''}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'Whole System' && (<>
+      <p>
+        The system flows from Assetto Corsa telemetry through deterministic data processing,
+        LLM-powered responses, persistent storage, and finally post-race analysis or VR
+        visualization. Use the tabs above to explore each subsystem in detail.
+      </p>
+
       <h2>Overall System Architecture</h2>
       <p>The system flows from Assetto Corsa telemetry through deterministic data processing, LLM-powered responses, persistent storage, and finally post-race analysis or VR visualization:</p>
       <pre className="code-block"><code>{`                    ASSETTO CORSA GAME
@@ -76,18 +95,7 @@ function SystemDesign() {
         │ • LLM debrief       │  │ • Session history   │
         │ • Coaching feedback │  │ • Exported data     │
         └─────────────────────┘  └─────────────────────┘`}</code></pre>
-
-      <div className="algo-tabs">
-        {TABS.map(tab => (
-          <button
-            key={tab}
-            className={`algo-tab${activeTab === tab ? ' algo-tab--active' : ''}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      </>)}
 
       {activeTab === 'Data Pipeline' && (<>
       <p>
@@ -1665,55 +1673,142 @@ class CoachingAgent(BaseAgent):
       <h2>Class Diagrams</h2>
 
       <h3>AI QThread Workers</h3>
-      <pre className="code-block"><code>{`QtCore.QThread
-    |
-    +-- AIRaceEngineerWorker
-    |     Signals: ai_commentary, driver_query_received, status_update,
-    |              processing_query
-    |     Uses: TelemetryAgent, RaceEngineerAgent, LiveSessionContext,
-    |            LocalLLMInference
-    |
-    +-- VoiceInputWorker
-    |     Signals: speech_detected, vad_state_changed, status_update,
-    |              error_occurred
-    |     Uses: webrtcvad.Vad, faster_whisper.WhisperModel, pyaudio
-    |
-    +-- TTSOutputWorker
-    |     Signals: status_update, error_occurred, playback_started,
-    |              playback_finished
-    |     Uses: KokoroTTSClient, pyaudio, asyncio.PriorityQueue
-    |
-    +-- StartupLoaderThread
-          Signals: stage_update, all_done, fatal_error`}</code></pre>
+      {/* Parent */}
+      <div className="cls-diagram">
+        <div className="cls-grid--1" style={{ justifyItems: 'center', marginBottom: '0.5rem' }}>
+          <div className="cls-card cls-card--qthread">
+            <div className="cls-card__name">QtCore.QThread</div>
+            <div className="cls-card__badge">base class</div>
+          </div>
+        </div>
+        <div className="cls-connector">inherits ↓</div>
+        {/* Four children */}
+        <div className="cls-grid--2">
+          {/* AIRaceEngineerWorker */}
+          <div className="cls-card cls-card--qthread">
+            <div className="cls-card__name">AIRaceEngineerWorker</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> ai_commentary</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> driver_query_received</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> status_update</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> processing_query</div>
+              <div className="cls-divider" />
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> TelemetryAgent</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> RaceEngineerAgent</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> LiveSessionContext</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> LocalLLMInference</div>
+            </div>
+          </div>
+          {/* VoiceInputWorker */}
+          <div className="cls-card cls-card--qthread">
+            <div className="cls-card__name">VoiceInputWorker</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> speech_detected</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> vad_state_changed</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> status_update</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> error_occurred</div>
+              <div className="cls-divider" />
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> webrtcvad.Vad</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> WhisperModel</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> pyaudio</div>
+            </div>
+          </div>
+          {/* TTSOutputWorker */}
+          <div className="cls-card cls-card--qthread">
+            <div className="cls-card__name">TTSOutputWorker</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> status_update</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> error_occurred</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> playback_started</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> playback_finished</div>
+              <div className="cls-divider" />
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> KokoroTTSClient</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> pyaudio</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> asyncio.PriorityQueue</div>
+            </div>
+          </div>
+          {/* StartupLoaderThread */}
+          <div className="cls-card cls-card--qthread">
+            <div className="cls-card__name">StartupLoaderThread</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> stage_update</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> all_done</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> fatal_error</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h3>AI Pipeline Classes</h3>
-      <pre className="code-block"><code>{`TelemetryAgent
-    Uses: ThresholdsConfig (Pydantic), TelemetryData (Pydantic)
-    Produces: List[Event] (sorted by Priority enum)
-
-RaceEngineerAgent
-    Uses: LLMClient, PromptTemplate, LiveSessionContext
-    Produces: str (radio message)
-
-LLMClient
-    Uses: LocalLLMInference (singleton)
-    Fallback: rule-based response templates
-
-LocalLLMInference
-    Uses: llama_cpp.Llama (GGUF model)
-    Pattern: Singleton (module-level _shared_instance)
-
-LiveSessionContext
-    Maintains: vehicle state, lap history, telemetry buffer (60s),
-               conversation history (1 exchange), fuel tracking
-
-KokoroTTSClient
-    Uses: pykokoro.build_pipeline (ONNX backend)
-    Produces: WAV bytes
-
-PTTController (QObject)
-    Uses: pynput.keyboard.Listener, pygame.joystick
-    Signals: ptt_pressed, ptt_released, status_update`}</code></pre>
+      <div className="cls-diagram">
+        <div className="cls-grid--2">
+          {/* TelemetryAgent */}
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">TelemetryAgent</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> ThresholdsConfig (Pydantic)</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> TelemetryData (Pydantic)</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--out">out</span> List[Event] sorted by Priority</div>
+            </div>
+          </div>
+          {/* RaceEngineerAgent */}
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">RaceEngineerAgent</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> LLMClient</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> PromptTemplate</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> LiveSessionContext</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--out">out</span> str (radio message)</div>
+            </div>
+          </div>
+          {/* LLMClient */}
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">LLMClient</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> LocalLLMInference (singleton)</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--fn">fall</span> rule-based response templates</div>
+            </div>
+          </div>
+          {/* LocalLLMInference */}
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">LocalLLMInference</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> llama_cpp.Llama (GGUF)</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--fn">pat</span> Singleton (_shared_instance)</div>
+            </div>
+          </div>
+          {/* LiveSessionContext */}
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">LiveSessionContext</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--has">has</span> vehicle state</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--has">has</span> lap history</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--has">has</span> telemetry buffer (60s)</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--has">has</span> conversation history (1 ex)</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--has">has</span> fuel tracking</div>
+            </div>
+          </div>
+          {/* KokoroTTSClient */}
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">KokoroTTSClient</div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> pykokoro.build_pipeline (ONNX)</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--out">out</span> WAV bytes</div>
+            </div>
+          </div>
+          {/* PTTController */}
+          <div className="cls-card cls-card--plain">
+            <div className="cls-card__name">PTTController <span style={{fontSize:'0.7rem',color:'#888'}}>(QObject)</span></div>
+            <div className="cls-card__body">
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> pynput.keyboard.Listener</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> pygame.joystick</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> ptt_pressed</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> ptt_released</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--signal">sig</span> status_update</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <h2>Thread Model</h2>
       <p>
