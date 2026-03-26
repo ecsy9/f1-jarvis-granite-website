@@ -29,72 +29,169 @@ function SystemDesign() {
       </p>
 
       <h2>Overall System Architecture</h2>
-      <p>The system flows from Assetto Corsa telemetry through deterministic data processing, LLM-powered responses, persistent storage, and finally post-race analysis or VR visualization:</p>
-      <pre className="code-block"><code>{`                    ASSETTO CORSA GAME
-                  (Windows Shared Memory)
-                      @ 60 Hz
-                          │
-                          ↓
-        ┌─────────────────────────────────┐
-        │    Data Pipeline (Live)         │
-        │  Deterministic, Rule-Based      │
-        ├─────────────────────────────────┤
-        │                                 │
-        │  • AcTelemetryWorker            │
-        │    - Read, validate, normalize  │
-        │    - Detect lap boundaries      │
-        │                                 │
-        │  • TelemetryAgent               │
-        │    - 10 event detection rules   │
-        │    - < 50ms latency             │
-        │                                 │
-        └────────┬──────────┬──────────┬──┘
-                 │          │          │
-          [UI Update]   [Events]  [Storage]
-                 │          ↓          ↓
-                 │    ┌──────────────────────────────┐
-                 │    │ AI Pipeline (Live)           │
-                 │    │ LLM-Powered Responses        │
-                 │    ├──────────────────────────────┤
-                 │    │ • AIRaceEngineerWorker       │
-                 │    │ • RaceEngineerAgent (LLM)    │
-                 │    │ • LocalLLMInference (Granite)│
-                 │    │ • TTSOutputWorker (Kokoro)   │
-                 │    │ • VoiceInputWorker (Whisper) │
-                 │    └────────────┬─────────────────┘
-                 │                 │
-                 │            [Audio Out]
-                 │                 │
-                 ↓                 ↓
-        ┌──────────────────────────────────┐
-        │   SQLite Data Persistence        │
-        ├──────────────────────────────────┤
-        │                                  │
-        │  • Sessions, Laps, Telemetry     │
-        │  • AI Commentary, Voice Queries  │
-        │                                  │
-        └────────┬───────────┬──────────┬──┘
-                 │           │          │
-         [Session telemetry] │      [VR Data]
-                 │           ↓          │
-                 ↓                      ↓
-        ┌──────────────────────────────────────┐
-        │   SessionExporter (CSV/Bundle)       │
-        │   • Exports telemetry + commentary   │
-        │   • Enables sharing & archiving      │
-        └────────┬────────────────────┬────────┘
-                 │                    │
-                 ↓                    ↓
-        ┌─────────────────────┐  ┌─────────────────────┐
-        │ Post-Race Analysis  │  │ VR Integration      │
-        │ (Offline)           │  │ (Coming Soon)       │
-        │                     │  │                     │
-        │ • Load from DB/CSV  │  │ Receives:           │
-        │ • 16 graphs         │  │ • Live telemetry    │
-        │ • Lap comparison    │  │ • AI commentary     │
-        │ • LLM debrief       │  │ • Session history   │
-        │ • Coaching feedback │  │ • Exported data     │
-        └─────────────────────┘  └─────────────────────┘`}</code></pre>
+      <div className="arch-diagram">
+        {/* Source */}
+        <div className="arch-node arch-node--game">
+          <div className="arch-node__header">
+            <span className="arch-node__title">Assetto Corsa Game</span>
+          </div>
+          <div className="arch-node__sub">Windows Shared Memory @ 60 Hz</div>
+        </div>
+
+        <div className="arch-connector">
+          <div className="arch-connector__line" />
+          <div className="arch-connector__label">ctypes mmap read</div>
+          <div className="arch-connector__arrow" />
+        </div>
+
+        {/* Data Pipeline */}
+        <div className="arch-node arch-node--live">
+          <div className="arch-node__header">
+            <span className="arch-node__title">Data Pipeline</span>
+            <span className="arch-badge arch-badge--thread">Live · Deterministic</span>
+          </div>
+          <ul className="arch-node__bullets">
+            <li>AcTelemetryWorker — read, validate, normalize @ 60 Hz</li>
+            <li>TelemetryAgent — 10 event detection rules · &lt;50ms latency</li>
+          </ul>
+        </div>
+
+        {/* Fan-out to 3 consumers */}
+        <div className="arch-fanout-wrap">
+          <div className="arch-fanout-wrap__vline" />
+          <div className="arch-fanout-wrap__label">UI Update · Events · Storage</div>
+          <div className="arch-fanout-wrap__hbar" />
+        </div>
+
+        <div className="arch-row arch-row--3">
+          {/* UI thread */}
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--ui">
+              <div className="arch-node__header">
+                <span className="arch-node__title">MainWindow</span>
+                <span className="arch-badge arch-badge--ui">UI Thread</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>Live telemetry graphs</li>
+                <li>Comms transcript</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* AI Pipeline */}
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--live">
+              <div className="arch-node__header">
+                <span className="arch-node__title">AI Pipeline</span>
+                <span className="arch-badge arch-badge--red">Live · LLM</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>AIRaceEngineerWorker</li>
+                <li>RaceEngineerAgent (LLM)</li>
+                <li>LocalLLMInference (Granite)</li>
+                <li>TTSOutputWorker (Kokoro)</li>
+                <li>VoiceInputWorker (Whisper)</li>
+              </ul>
+            </div>
+            <div className="arch-vline-sm" />
+            <div className="arch-node arch-node--worker">
+              <div className="arch-node__header" style={{ justifyContent: 'center' }}>
+                <span className="arch-node__title">🔊 Audio Out</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Storage */}
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--worker">
+              <div className="arch-node__header">
+                <span className="arch-node__title">SessionRecorder</span>
+                <span className="arch-badge arch-badge--thread">QThread</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>Batch SQLite writes</li>
+                <li>Sessions, Laps, Telemetry</li>
+                <li>AI Commentary, Voice</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* SQLite */}
+        <div className="arch-connector">
+          <div className="arch-connector__line" />
+          <div className="arch-connector__label">all threads → SQLite</div>
+          <div className="arch-connector__arrow" />
+        </div>
+
+        <div className="arch-node arch-node--db">
+          <div className="arch-node__header">
+            <span className="arch-node__title">SQLite Data Persistence</span>
+          </div>
+          <ul className="arch-node__bullets">
+            <li>Sessions · Laps · Telemetry samples</li>
+            <li>AI Commentary · Voice Queries</li>
+          </ul>
+        </div>
+
+        <div className="arch-connector">
+          <div className="arch-connector__line" />
+          <div className="arch-connector__arrow" />
+        </div>
+
+        {/* SessionExporter */}
+        <div className="arch-node arch-node--viewer">
+          <div className="arch-node__header">
+            <span className="arch-node__title">SessionExporter</span>
+            <span className="arch-badge arch-badge--post">CSV / Bundle</span>
+          </div>
+          <ul className="arch-node__bullets">
+            <li>Exports telemetry + commentary</li>
+            <li>Enables sharing &amp; archiving</li>
+          </ul>
+        </div>
+
+        {/* Fan-out to 2 outputs */}
+        <div className="arch-fanout-wrap">
+          <div className="arch-fanout-wrap__vline" />
+          <div className="arch-fanout-wrap__hbar" />
+        </div>
+
+        <div className="arch-row arch-row--2">
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--post">
+              <div className="arch-node__header">
+                <span className="arch-node__title">Post-Race Analysis</span>
+                <span className="arch-badge arch-badge--post">Offline</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>Load from DB / CSV</li>
+                <li>16 graphs · Lap comparison</li>
+                <li>LLM debrief · Coaching</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="arch-col">
+            <div className="arch-drop" />
+            <div className="arch-node arch-node--settings">
+              <div className="arch-node__header">
+                <span className="arch-node__title">VR Integration</span>
+                <span className="arch-badge arch-badge--ui">Coming Soon</span>
+              </div>
+              <ul className="arch-node__bullets">
+                <li>Live telemetry feed</li>
+                <li>AI commentary</li>
+                <li>Exported session data</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
       </>)}
 
       {activeTab === 'Data Pipeline' && (<>
@@ -1096,6 +1193,15 @@ function SystemDesign() {
           <span className="api-row__ret">→ Session</span>
         </div>
       </div>
+
+      <h2>References</h2>
+      <ol className="ref-list">
+        <li>Kunz, T. (2020) <em>Assetto Corsa Shared Memory Reference</em>. <a href="https://assettocorsamods.net/threads/doc-shared-memory-reference.58/" target="_blank" rel="noopener noreferrer">assettocorsamods.net</a></li>
+        <li>Hunter, J.D. (2007) 'Matplotlib: A 2D Graphics Environment', <em>Computing in Science &amp; Engineering</em>, 9(3), pp. 90–95.</li>
+        <li>Gamma, E., Helm, R., Johnson, R. and Vlissides, J. (1994) <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Reading, MA: Addison-Wesley.</li>
+        <li>Riverbank Computing (2023) <em>PyQt5 Reference Guide</em>. <a href="https://www.riverbankcomputing.com/static/Docs/PyQt5/" target="_blank" rel="noopener noreferrer">riverbankcomputing.com</a></li>
+        <li>SQLite Consortium (2024) <em>SQLite Documentation</em>. <a href="https://www.sqlite.org/docs.html" target="_blank" rel="noopener noreferrer">sqlite.org</a></li>
+      </ol>
       </>)}
 
       {activeTab === 'AI Pipeline' && (<>

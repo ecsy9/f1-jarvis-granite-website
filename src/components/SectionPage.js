@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './SectionPage.css';
+import './Diagrams.css';
 
 function SectionPage({ title, children, activeTab }) {
   const contentRef = useRef(null);
