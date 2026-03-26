@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import './Home.css';
 import GanttChart from '../components/GanttChart';
 
-const logo     = '/images/jarvis-logo.svg';
-const carImage = '/images/sf26-overhead.png';
-const logoIBM  = '/images/logos/ibm.png';
-const logoAC   = '/images/logos/assetto-corsa.png';
-const logoUE   = '/images/logos/ucl.png';
-const logoFS   = '/images/logos/formula-student.png';
-const logoCM   = '/images/logos/content-manager.webp';
+const logo     = `${process.env.PUBLIC_URL}/images/jarvis-logo.svg`;
+const carImage = `${process.env.PUBLIC_URL}/images/sf26-overhead.png`;
+const logoIBM  = `${process.env.PUBLIC_URL}/images/logos/ibm.png`;
+const logoAC   = `${process.env.PUBLIC_URL}/images/logos/assetto-corsa.png`;
+const logoUE   = `${process.env.PUBLIC_URL}/images/logos/ucl.png`;
+const logoFS   = `${process.env.PUBLIC_URL}/images/logos/formula-student.png`;
+const logoCM   = `${process.env.PUBLIC_URL}/images/logos/content-manager.webp`;
 
 function Home() {
   const carRef = useRef(null);
@@ -170,11 +170,11 @@ function Home() {
           <h2>Team</h2>
           <div className="info-cards info-cards--team">
             {[
-              { label: 'Team Lead', name: 'Ece Okutan',    path: '/team/ece-okutan',    photo: '/images/team/ece-okutan.jpg'    },
-              { label: 'Developer', name: 'Oltun Ozavci',  path: '/team/oltun-ozavci',  photo: '/images/team/oltun-ozavci.jpg'  },
-              { label: 'Developer', name: 'Athena Chong',  path: '/team/athena-chong',  photo: '/images/team/athena-chong.jpg'  },
-              { label: 'Developer', name: 'Elinor Cheung', path: '/team/elinor-cheung', photo: '/images/team/elinor-cheung.jpg' },
-              { label: 'Developer', name: 'Eima Miyasaka', path: '/team/eima-miyasaka', photo: '/images/team/eima-miyasaka.jpg' },
+              { label: 'Team Lead', name: 'Ece Okutan',    path: '/team/ece-okutan',    photo: `${process.env.PUBLIC_URL}/images/team/ece-okutan.jpg`    },
+              { label: 'Developer', name: 'Oltun Ozavci',  path: '/team/oltun-ozavci',  photo: `${process.env.PUBLIC_URL}/images/team/oltun-ozavci.jpg`  },
+              { label: 'Developer', name: 'Athena Chong',  path: '/team/athena-chong',  photo: `${process.env.PUBLIC_URL}/images/team/athena-chong.jpg`  },
+              { label: 'Developer', name: 'Elinor Cheung', path: '/team/elinor-cheung', photo: `${process.env.PUBLIC_URL}/images/team/elinor-cheung.jpg` },
+              { label: 'Developer', name: 'Eima Miyasaka', path: '/team/eima-miyasaka', photo: `${process.env.PUBLIC_URL}/images/team/eima-miyasaka.jpg` },
             ].map(m => (
               <div key={m.path} className="info-card info-card--person">
                 <img src={m.photo} alt={m.name} className="info-card__photo" />

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
-const logo = '/images/jarvis-logo.svg';
+const logo = `${process.env.PUBLIC_URL}/images/jarvis-logo.svg`;
 
 const navItems = [
   { path: '/', label: 'Home' },

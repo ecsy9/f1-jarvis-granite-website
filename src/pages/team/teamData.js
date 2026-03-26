@@ -8,7 +8,7 @@ const teamMembers = [
     linkedin: 'https://www.linkedin.com/in/eceokutan/',
     github: 'https://github.com/eceokutan',
     email: 'ece.okutan.24@ucl.ac.uk',
-    photo: '/images/team/ece-okutan.jpg',
+    photo: `${process.env.PUBLIC_URL}/images/team/ece-okutan.jpg`,
   },
   {
     slug: 'eima-miyasaka',
@@ -19,7 +19,7 @@ const teamMembers = [
     linkedin: 'https://www.linkedin.com/in/eima-miyasaka/',
     github: 'https://github.com/eimamiyasaka',
     email: 'eima.miyasaka.24@ucl.ac.uk',
-    photo: '/images/team/eima-miyasaka.jpg',
+    photo: `${process.env.PUBLIC_URL}/images/team/eima-miyasaka.jpg`,
   },
   {
     slug: 'oltun-ozavci',
@@ -30,7 +30,7 @@ const teamMembers = [
     linkedin: 'https://www.linkedin.com/in/oltun-erim-ozavci-4254232a1/',
     github: 'https://github.com/oltun',
     email: 'oltun.ozavci.24@ucl.ac.uk',
-    photo: '/images/team/oltun-ozavci.jpg',
+    photo: `${process.env.PUBLIC_URL}/images/team/oltun-ozavci.jpg`,
   },
   {
     slug: 'athena-chong',
@@ -41,7 +41,7 @@ const teamMembers = [
     linkedin: 'https://www.linkedin.com/in/athena-chong/',
     github: 'https://github.com/athena-c-22',
     email: 'athena.chong.24@ucl.ac.uk',
-    photo: '/images/team/athena-chong.jpg',
+    photo: `${process.env.PUBLIC_URL}/images/team/athena-chong.jpg`,
   },
   {
     slug: 'elinor-cheung',
@@ -52,7 +52,7 @@ const teamMembers = [
     linkedin: 'https://www.linkedin.com/in/elinor-cheung-93a2772a3/',
     github: 'https://github.com/ecsy9',
     email: 'elinor.cheung.24@ucl.ac.uk',
-    photo: '/images/team/elinor-cheung.jpg',
+    photo: `${process.env.PUBLIC_URL}/images/team/elinor-cheung.jpg`,
   },
 ];
 

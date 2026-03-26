@@ -16,11 +16,11 @@ const MONTHS = [
 ];
 
 const MEMBERS = {
-  ece:    { name: 'Ece Okutan',    role: 'Team Lead',  photo: '/images/team/ece-okutan.jpg',    path: '/team/ece-okutan'    },
-  oltun:  { name: 'Oltun Ozavci',  role: 'Developer',  photo: '/images/team/oltun-ozavci.jpg',   path: '/team/oltun-ozavci'  },
-  athena: { name: 'Athena Chong',  role: 'Developer',  photo: '/images/team/athena-chong.jpg',   path: '/team/athena-chong'  },
-  elinor: { name: 'Elinor Cheung', role: 'Developer',  photo: '/images/team/elinor-cheung.jpg',  path: '/team/elinor-cheung' },
-  eima:   { name: 'Eima Miyasaka', role: 'Developer',  photo: '/images/team/eima-miyasaka.jpg',  path: '/team/eima-miyasaka' },
+  ece:    { name: 'Ece Okutan',    role: 'Team Lead',  photo: `${process.env.PUBLIC_URL}/images/team/ece-okutan.jpg`,    path: '/team/ece-okutan'    },
+  oltun:  { name: 'Oltun Ozavci',  role: 'Developer',  photo: `${process.env.PUBLIC_URL}/images/team/oltun-ozavci.jpg`,   path: '/team/oltun-ozavci'  },
+  athena: { name: 'Athena Chong',  role: 'Developer',  photo: `${process.env.PUBLIC_URL}/images/team/athena-chong.jpg`,   path: '/team/athena-chong'  },
+  elinor: { name: 'Elinor Cheung', role: 'Developer',  photo: `${process.env.PUBLIC_URL}/images/team/elinor-cheung.jpg`,  path: '/team/elinor-cheung' },
+  eima:   { name: 'Eima Miyasaka', role: 'Developer',  photo: `${process.env.PUBLIC_URL}/images/team/eima-miyasaka.jpg`,  path: '/team/eima-miyasaka' },
 };
 
 const TASKS = [
