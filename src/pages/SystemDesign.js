@@ -1248,13 +1248,11 @@ function SystemDesign() {
                 <span className="arch-badge arch-badge--red">Real-Time</span>
               </div>
               <ul className="arch-node__bullets">
-                <li>AcTelemetryWorker (60 Hz)</li>
-                <li>MainWindow — dashboard</li>
                 <li>AIRaceEngineerWorker</li>
                 <li>VoiceInputWorker + VAD</li>
                 <li>TTSOutputWorker (Kokoro)</li>
                 <li>PTTController</li>
-                <li>SessionRecorder → SQLite</li>
+                <li><em>+ Data Pipeline components</em></li>
               </ul>
             </div>
           </div>
@@ -1267,12 +1265,10 @@ function SystemDesign() {
                 <span className="arch-badge arch-badge--thread">Post-Race</span>
               </div>
               <ul className="arch-node__bullets">
-                <li>SessionPickerDialog</li>
-                <li>SessionExporter (SQLite → Session)</li>
-                <li>LapViewerWindow</li>
                 <li>AIPipelineBridge</li>
                 <li>RaceAnalysisAgent</li>
                 <li>CoachingAgent</li>
+                <li><em>+ Post-race viewer (Data Pipeline tab)</em></li>
               </ul>
             </div>
           </div>
@@ -1305,7 +1301,7 @@ function SystemDesign() {
           <div className="arch-node__header">
             <span className="arch-node__title">SQLite Database</span>
           </div>
-          <div className="arch-node__sub">sessions · laps · telemetry · ai_commentary · voice_queries</div>
+          <div className="arch-node__sub">ai_commentary · voice_queries + data tables (see Data Pipeline tab)</div>
         </div>
       </div>
 
@@ -1848,13 +1844,14 @@ class CoachingAgent(BaseAgent):
       <h3>AI Pipeline Classes</h3>
       <div className="cls-diagram">
         <div className="cls-grid--2">
-          {/* TelemetryAgent */}
+          {/* BaseAgent hierarchy */}
           <div className="cls-card cls-card--plain">
-            <div className="cls-card__name">TelemetryAgent</div>
+            <div className="cls-card__name">BaseAgent</div>
             <div className="cls-card__body">
-              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> ThresholdsConfig (Pydantic)</div>
-              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> TelemetryData (Pydantic)</div>
-              <div className="cls-card__row"><span className="cls-prefix cls-prefix--out">out</span> List[Event] sorted by Priority</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--fn">fn</span> analyse(session_data) → dict</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--fn">fn</span> analyse_stream(session_data) → AsyncIterator</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--uses">uses</span> LocalLLMInference</div>
+              <div className="cls-card__row"><span className="cls-prefix cls-prefix--out">sub</span> RaceAnalysisAgent, CoachingAgent</div>
             </div>
           </div>
           {/* RaceEngineerAgent */}
