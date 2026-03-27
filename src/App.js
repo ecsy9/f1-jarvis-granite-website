@@ -15,6 +15,7 @@ import Appendices from './pages/Appendices';
 import DownloadSetup from './pages/DownloadSetup';
 import GDPRPrivacy from './pages/appendices/GDPRPrivacy';
 import MonthlyVideo from './pages/appendices/MonthlyVideo';
+import Interviews from './pages/appendices/Interviews';
 import TeamMember from './pages/team/TeamMember';
 import './App.css';
 
@@ -38,6 +39,7 @@ function App() {
           <Route path="/appendices/user-manual" element={<DownloadSetup />} />
           <Route path="/appendices/gdpr-privacy" element={<GDPRPrivacy />} />
           <Route path="/appendices/monthly-video" element={<MonthlyVideo />} />
+          <Route path="/appendices/interviews" element={<Interviews />} />
           <Route path="/team/:slug" element={<TeamMember />} />
         </Routes>
         <Footer />

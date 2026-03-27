@@ -25,6 +25,7 @@ const appendicesItems = [
     external: true,
   },
   { path: '/appendices/monthly-video', label: 'Monthly Video' },
+  { path: '/appendices/interviews', label: 'Interviews & Feedback' },
 ];
 
 function NavLinkItem({ to, children, end }) {

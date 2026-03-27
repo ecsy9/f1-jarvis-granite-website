@@ -340,7 +340,6 @@ function Research() {
         </li>
       </ul>
 
-
       <h2>References</h2>
       <ol className="ref-list">
         <li>
