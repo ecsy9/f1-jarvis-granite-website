@@ -712,23 +712,68 @@ def _flush_telemetry_batch(self):
           <code>AcTelemetryWorker</code> is the primary data source, fanning out to the UI,
           recorder, and AI worker:
         </p>
-        <pre className="code-block"><code>{`AcTelemetryWorker
-  ├── realtime_sample (60Hz) ──► MainWindow, SessionRecorder, AIWorker (~5Hz)
-  ├── lap_completed ───────────► MainWindow, SessionRecorder
-  ├── live_data_update (6Hz) ──► MainWindow, AIWorker (session context)
-  ├── session_info_update ─────► MainWindow, SessionRecorder
-  └── session_reset ───────────► MainWindow, SessionRecorder
 
-AIRaceEngineerWorker
-  └── ai_commentary ───────────► MainWindow, TTSOutputWorker, SessionRecorder
+        <div className="flow-diagram">
+          {/* AcTelemetryWorker */}
+          <div className="flow-actor flow-actor--thread">AcTelemetryWorker</div>
+          <div className="flow-steps">
+            <div className="flow-step">
+              <span className="flow-step__text"><code>realtime_sample</code> → MainWindow · SessionRecorder · AIWorker <em>(~5 Hz throttled)</em></span>
+              <span className="flow-step__badge flow-step__badge--timing">60 Hz</span>
+            </div>
+            <div className="flow-step">
+              <span className="flow-step__text"><code>lap_completed</code> → MainWindow · SessionRecorder</span>
+              <span className="flow-step__badge">event</span>
+            </div>
+            <div className="flow-step">
+              <span className="flow-step__text"><code>live_data_update</code> → MainWindow · AIWorker <em>(session context)</em></span>
+              <span className="flow-step__badge flow-step__badge--timing">6 Hz</span>
+            </div>
+            <div className="flow-step">
+              <span className="flow-step__text"><code>session_info_update</code> → MainWindow · SessionRecorder</span>
+              <span className="flow-step__badge">event</span>
+            </div>
+            <div className="flow-step">
+              <span className="flow-step__text"><code>session_reset</code> → MainWindow · SessionRecorder</span>
+              <span className="flow-step__badge">event</span>
+            </div>
+          </div>
 
-VoiceInputWorker
-  ├── speech_detected ─────────► AIWorker, SessionRecorder
-  └── vad_state_changed ───────► MainWindow
+          {/* AIRaceEngineerWorker */}
+          <div className="flow-actor flow-actor--thread" style={{ marginTop: '1.25rem' }}>AIRaceEngineerWorker</div>
+          <div className="flow-steps">
+            <div className="flow-step">
+              <span className="flow-step__text"><code>ai_commentary</code> → MainWindow · TTSOutputWorker · SessionRecorder</span>
+              <span className="flow-step__badge">async</span>
+            </div>
+          </div>
 
-TTSOutputWorker
-  ├── playback_started ────────► VoiceInputWorker.pause()
-  └── playback_finished ───────► VoiceInputWorker.resume()`}</code></pre>
+          {/* VoiceInputWorker */}
+          <div className="flow-actor flow-actor--thread" style={{ marginTop: '1.25rem' }}>VoiceInputWorker</div>
+          <div className="flow-steps">
+            <div className="flow-step">
+              <span className="flow-step__text"><code>speech_detected</code> → AIWorker · SessionRecorder</span>
+              <span className="flow-step__badge">event</span>
+            </div>
+            <div className="flow-step">
+              <span className="flow-step__text"><code>vad_state_changed</code> → MainWindow</span>
+              <span className="flow-step__badge">event</span>
+            </div>
+          </div>
+
+          {/* TTSOutputWorker */}
+          <div className="flow-actor flow-actor--thread" style={{ marginTop: '1.25rem' }}>TTSOutputWorker</div>
+          <div className="flow-steps">
+            <div className="flow-step">
+              <span className="flow-step__text"><code>playback_started</code> → VoiceInputWorker<code>.pause()</code></span>
+              <span className="flow-step__badge">event</span>
+            </div>
+            <div className="flow-step">
+              <span className="flow-step__text"><code>playback_finished</code> → VoiceInputWorker<code>.resume()</code></span>
+              <span className="flow-step__badge">event</span>
+            </div>
+          </div>
+        </div>
       </>)}
 
       {activeTab === 'AI Pipeline' && (<>

@@ -2,121 +2,87 @@ import SectionPage from '../../components/SectionPage';
 
 function UserManual() {
   return (
-    <SectionPage title="User manual and deployment manual">
+    <SectionPage title="User Manual">
       <p>
-        The F1 Live Telemetry Dashboard is a real-time telemetry visualization tool for sim racing
-        games with optional AI race engineer capabilities. It is built with PyQt5 and integrates
-        IBM Watson services for voice interaction and AI commentary.
+        Jarvis is a real-time telemetry and AI race engineer application for Assetto Corsa.
+        Follow the steps below to install and get started.
       </p>
 
-      <h2>Setup instructions</h2>
-      <p>1. Ensure you have Python 3.x installed on your system.</p>
-      <p>2. From the project root, install dependencies:</p>
+      <h2>Installation</h2>
+      <p>1. Download Assetto Corsa.</p>
+      <p>2. Download Content Manager for Assetto Corsa (the Lite version is fine).</p>
+      <p>3. In Content Manager, go to <em>Settings → Assetto Corsa → System</em> and enable <strong>Allow Developer Apps</strong>.</p>
+      <p>4. In Content Manager, go to <em>Settings → Assetto Corsa → Python Apps</em> and enable <strong>Enable Python Apps</strong> / <strong>Developer Apps</strong>.</p>
+      <p>5. Download <strong>Jarvis-Setup.exe</strong> from the <a href="/#/appendices/user-manual">Download page</a> and run the installer.</p>
+      <p>6. On first launch, Jarvis will automatically download the local AI models (~4 GB). Keep the app open and wait for the download to complete before starting a session.</p>
+
+      <h2>Starting a session</h2>
       <p>
-        <code>pip install -r requirements.txt</code>
+        Launch Jarvis. The main menu gives you three options: <strong>Jarvis Live</strong>,{' '}
+        <strong>Jarvis Post</strong>, and <strong>Settings</strong>.
       </p>
       <p>
-        3. (Optional) Configure IBM Watson AI features by copying <code>.env.example</code> to
-        <code>.env</code> and filling in your WatsonX, Speech-to-Text, and Text-to-Speech
-        credentials.
+        Start a session in Assetto Corsa first, then click <strong>Jarvis Live</strong>. Data
+        recording begins as soon as you click — make sure Jarvis Live is open before you start
+        driving so that all laps are captured.
+      </p>
+      <p>
+        When your session is done, exit Jarvis Live and open <strong>Jarvis Post</strong> to
+        review your post-session analysis.
       </p>
 
-      <h3>Assetto Corsa telemetry setup</h3>
+      <h2>In-app settings</h2>
       <p>
-        Assetto Corsa telemetry is read via shared memory, which only works on Windows. Make sure
-        you are running on Windows and have Assetto Corsa installed.
+        Go to <strong>Settings</strong> to configure voice interaction. Choose between{' '}
+        <em>Disabled</em>, <em>Push-to-Talk</em>, or <em>Continuous</em> depending on how you
+        want to interact with the AI race engineer. If you select Push-to-Talk, you will be
+        prompted to bind a key or button.
       </p>
       <p>
-        <strong>Step 1 – Enable shared memory</strong>
+        Steering wheel buttons are supported for push-to-talk on compatible hardware. If you use
+        a wheel button, make sure it is not already bound to a function inside Assetto Corsa to
+        avoid both actions firing at the same time.
       </p>
       <p>
-        You can enable shared memory either through Content Manager (recommended) or directly in
-        Assetto Corsa:
+        You can also adjust the <strong>AI verbosity</strong> level in Settings. Setting this to{' '}
+        <em>Minimal</em> reduces the frequency and length of AI commentary — useful if you find
+        the voice feedback distracting during a session.
       </p>
+
+      <h2>Jarvis Live — dashboard overview</h2>
+      <p>
+        The live dashboard shows real-time telemetry as you drive: lap delta (green = ahead of
+        reference, red = behind), tyre temperatures per corner with a colour legend, wheel slip
+        indicators, fuel level, and a track map with your current position.
+      </p>
+      <p>
+        The AI race engineer monitors the session automatically. It will speak when something
+        meaningful happens — a consistent time loss in a sector, a tyre warning, or a fuel alert.
+        AI commentary is gated to straights and low-input zones so it never interrupts a braking
+        point. You can also ask questions via voice at any time.
+      </p>
+
+      <h2>Jarvis Post — post-session analysis</h2>
+      <p>
+        After a session, Jarvis Post reads the telemetry file recorded during that run. Select
+        any lap to inspect detailed channel graphs: speed, throttle, brake, gear, tyre
+        temperatures, suspension travel, and more. Use the lap comparison view to overlay your
+        best and worst laps or compare against another driver's exported session.
+      </p>
+      <p>
+        The AI debrief surfaces the single most impactful finding from your session — for
+        example, a consistent late braking point at a specific corner — so you have one concrete
+        thing to work on next time.
+      </p>
+
+      <h2>Troubleshooting</h2>
       <ul>
-        <li>
-          In Content Manager: go to <em>Settings → Assetto Corsa → Video → Developer</em> and set
-          Shared Memory = ON, Shared Memory Layout = 1. UDP Plugin can remain OFF.
-        </li>
-        <li>
-          In Assetto Corsa: go to <em>Options → General → UI Modules and Shared Memory</em> and set
-          Shared Memory = ON, Shared Memory Layout = 1, UDP Plugin = OFF.
-        </li>
+        <li><strong>Jarvis Live shows no data</strong> — make sure Assetto Corsa is running and you are on track in an active session (not in menus, pause, or replay). Start Jarvis Live after the car has loaded on track.</li>
+        <li><strong>AI models not downloading</strong> — the download requires an internet connection on first launch. Check your firewall settings if the download stalls.</li>
+        <li><strong>Speech-to-Text not working</strong> — go to Windows sound settings and confirm your desired microphone is set as the default input device. A quiet environment also helps with recognition accuracy.</li>
+        <li><strong>Constant wheel slip warnings</strong> — this is expected when driving on keyboard. Binary inputs cause abrupt traction breaks. Set AI verbosity to Minimal in Settings to reduce the noise.</li>
       </ul>
-      <p>
-        <strong>Step 2 – Start a driving session</strong>
-      </p>
-      <p>
-        Shared memory is only active when you are on track and the physics engine is running. Start
-        a Practice, Qualifying, Race or Hotlap session, wait for the car to load, and make sure you
-        are in a driving view (cockpit or similar), not in menus, pause, or replay mode.
-      </p>
-      <p>
-        <strong>Step 3 – Run the dashboard</strong>
-      </p>
-      <p>Open a terminal, navigate to the project folder, and run:</p>
-      <p>
-        <code>python integrated_telemetry.py</code>
-      </p>
-      <p>
-        With Assetto Corsa running and a car on track, the terminal should report a successful
-        connection to AC shared memory and start printing live packet updates while the UI window
-        opens.
-      </p>
-
-      <h2>Running the dashboard</h2>
-      <p>
-        To run with Assetto Corsa (default backend), start a session in game and then execute:
-      </p>
-      <p>
-        <code>python main.py</code>
-      </p>
-      <p>
-        To enable the AI race engineer, start the application with the <code>--ai</code> flag:
-      </p>
-      <p>
-        <code>python main.py --ai</code>
-      </p>
-      <p>
-        For ACC support, combine flags (for example: <code>python main.py --acc --ai</code> to use ACC with AI features).
-      </p>
-
-      <h2>Testing and troubleshooting</h2>
-      <p>
-        Use the following checklist when testing Assetto Corsa integration:
-      </p>
-      <ul>
-        <li>Shared memory enabled in AC settings</li>
-        <li>AC is running and you are on track in a live session</li>
-        <li>Python script started after the car has loaded on track</li>
-        <li>Terminal shows a successful connection and packet updates</li>
-        <li>The UI window has opened and graphs begin updating as you drive</li>
-      </ul>
-      <p>
-        If you see &quot;could not connect&quot; or all values remain zero, confirm that AC is on
-        track and not paused, and that both AC and the Python script are running under the same
-        user (no admin/normal mismatch). For missing modules, re-run{' '}
-        <code>pip install -r requirements.txt</code>.
-      </p>
-
-      <h2>Usage guidance</h2>
-      <p>
-        Once running, the dashboard displays live track maps, performance graphs, and detailed
-        telemetry including tire temperatures and pressures where available. The interface follows
-        a dark theme with multiple canvases for different metrics.
-      </p>
-      <p>
-        If AI features are enabled, you can interact with the AI race engineer via voice. The
-        system will monitor telemetry for events such as fuel warnings or tire issues and provide
-        proactive spoken feedback, as well as respond to driver queries.
-      </p>
-      <p>
-        All telemetry and AI interactions are recorded to a SQLite database
-        (<code>data/telemetry_sessions.db</code>). You can review past sessions with the
-        command-line session viewer, listing sessions, inspecting laps, and exporting data to CSV
-        for further analysis.
-      </p>
-      <p>Refer to this guide and the in-repository setup documents for more detailed steps.</p>
+      <p>For anything else, contact <a href="mailto:ece.okutan.24@ucl.ac.uk">ece.okutan.24@ucl.ac.uk</a>.</p>
     </SectionPage>
   );
 }

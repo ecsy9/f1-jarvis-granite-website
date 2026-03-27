@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import SectionPage from '../components/SectionPage';
 import './DownloadSetup.css';
 
@@ -107,14 +108,12 @@ function DownloadSetup() {
       </p>
       
 
-      <h2>FAQ</h2>
-      <div className="faq-list">
-        {FAQS.map((item, i) => <FaqItem key={i} q={item.q} a={item.a} />)}
-      </div>
-
       <h2>Usage guidance</h2>
       <p>
-        The executable will take the user to a menu with options of Jarvis Live, Jarvis Post and Settings. Data will only be recorded once the user clicks Jarvis Live. 
+        The executable will take the user to a menu with options of Jarvis Live, Jarvis Post and Settings. Data will only be recorded once the user clicks Jarvis Live.
+      </p>
+      <p>
+        For a full walkthrough of every feature, see the <Link to="/appendices/user-guide">User Manual</Link> in the appendices.
       </p>
       <div className="cm-settings-callout">
         <div className="cm-settings-callout__text">
@@ -131,6 +130,11 @@ function DownloadSetup() {
         </a>
       </div>
       <p>Feel free to contact ece.okutan.24@ucl.ac.uk for any issues or questions</p>
+
+      <h2>FAQ</h2>
+      <div className="faq-list">
+        {FAQS.map((item, i) => <FaqItem key={i} q={item.q} a={item.a} />)}
+      </div>
     </SectionPage>
   );
 }

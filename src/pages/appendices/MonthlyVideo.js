@@ -83,6 +83,44 @@ function MonthlyVideo() {
         .
       </p>
 
+      <h2 style={{ marginTop: '3rem' }}>February Update</h2>
+      <div
+        style={{
+          position: 'relative',
+          paddingTop: '56.25%',
+          marginTop: '1.5rem',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: '0 12px 30px rgba(15, 23, 42, 0.35)',
+        }}
+      >
+        <iframe
+          src="https://drive.google.com/file/d/174_H734zcWxmkWvk326iHY4RFcyS9JTe/preview"
+          title="February Update - F1 Jarvis Granite"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+          }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+      <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+        If the embedded player does not load, you can open the video directly in Google Drive:
+        {' '}
+        <a
+          href="https://drive.google.com/file/d/174_H734zcWxmkWvk326iHY4RFcyS9JTe/view"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          February update video
+        </a>
+        .
+      </p>
+
       <h2 style={{ marginTop: '3rem' }}>January Update</h2>
       <div
         style={{

@@ -26,6 +26,7 @@ const appendicesItems = [
   },
   { path: '/appendices/monthly-video', label: 'Videos' },
   { path: '/appendices/interviews', label: 'Interviews & Feedback' },
+  { path: '/appendices/user-guide', label: 'User Manual' },
 ];
 
 function NavLinkItem({ to, children, end }) {
