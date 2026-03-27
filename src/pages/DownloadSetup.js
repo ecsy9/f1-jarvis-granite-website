@@ -86,8 +86,8 @@ function DownloadSetup() {
           <div className="scope-box__title">Recommended Hardware</div>
           <ul>
             <li><strong>OS:</strong> Windows only (AC shared memory is Windows-specific)</li>
-            <li><strong>RAM:</strong> 8 GB+ (AC + Jarvis + AI models running simultaneously)</li>
-            <li><strong>GPU/CPU:</strong> A decent CPU helps with AI inference speed (~2s per response) — the LLM runs locally</li>
+            <li><strong>RAM:</strong> 16 GB+ (AC + Jarvis + AI models running simultaneously)</li>
+            <li><strong>GPU/CPU:</strong> A 6+-core processor CPU helps with AI inference speed — the LLMs run locally</li>
             <li><strong>Disk:</strong> ~4 GB free for the two GGUF AI models (downloaded automatically on first launch)</li>
             <li><strong>Microphone:</strong> Required only if using voice input for the AI race engineer</li>
           </ul>
@@ -96,7 +96,7 @@ function DownloadSetup() {
           <div className="scope-box__title">Known Limitations</div>
           <ul>
             <li>Windows only — no macOS/Linux support (AC shared memory dependency)</li>
-            <li>AI race engineer responses have ~2 second latency (local LLM inference)</li>
+            <li>AI race engineer responses have ~6 second latency (local LLM inference)</li>
             <li>First launch downloads ~4 GB of AI models (one-time, requires internet)</li>
           </ul>
         </div>
