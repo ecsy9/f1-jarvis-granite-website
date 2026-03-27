@@ -5,8 +5,34 @@ function UserManual() {
     <SectionPage title="User Manual">
       <p>
         Jarvis is a real-time telemetry and AI race engineer application for Assetto Corsa.
-        Follow the steps below to install and get started.
+        Follow the steps below to install and get started, or watch the demo video for a full walkthrough.
       </p>
+
+      <div
+        style={{
+          position: 'relative',
+          paddingTop: '56.25%',
+          marginTop: '1.5rem',
+          marginBottom: '2.5rem',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: '0 12px 30px rgba(15, 23, 42, 0.35)',
+        }}
+      >
+        <iframe
+          src="https://drive.google.com/file/d/1hAGzLmAYI-o_QV6JVSKBCvI-7vS8Slfx/preview"
+          title="Jarvis Demo Video"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+          }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
 
       <h2>In-app settings</h2>
       <p>

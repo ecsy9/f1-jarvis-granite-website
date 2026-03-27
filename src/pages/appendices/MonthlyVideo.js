@@ -83,6 +83,44 @@ function MonthlyVideo() {
         .
       </p>
 
+      <h2 style={{ marginTop: '3rem' }}>Jarvis Demo Video</h2>
+      <div
+        style={{
+          position: 'relative',
+          paddingTop: '56.25%',
+          marginTop: '1.5rem',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: '0 12px 30px rgba(15, 23, 42, 0.35)',
+        }}
+      >
+        <iframe
+          src="https://drive.google.com/file/d/1hAGzLmAYI-o_QV6JVSKBCvI-7vS8Slfx/preview"
+          title="Jarvis Demo Video"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+          }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+      <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+        If the embedded player does not load, you can open the video directly in Google Drive:
+        {' '}
+        <a
+          href="https://drive.google.com/file/d/1hAGzLmAYI-o_QV6JVSKBCvI-7vS8Slfx/view"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Jarvis demo video
+        </a>
+        .
+      </p>
+
       <h2 style={{ marginTop: '3rem' }}>February Update</h2>
       <div
         style={{
