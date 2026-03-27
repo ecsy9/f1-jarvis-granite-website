@@ -8,6 +8,24 @@ function UserManual() {
         Follow the steps below to install and get started.
       </p>
 
+      <h2>In-app settings</h2>
+      <p>
+        Go to <strong>Settings</strong> to configure voice interaction. Choose between{' '}
+        <em>Disabled</em>, <em>Push-to-Talk</em>, or <em>Continuous</em> depending on how you
+        want to interact with the AI race engineer. If you select Push-to-Talk, you will be
+        prompted to bind a key or button.
+      </p>
+      <p>
+        Steering wheel buttons are supported for push-to-talk on compatible hardware. If you use
+        a wheel button, make sure it is not already bound to a function inside Assetto Corsa to
+        avoid both actions firing at the same time.
+      </p>
+      <p>
+        You can also adjust the <strong>AI verbosity</strong> level in Settings. Setting this to{' '}
+        <em>Minimal</em> reduces the frequency and length of AI commentary — useful if you find
+        the voice feedback distracting during a session.
+      </p>
+
       <h2>Installation</h2>
       <p>1. Download Assetto Corsa.</p>
       <p>2. Download Content Manager for Assetto Corsa (the Lite version is fine).</p>
@@ -31,24 +49,6 @@ function UserManual() {
         review your post-session analysis.
       </p>
 
-      <h2>In-app settings</h2>
-      <p>
-        Go to <strong>Settings</strong> to configure voice interaction. Choose between{' '}
-        <em>Disabled</em>, <em>Push-to-Talk</em>, or <em>Continuous</em> depending on how you
-        want to interact with the AI race engineer. If you select Push-to-Talk, you will be
-        prompted to bind a key or button.
-      </p>
-      <p>
-        Steering wheel buttons are supported for push-to-talk on compatible hardware. If you use
-        a wheel button, make sure it is not already bound to a function inside Assetto Corsa to
-        avoid both actions firing at the same time.
-      </p>
-      <p>
-        You can also adjust the <strong>AI verbosity</strong> level in Settings. Setting this to{' '}
-        <em>Minimal</em> reduces the frequency and length of AI commentary — useful if you find
-        the voice feedback distracting during a session.
-      </p>
-
       <h2>Jarvis Live — dashboard overview</h2>
       <p>
         The live dashboard shows real-time telemetry as you drive: lap delta (green = ahead of
@@ -62,18 +62,44 @@ function UserManual() {
         point. You can also ask questions via voice at any time.
       </p>
 
+      <h2>Jarvis Post — session manager</h2>
+      <p>
+        When you click <strong>Jarvis Post</strong>, a session manager opens before the analysis
+        view. From here you can:
+      </p>
+      <ul>
+        <li><strong>Select a session</strong> — click any row in the table to load it. The table shows session data including date, track, and lap count.</li>
+        <li><strong>Rename a session</strong> — double-click the session name to rename it.</li>
+        <li><strong>Delete a session</strong> — select a session and use the delete option to remove it.</li>
+        <li><strong>Export a session</strong> — export a session file to share with others or back up your data.</li>
+        <li><strong>Import a session</strong> — import a previously exported session file to analyse data from another run.</li>
+      </ul>
+
       <h2>Jarvis Post — post-session analysis</h2>
       <p>
-        After a session, Jarvis Post reads the telemetry file recorded during that run. Select
-        any lap to inspect detailed channel graphs: speed, throttle, brake, gear, tyre
-        temperatures, suspension travel, and more. Use the lap comparison view to overlay your
-        best and worst laps or compare against another driver's exported session.
+        After selecting a session, Jarvis Post loads the telemetry recorded during that run. Select
+        any lap to review your data.
       </p>
+      <ul>
+        <li><strong>Graphs menu</strong> — use the <em>Graphs</em> dropdown in the top left to choose which 6 channels to display. You can swap any of them out at any time.</li>
+        <li><strong>Zoom</strong> — adjust the graph zoom level using the control in the bottom right.</li>
+        <li><strong>Playback speed</strong> — change how fast the data plays back using the speed control in the bottom left, next to the play button.</li>
+      </ul>
       <p>
-        The AI debrief surfaces the single most impactful finding from your session — for
+        The AI debrief can be accessed through the top (right under the File, View, and Graph menus) named "Analyst". It surfaces the most impactful findings from your session — for
         example, a consistent late braking point at a specific corner — so you have one concrete
         thing to work on next time.
       </p>
+
+      <h2>Jarvis VR</h2>
+      <p>
+        Jarvis VR is a separate Unreal Engine application that visualises your telemetry data in
+        a virtual reality environment. You can download it directly from within the Jarvis app.
+      </p>
+      <p>1. In the Jarvis app, click <strong>Download Jarvis VR</strong>.</p>
+      <p>2. Choose a location on your computer to save the zip file and confirm the download.</p>
+      <p>3. Once downloaded, unzip the file in your chosen location.</p>
+      <p>4. Open the unzipped folder and double-click <strong>JARVIS VR</strong> to launch the application.</p>
 
       <h2>Troubleshooting</h2>
       <ul>
