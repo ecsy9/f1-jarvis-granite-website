@@ -2210,6 +2210,19 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
         livery textures or geometry need updating.
       </div>
 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', margin: '1.5rem 0 2rem' }}>
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Vehicle-Assets-Ferrari.png`}
+          alt="Ferrari F1 car in the VR lab with telemetry upload prompt on the wall"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Vehicle-Assets-UCLR.png`}
+          alt="UCL Racing Formula Student car in the VR lab with UCL Racing branding screens"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+      </div>
+
       <h2>Interactive Media System</h2>
       <p>
         Virtual screens in the environment display video and static imagery through two parallel
@@ -2267,6 +2280,12 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
         static screens because they receive scene lighting — a screen in a dimly lit corner would
         appear dark, which is physically incorrect for a self-illuminating display.
       </p>
+
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Interactive-Media-And-Displays-1.png`}
+        alt="VR lounge with static branding screens showing Ferrari and F1 logos"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
 
       <h2>AI-Driven Presentations (Convai)</h2>
       <p>
@@ -2405,6 +2424,12 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
         matter of replacing the hosted image URL — no UE4 editor interaction required.
       </div>
 
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Interactive-Media-And-Displays-2.png`}
+        alt="Convai AI avatar presenting a UCL and IBM project slide on a VR screen"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
+
       <h2>Telemetry Visualizer — System Architecture</h2>
       <p>
         The visualizer follows a <strong>broadcast-on-load</strong> architecture. A single actor
@@ -2538,6 +2563,12 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
           </tr>
         </tbody>
       </table>
+
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Telemetry-Visualizer-Charts.png`}
+        alt="Two Kantan Charts telemetry graphs mounted on the VR lab wall showing tyre pressures and RPM"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
 
       <h2>Sequence Diagram</h2>
       <div className="seq-diagram">

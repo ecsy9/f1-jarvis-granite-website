@@ -223,6 +223,18 @@ function UIDesign() {
         light, consistently mimicking the bright backlit appearance of real monitors regardless of
         where they are placed in the scene.
       </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', margin: '1rem 0 2rem' }}>
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Interactive-Media-And-Displays-1.png`}
+          alt="VR lounge with static branding screens showing Ferrari and F1 logos"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Interactive-Media-And-Displays-2.png`}
+          alt="Convai AI avatar presenting a UCL and IBM project slide on a VR screen"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+      </div>
 
       <h2>Vehicle Assets</h2>
       <p>
@@ -275,6 +287,18 @@ function UIDesign() {
         and shadow decals correctly mapped. Textures were imported into UE4 first to allow
         automatic material generation before the mesh was brought in.
       </p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', margin: '1rem 0 2rem' }}>
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Vehicle-Assets-Ferrari.png`}
+          alt="Ferrari F1 car in the VR lab with telemetry upload prompt on wall"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Vehicle-Assets-UCLR.png`}
+          alt="UCL Racing Formula Student car in the VR lab with UCL Racing branding"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+      </div>
 
       <h2>Telemetry Visualizer Charts</h2>
       <p>
@@ -362,6 +386,11 @@ function UIDesign() {
         overall shape and trend visibility. The threshold and step are applied per-series, so
         grouped charts with multiple lines each benefit from the reduction.
       </div>
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Telemetry-Visualizer-Charts.png`}
+        alt="Two Kantan Charts telemetry graphs mounted on the VR lab wall showing tyre pressures and RPM"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
 
       </>)}
 
@@ -683,6 +712,117 @@ function UIDesign() {
         alt="Jarvis Post AI analysis tab showing Coach and Analyst debrief panels"
         style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
       />
+
+      <h2>Design Principles</h2>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Principle</th>
+            <th>Jarvis Live</th>
+            <th>Jarvis Post</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Visibility of System Status</strong></td>
+            <td>
+              Delta to best lap is colour-coded in real time — green when ahead, red when behind —
+              giving immediate status without reading a number. The live AI commentary transcript
+              updates as the race engineer speaks, so the user always knows whether the AI is active.
+              Session info panel shows current lap, position, speed, gear, RPM, and fuel continuously.
+            </td>
+            <td>
+              All six telemetry graph panels update simultaneously on session load and share a
+              time-aligned cursor, so scrubbing one graph moves the position marker on all others.
+              The track map updates the car position dot in sync with the timeline.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Match Between System &amp; World</strong></td>
+            <td>
+              Terminology mirrors what a real race engineer uses: delta, sector, gap, tyre compound.
+              The AI commentary is voiced and phrased in natural race-engineer language rather than
+              raw data readouts. The FL/FR/RL/RR tyre layout matches the physical corners of the car.
+            </td>
+            <td>
+              Graph channels use human-readable labels ("Tyre Pressure (all)", "Suspension Travel")
+              rather than internal JSON keys. The Coach panel gives feedback as a driver would hear
+              it; the Analyst panel mirrors a post-race engineering debrief format.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Consistency &amp; Standards</strong></td>
+            <td>
+              FL/FR/RL/RR colour mapping (green/blue/orange/red-pink) is used consistently across
+              every grouped metric — tyre temperature, tyre pressure, tyre wear, wheel slip, and
+              suspension travel all use the same corner colours so the user learns the mapping once.
+            </td>
+            <td>
+              The same corner colour convention carries over from the live dashboard into all
+              post-race graphs. Channel names and units are identical across both tools so switching
+              between live and post-race views requires no relearning.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Error Prevention</strong></td>
+            <td>
+              AI voice commentary is gated to straights and low-input zones — the system will not
+              speak during braking zones to avoid distracting the driver at a critical moment.
+              Alerts for high tyre temperature, wheel slip, and low fuel fire only when thresholds
+              are exceeded, not continuously.
+            </td>
+            <td>
+              The session selector shows track, car, mode, duration, and best lap before opening a
+              file, preventing the user from loading the wrong session. Export and Import buttons are
+              clearly separated from destructive actions (Delete, Rename).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Recognition Rather Than Recall</strong></td>
+            <td>
+              Colour-coded delta removes the need to remember whether a positive or negative number
+              is good. The tyre compound legend uses the same visual cues as the actual Assetto Corsa
+              HUD. A small inline legend accompanies the tyre colour display for non-expert users.
+            </td>
+            <td>
+              The graph channel dropdown lists all available metrics by display name so the user
+              selects from a visible list rather than remembering channel identifiers. The Coach panel
+              leads with a single prioritised finding so the user does not need to read all output to
+              find the most important point.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Flexibility &amp; Efficiency of Use</strong></td>
+            <td>
+              Expert Mode toggle enables the full comprehensive dashboard for users who want all
+              channels visible simultaneously. Default view uses progressive disclosure — only the
+              most critical metrics are shown until the user expands panels. Push-to-talk or
+              continuous voice input can be configured depending on the user's preference.
+            </td>
+            <td>
+              Any of the six graph panels can be switched to any of 20+ available channels via the
+              dropdown without reloading the session. Sessions can be exported as CSV bundles or
+              .jsession files for analysis outside the tool. "Use Last Recorded Session" loads the
+              most recent session in one click.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Aesthetic &amp; Minimalist Design</strong></td>
+            <td>
+              Dark background with high-contrast coloured lines; no extraneous chrome or decoration.
+              Only the live delta graph, track map, session info, and AI transcript are visible by
+              default — additional telemetry graphs are shown only when needed. The overlay is
+              designed to remain readable at racing speeds without demanding focused attention.
+            </td>
+            <td>
+              The Lap Render tab uses a clean two-column layout: navigation and lap info on the
+              left, graphs on the right. The Analysis tab separates Coach (driver-facing) and
+              Analyst (engineering-facing) into two distinct panels so users can go directly to
+              whichever perspective is relevant to them.
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <h2>References</h2>
       <ol className="ref-list">
