@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
 import './Implementation.css';
 
-const TABS = ['Overview', 'Data Pipeline & UI', 'AI Pipeline', 'VR'];
+const TABS = ['Overview', 'UI', 'Data Pipeline', 'AI Pipeline', 'VR'];
 
 function Implementation() {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -151,7 +151,11 @@ function Implementation() {
         </p>
       </>)}
 
-      {activeTab === 'Data Pipeline & UI' && (<>
+      {activeTab === 'UI' && (<>
+        <p>Coming soon.</p>
+      </>)}
+
+      {activeTab === 'Data Pipeline' && (<>
         <p>Coming soon.</p>
       </>)}
 
