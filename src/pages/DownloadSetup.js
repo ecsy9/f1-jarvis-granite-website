@@ -78,6 +78,7 @@ function DownloadSetup() {
       <p>5. Download Jarvis.exe from link above and run it. Wait for local LLM models to download (the download starts as you first run the executable) </p>
       <p>6. Launch any session in Assetto Corsa and make sure Jarvis Live is running before you start driving to collect data</p>
       <p>7. After you are done with your driving session, exit Jarvis Live and navigate to Jarvis Post for post-race analysis</p>
+      <p>8. Seelct Download Jarvis VR from the launcher for the immersive virtual reality environment</p>
 
       <h2>Recommended Hardware &amp; Known Limitations</h2>
       <div className="scope-grid">
@@ -115,26 +116,12 @@ function DownloadSetup() {
       <p>
         For a full walkthrough of every feature, see the <Link to="/appendices/user-guide">User Manual</Link> in the appendices.
       </p>
-      <div className="cm-settings-callout">
-        <div className="cm-settings-callout__text">
-          <strong>Skip the manual setup</strong>
-          <span>Download our pre-configured Content Manager settings and get started in one click.</span>
-        </div>
-        <a
-          href="https://acstuff.club/s/iUcL"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cm-settings-callout__btn"
-        >
-          ↓ Content Manager Settings
-        </a>
-      </div>
-      <p>Feel free to contact ece.okutan.24@ucl.ac.uk for any issues or questions</p>
 
       <h2>FAQ</h2>
       <div className="faq-list">
         {FAQS.map((item, i) => <FaqItem key={i} q={item.q} a={item.a} />)}
       </div>
+      <p>Feel free to contact ece.okutan.24@ucl.ac.uk for any issues or questions</p>
     </SectionPage>
   );
 }

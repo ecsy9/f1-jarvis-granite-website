@@ -8,7 +8,12 @@ function SystemDesign() {
   const [activeTab, setActiveTab] = useState('Whole System');
 
   return (
-    <SectionPage title="System Design" activeTab={activeTab}>
+    <SectionPage
+      title="System Design"
+      activeTab={activeTab}
+      sectionTabs={TABS}
+      onSectionChange={setActiveTab}
+    >
       <div className="algo-tabs">
         {TABS.map(tab => (
           <button

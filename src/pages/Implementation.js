@@ -8,7 +8,12 @@ function Implementation() {
   const [activeTab, setActiveTab] = useState('Overview');
 
   return (
-    <SectionPage title="Implementation" activeTab={activeTab}>
+    <SectionPage
+      title="Implementation"
+      activeTab={activeTab}
+      sectionTabs={TABS}
+      onSectionChange={setActiveTab}
+    >
       <div className="impl-tabs">
         {TABS.map(tab => (
           <button

@@ -8,7 +8,12 @@ function UIDesign() {
   const [activeTab, setActiveTab] = useState('2D Dashboards');
 
   return (
-    <SectionPage title="UI Design">
+    <SectionPage
+      title="UI Design"
+      activeTab={activeTab}
+      sectionTabs={TABS}
+      onSectionChange={setActiveTab}
+    >
       <div className="algo-tabs">
         {TABS.map(tab => (
           <button

@@ -9,7 +9,12 @@ function Algorithms() {
   const [blockTab, setBlockTab] = useState('Physics');
 
   return (
-    <SectionPage title="Algorithms">
+    <SectionPage
+      title="Algorithms"
+      activeTab={activeTab}
+      sectionTabs={TABS}
+      onSectionChange={setActiveTab}
+    >
       <div className="algo-tabs">
         {TABS.map(tab => (
           <button

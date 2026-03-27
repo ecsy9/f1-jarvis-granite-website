@@ -103,7 +103,7 @@ function Home() {
             IBM Granite LLM models. The Live AI Race Engineer communicates verbally
             with drivers during races, providing real-time strategic decisions, performance
             insights, and warning critical situations. The platform integrates live telemetry from Assetto Corsa, the industry standard racing simulation. 2D visualisation dashboards, Jarvis Live and Jarvis Post, (Python-based, MoTeC-inspired) serve as the
-            primary insight interface, while an Unreal Engine 5 VR platform enables immersive learning about sim racing and Formula 1.
+            primary insight interface, while an Unreal Engine 4.27 VR platform enables immersive learning about sim racing and Formula 1.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ function Home() {
                 <div className="deliverable-row__num">02</div>
                 <div className="deliverable-row__text">
                   <div className="deliverable-row__title">Jarvis Post</div>
-                  <div className="deliverable-row__desc">Post-race debrief powered by Granite 4.0 Micro. Generates a structured 9-section engineering debrief from session telemetry — sector breakdowns, tire wear, fuel strategy, and actionable coaching notes.</div>
+                  <div className="deliverable-row__desc">Post-race debrief powered by Granite 4.0 Micro. Generates a structured 16-section engineering debrief from session telemetry — sector breakdowns, tire wear, fuel strategy, and actionable coaching notes.</div>
                 </div>
               </div>
               <div className="deliverable-row__img-wrap">
@@ -156,7 +156,7 @@ function Home() {
                 <div className="deliverable-row__num">03</div>
                 <div className="deliverable-row__text">
                   <div className="deliverable-row__title">Jarvis VR</div>
-                  <div className="deliverable-row__desc">Immersive Unreal Engine 5 VR cockpit with interactive telemetry panels, pit-wall displays, and AI race engineer voice interaction — bridging simulation and real-world F1 engineering.</div>
+                  <div className="deliverable-row__desc">Immersive Unreal Engine 4.27 VR environment with interactive pit-wall displays, and educational content — bridging the seemingly inaccessible gap to F1 grade telemetry analysis.</div>
                 </div>
               </div>
               <div className="deliverable-row__img-wrap">
