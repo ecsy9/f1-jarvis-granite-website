@@ -127,6 +127,23 @@ function UserManual() {
       <p>3. Once downloaded, unzip the file in your chosen location.</p>
       <p>4. Open the unzipped folder and double-click <strong>JARVIS VR</strong> to launch the application.</p>
 
+      <h3>User Guidance on VR</h3>
+      <ul>
+        <li>Jarvis VR works perfectly fine on PC, though it will also launch SteamVR. If you do not want to use VR mode or do not have a VR headset, you can ignore the SteamVR prompt.</li>
+        <li>The <strong>Escape</strong> key immediately exits the app. There is no pause menu.</li>
+        <li>If you want to use VR, the best workflow is: connect your headset to the PC, enable Meta Quest Link, then open the app while controlling the desktop through Meta Quest Link. The app will automatically switch to VR mode in the headset.</li>
+        <li><strong>Keyboard controls:</strong> <strong>WASD</strong> to move, <strong>Spacebar</strong> to jump, <strong>Left Shift</strong> to sprint, and mouse to look around.</li>
+        <li><strong>VR controls:</strong> left joystick to teleport and look around, right joystick to move around. Looking around with the headset also works. Use both triggers to point and click/touch.</li>
+      </ul>
+
+      <h3>Known bugs / issues</h3>
+      <ul>
+        <li>Telemetry graphs might cause lag after a file is uploaded.</li>
+        <li>Alt-tabbing a few times might cause the mouse to stop being recaptured when returning to the app.</li>
+        <li>Some presentations (except the Lecture Theatre) might take a while to switch slides, especially the Formula Student presentation.</li>
+        <li>Sometimes it can be difficult to press next/previous slide buttons on the remotes. On PC, mouse clicking can still work even if the button does not light up. In VR, listen for the click sound to confirm input was detected.</li>
+      </ul>
+
       <h2>Troubleshooting</h2>
       <ul>
         <li><strong>Jarvis Live shows no data</strong> — make sure Assetto Corsa is running and you are on track in an active session (not in menus, pause, or replay). Start Jarvis Live after the car has loaded on track.</li>

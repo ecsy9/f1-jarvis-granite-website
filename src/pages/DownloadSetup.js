@@ -78,7 +78,7 @@ function DownloadSetup() {
       <p>5. Download Jarvis.exe from link above and run it. Wait for local LLM models to download (the download starts as you first run the executable) </p>
       <p>6. Launch any session in Assetto Corsa and make sure Jarvis Live is running before you start driving to collect data</p>
       <p>7. After you are done with your driving session, exit Jarvis Live and navigate to Jarvis Post for post-race analysis</p>
-      <p>8. Seelct Download Jarvis VR from the launcher for the immersive virtual reality environment</p>
+      <p>8. Selct Download Jarvis VR from the launcher for the immersive virtual reality environment</p>
 
       <h2>Recommended Hardware &amp; Known Limitations</h2>
       <div className="scope-grid">
