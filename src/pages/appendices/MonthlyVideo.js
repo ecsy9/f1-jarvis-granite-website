@@ -95,7 +95,7 @@ function MonthlyVideo() {
         }}
       >
         <iframe
-          src="https://drive.google.com/file/d/174_H734zcWxmkWvk326iHY4RFcyS9JTe/preview"
+          src="https://drive.google.com/file/d/1yb4dr_hu-lWe2fE6Rk7d6VbuB9banGum/preview"
           title="February Update - F1 Jarvis Granite"
           style={{
             position: 'absolute',
@@ -112,7 +112,7 @@ function MonthlyVideo() {
         If the embedded player does not load, you can open the video directly in Google Drive:
         {' '}
         <a
-          href="https://drive.google.com/file/d/174_H734zcWxmkWvk326iHY4RFcyS9JTe/view"
+          href="https://drive.google.com/file/d/1yb4dr_hu-lWe2fE6Rk7d6VbuB9banGum/view"
           target="_blank"
           rel="noopener noreferrer"
         >
