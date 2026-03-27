@@ -1313,8 +1313,9 @@ Alternative for dense meshes where accuracy is required:
           (<code>export_car.py</code>), Unreal Engine 4.27 FBX/OBJ import pipeline.
         </p>
         <p>
-          Three vehicles were brought into the VR environment through different import pipelines,
-          each requiring a different level of pre-processing.
+          Vehicle ingestion was implemented as three distinct build pipelines so each asset type
+          could be processed with predictable tooling, deterministic output files, and repeatable
+          re-import steps.
         </p>
 
         <h3>Lewis Hamilton's Ferrari — Direct Import</h3>
@@ -1382,9 +1383,9 @@ img.save("car1-ow1_livery.png")`}</code></pre>
         <p>
           The script also performs fan triangulation for quads and n-gons (converting all faces to
           triangles for OBJ compatibility), writes standard Wavefront OBJ + MTL files, and exports
-          all 4 wheels as separate meshes. Output was validated by checking that all
-          vertex/UV/normal indices are in-bounds and rendering a matplotlib 3D wireframe preview
-          before UE4 import. The script is fully deterministic and re-runnable.
+          all 4 wheels as separate meshes. Validation is implemented as part of the export run:
+          index-bound checks plus a generated matplotlib wireframe preview before UE4 import. The
+          script is fully deterministic and re-runnable.
         </p>
         <table className="section-table">
           <thead>

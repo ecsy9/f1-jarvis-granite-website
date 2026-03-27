@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
 import './Algorithms.css';
 
-const TABS = ['Fine Tuning', 'Telemetry Data'];
+const TABS = ['Fine Tuning', 'Telemetry Data', 'AI Pipeline'];
 
 function Algorithms() {
   const [activeTab, setActiveTab] = useState('Fine Tuning');
@@ -27,8 +27,8 @@ function Algorithms() {
         This section covers the telemetry data pipeline: data gathering from Assetto Corsa's
         shared memory, how raw values are cleaned and normalised before use, the algorithms
         for fuel estimation and event detection, and experimental results. AI model fine-tuning
-        is covered in the Fine Tuning tab. Runtime AI integration details are documented in the
-        System Design and Implementation pages.
+        is covered in the Fine Tuning tab, while live LLM/voice inference algorithms are covered
+        in the AI Pipeline tab.
       </p>
 
       <h2>Data Acquisition</h2>
@@ -494,11 +494,10 @@ laps_remaining = fuel_remaining / fuel_per_lap`}
 
       {activeTab === 'AI Pipeline' && (<>
       <p>
-        This tab covers the algorithms that operate within the AI pipeline: LLM inference and
-        prompt engineering, voice input (VAD + Whisper STT), text-to-speech output, post-race
-        analysis agents, and end-to-end evaluation. Telemetry event detection and the data
-        pipeline are documented in the <strong>Telemetry Data</strong> tab; model training
-        and fine-tuning are in the <strong>Fine Tuning</strong> tab.
+        This tab documents <strong>AI pipeline algorithms</strong>: inference-time prompt
+        construction, guardrails, speech segmentation/transcription, TTS generation, post-race
+        analysis agents, and quantified performance. Thread orchestration, class wiring, and
+        framework integration are intentionally documented in System Design and Implementation.
       </p>
 
       <h2>Pipeline Overview</h2>
