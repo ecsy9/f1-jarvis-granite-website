@@ -1219,6 +1219,11 @@ Tire Temps: FL:92°C FR:94°C RL:88°C RR:90°C`}</code></pre>
           telemetry chart system. Each section below describes the frameworks, plugins, and
           specific techniques used to implement that feature.
         </p>
+        <p>
+          Scope note: this page focuses on <strong>how</strong> features were built and integrated
+          (toolchain, code paths, runtime behaviour). UX rationale remains in UI Design, and
+          architecture-level decomposition remains in System Design.
+        </p>
 
         <h2>VR Environment Setup</h2>
         <p>

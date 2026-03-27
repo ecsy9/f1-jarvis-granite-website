@@ -171,58 +171,43 @@ function UIDesign() {
 
       <h2>Interactive Media &amp; Displays</h2>
       <p>
-        Several categories of interactive content are embedded into the VR environment as in-world
-        screens and displays, allowing users to engage with race footage, data visualisations, and
-        AI-driven slide presentations without leaving the VR scene.
+        In UI terms, these displays are designed as <strong>in-world information surfaces</strong>
+        so users can consume media without breaking immersion or opening external menus.
       </p>
       <table className="section-table">
         <thead>
           <tr>
-            <th>Feature</th>
-            <th>Implementation</th>
+            <th>Surface</th>
+            <th>User-facing behaviour</th>
+            <th>UI value</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Video Playback</strong></td>
-            <td>
-              Unreal Engine's <code>FileMediaSource</code> streams local video files onto virtual
-              screen meshes in the VR scene. <code>MediaPlayer</code> and <code>MediaTexture</code>{' '}
-              assets are bound to Blueprints that expose play and pause controls, allowing the user
-              to actively control playback while in VR.
-            </td>
+            <td><strong>Video screen</strong></td>
+            <td>Users can play/pause race footage from inside the scene.</td>
+            <td>Supports guided demos and contextual explanations during walkthroughs.</td>
           </tr>
           <tr>
-            <td><strong>Emissive Screen Materials</strong></td>
-            <td>
-              Specialised material assets applied to screen meshes use an <strong>Emissive
-              (Unlit)</strong> shading model, bypassing standard scene lighting. This makes
-              displayed images appear significantly brighter and accurately mimics the backlit,
-              glowing nature of real-world monitors and TVs in a darkened environment.
-            </td>
+            <td><strong>Static branding screens</strong></td>
+            <td>Key project and partner visuals remain readable from distance.</td>
+            <td>Acts as orientation and identity cues in the VR hub.</td>
           </tr>
           <tr>
-            <td><strong>AI Presentations (Convai)</strong></td>
-            <td>
-              Custom presentation slides were created and uploaded to imgbb.com; direct image URLs
-              were extracted and injected into a Convai Character's knowledge base. In Unreal
-              Engine, the Convai Character ID is linked via Blueprint to a virtual screen, allowing
-              the AI avatar to dynamically present slides on VR monitors — slide content can be
-              updated by changing hosted URLs without rebuilding the project.
-            </td>
+            <td><strong>AI presentation screen</strong></td>
+            <td>A Convai avatar presents slide-like content as part of interaction.</td>
+            <td>Turns documentation-style content into an interactive UX element.</td>
           </tr>
         </tbody>
       </table>
 
       <div className="design-decision">
-        <strong>Design Decision — Emissive (Unlit) Screen Materials:</strong> Standard lit
-        materials applied to screen meshes would appear washed out or shadowed depending on the VR
-        environment's local lighting conditions — a screen in a dimly lit corner would look dark,
-        which is physically incorrect for a self-illuminating display. By using an Emissive/Unlit
-        shading model, the screen surface emits its own colour without receiving or casting scene
-        light, consistently mimicking the bright backlit appearance of real monitors regardless of
-        where they are placed in the scene.
+        <strong>Design Decision — One Space, Multiple Content Modes:</strong> Instead of splitting
+        media, branding, and AI guidance into separate rooms or UIs, the design keeps them in a
+        single navigable space with consistent screen behaviour. This reduces context-switching
+        and keeps the user focused on the engineering narrative.
       </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', margin: '1rem 0 2rem' }}>
         <img
           src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Interactive-Media-And-Displays-1.png`}
@@ -238,54 +223,35 @@ function UIDesign() {
 
       <h2>Vehicle Assets</h2>
       <p>
-        Three vehicle assets are displayed in the VR hub, each sourced and optimised differently to
-        meet VR performance requirements.
+        Vehicle placement supports both realism and wayfinding. Each asset acts as a visual anchor
+        tied to a distinct project narrative (professional motorsport, Formula Student partnership,
+        and modding pipeline experimentation).
       </p>
       <table className="section-table">
         <thead>
           <tr>
             <th>Vehicle</th>
-            <th>Source</th>
-            <th>Optimisation</th>
-            <th>Final Triangle Count</th>
+            <th>UI/UX role in the scene</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><strong>Lewis Hamilton's Ferrari</strong></td>
-            <td>Pre-made 3D model — static mesh import into UE4</td>
-            <td>None required — model was already VR-performant at import</td>
-            <td>—</td>
+            <td>Immediate recognition cue for users entering the hub.</td>
           </tr>
           <tr>
             <td><strong>UCL Formula Student Car</strong></td>
-            <td>UCL team 3D model</td>
-            <td>
-              Blender Decimate modifier applied: 9.5 M → 250 K triangles. Materials re-applied
-              in UE4 after geometry reduction.
-            </td>
-            <td>~250,000</td>
+            <td>Connects the interface to the team's real project partner context.</td>
           </tr>
           <tr>
             <td><strong>TORCS car1-ow1 (IBM Livery)</strong></td>
-            <td>
-              Custom Python pipeline (<code>export_car.py</code>) parsing TORCS AC3D{' '}
-              <code>.acc</code> meshes and SGI <code>.rgb</code> textures
-            </td>
-            <td>
-              Script-level: fan triangulation of AC3D polygons, SGI → PNG conversion with vertical
-              flip for UE4 origin convention. Already low-poly from TORCS source.
-            </td>
-            <td>2,640 (body) + 4 × 302 (wheels)</td>
+            <td>Shows custom asset workflow outcomes as a tangible scene element.</td>
           </tr>
         </tbody>
       </table>
       <p>
-        All three vehicles required collision generation in Unreal Engine to enable proper VR
-        interaction — without it, the player would clip through the geometry. The TORCS export
-        pipeline produced Wavefront OBJ + MTL files with the IBM livery, secondary wheel textures,
-        and shadow decals correctly mapped. Textures were imported into UE4 first to allow
-        automatic material generation before the mesh was brought in.
+        Detailed import/optimisation pipelines are covered in Implementation; here the focus is the
+        user-facing composition and interpretability of the environment.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', margin: '1rem 0 2rem' }}>
         <img
@@ -302,96 +268,45 @@ function UIDesign() {
 
       <h2>Telemetry Visualizer Charts</h2>
       <p>
-        <code>ATelemetryVisualizer</code> is a C++ Unreal actor that renders a Kantan Charts
-        <code>USimpleCartesianPlot</code> onto a <code>UWidgetComponent</code> surface. A single
-        keypress (<strong>'O'</strong>) opens a file dialog, parses the selected JSON session file,
-        and broadcasts the data to every chart instance in the level simultaneously. Per-instance
-        configuration (metric type, draw resolution, world-scale, line colour, line thickness)
-        lets users tailor each chart without touching code.
+        From a UI perspective, the chart wall is designed for fast pattern recognition in 3D space:
+        users should identify state changes quickly without reading dense text or navigating deep
+        menus.
       </p>
-
-      <h3>Metric Types</h3>
       <table className="section-table">
         <thead>
           <tr>
-            <th>Category</th>
-            <th>Metrics</th>
-            <th>Lines per Chart</th>
-            <th>Colour Scheme</th>
+            <th>UI decision</th>
+            <th>Why it improves usability</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Single-value</strong></td>
-            <td>Speed, RPM, Gear, Throttle, Brake, Fuel, Steer Angle, G-Forces, Elapsed Time, Lap Number, Position</td>
-            <td>1</td>
-            <td>Configurable per-instance (<code>LineColor</code> property)</td>
+            <td>Consistent FL/FR/RL/RR colour semantics</td>
+            <td>Users learn one mapping and can interpret all grouped tyre/suspension charts.</td>
           </tr>
           <tr>
-            <td><strong>4-Corner Grouped</strong></td>
-            <td>Tyre Pressure, Tyre Temperature, Tyre Wear, Wheel Slip, Suspension Travel</td>
-            <td>4</td>
-            <td>FL = green, FR = blue, RL = orange, RR = red-pink</td>
+            <td>Multi-line grouped views for related metrics</td>
+            <td>Enables direct corner-to-corner comparisons at a glance.</td>
           </tr>
           <tr>
-            <td><strong>Front/Rear Grouped</strong></td>
-            <td>Ride Height</td>
-            <td>2</td>
-            <td>Front = green, Rear = red</td>
+            <td>In-world chart placement rather than modal windows</td>
+            <td>Preserves immersion and spatial memory while analysing telemetry.</td>
           </tr>
           <tr>
-            <td><strong>5-Zone Grouped</strong></td>
-            <td>Car Damage</td>
-            <td>5</td>
-            <td>Front = green, Rear = red, Left = blue, Right = orange, Centre = yellow</td>
+            <td>Configurable metric per chart surface</td>
+            <td>Supports both novice walkthroughs and expert custom analysis layouts.</td>
           </tr>
         </tbody>
       </table>
-
-      <h3>Key Design Decisions</h3>
-
-      <div className="design-decision">
-        <strong>Widget Lifecycle Ordering — attach before populate:</strong> The
-        <code> UChartContainerWidget</code> must be assigned to the <code>UWidgetComponent</code>{' '}
-        <em>before</em> data is pushed via <code>BP_AddSeriesWithId</code> and{' '}
-        <code>BP_AddDatapoint</code>. Attaching first triggers <code>TakeWidget()</code> →{' '}
-        <code>SynchronizeProperties()</code>, which binds the Slate chart's datasource interface.
-        Populating data before attachment causes axes to render but leaves all data lines invisible —
-        a subtle ordering bug with no compile-time or runtime error.
-      </div>
-
-      <div className="design-decision">
-        <strong>Native Win32 File Dialog (commdlg.h) instead of DesktopPlatform:</strong> Unreal's{' '}
-        <code>IDesktopPlatform</code> module is editor-only and causes linker errors in Shipping
-        builds. The implementation uses <code>GetOpenFileName</code> from <code>commdlg.h</code>{' '}
-        directly, which is available in all build configurations. After the dialog closes,{' '}
-        <code>SetInputMode(FInputModeGameOnly)</code> is called to recapture mouse look, preventing
-        the "lost mouse after alt-tab" issue that occurs when a Win32 dialog temporarily gives the
-        OS cursor control.
-      </div>
-
-      <div className="design-decision">
-        <strong>Consistent colour-coding across all 4-corner grouped metrics:</strong> The same
-        FL/FR/RL/RR colour mapping (green/blue/orange/red-pink) is enforced by the shared{' '}
-        <code>GetSubSeries()</code> function, which returns a <code>TArray&lt;FTelemetrySubSeries&gt;</code>{' '}
-        (JsonKey, DisplayName, Color) for each metric enum value. This means Tyre Pressure, Tyre
-        Temperature, Tyre Wear, Wheel Slip, and Suspension Travel all share identical colour
-        semantics — a user who reads the legend for one metric can immediately interpret any other.
-      </div>
-
-      <div className="design-decision">
-        <strong>Automatic down-sampling for VR performance:</strong> Datasets exceeding 6,000
-        datapoints are uniformly down-sampled before being pushed to the chart widget. This keeps
-        frame times stable in VR (where dropping below 90 fps causes discomfort) while preserving
-        overall shape and trend visibility. The threshold and step are applied per-series, so
-        grouped charts with multiple lines each benefit from the reduction.
-      </div>
+      <p>
+        Architectural and C++ lifecycle details for this subsystem are documented in System Design
+        and Implementation; this page keeps the focus on user interaction and visual communication.
+      </p>
       <img
         src={`${process.env.PUBLIC_URL}/images/UI_images/VR-Telemetry-Visualizer-Charts.png`}
         alt="Two Kantan Charts telemetry graphs mounted on the VR lab wall showing tyre pressures and RPM"
         style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
       />
-
       </>)}
 
 

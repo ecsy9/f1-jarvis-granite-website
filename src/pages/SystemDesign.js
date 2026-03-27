@@ -1999,34 +1999,44 @@ TTSOutputWorker (QThread)
 
       <h2>Fine-Tuning Pipeline</h2>
       <p>
-        In addition to prompt engineering, we maintain a separate fine-tuning pipeline to adapt
-        an instruct LLM to Formula 1 telemetry and team radio style outputs. This lives in the{' '}
-        <a href="https://github.com/athena-c-22/f1-fine-tuning" target="_blank" rel="noreferrer">f1-fine-tuning</a> repository.
+        The runtime AI system depends on externally produced fine-tuned models, but training
+        itself is an offline subsystem. At system-design level, the key concern is the
+        <strong>integration boundary</strong> between training outputs and runtime inference.
       </p>
 
-      <h3>Architecture (Offline Training)</h3>
-      <ul>
-        <li><strong>OpenF1 data fetch</strong>: Pull race telemetry + radio metadata windows used as training inputs.</li>
-        <li><strong>Dataset builders</strong>: Generate JSONL prompt/completion pairs for specific tasks (race engineer advice, post-race analyst reports).</li>
-        <li><strong>Filtering</strong>: Remove low-quality entries (gibberish, non-English, non-technical chatter) before training.</li>
-        <li><strong>QLoRA fine-tuning</strong>: Parameter-efficient tuning of an instruct model (IBM Granite) with 4-bit quantisation.</li>
-        <li><strong>Inference</strong>: Load the fine-tuned adapter and generate responses for new telemetry windows.</li>
-      </ul>
+      <h3>Integration Boundary (Offline → Runtime)</h3>
+      <table className="section-table">
+        <thead>
+          <tr>
+            <th>Boundary Element</th>
+            <th>Design Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Training repository output</td>
+            <td>Produces deployable model artifacts consumed by runtime services.</td>
+          </tr>
+          <tr>
+            <td>Model artifact packaging</td>
+            <td>Defines a stable format/version so launcher checks and model loading are deterministic.</td>
+          </tr>
+          <tr>
+            <td>Startup loader contract</td>
+            <td>Validates model availability and initialises inference workers before interactive use.</td>
+          </tr>
+          <tr>
+            <td>Agent compatibility</td>
+            <td>Ensures prompt templates and response parsers remain compatible across model updates.</td>
+          </tr>
+        </tbody>
+      </table>
 
-      <h3>Sequence (Build → Filter → Train → Infer)</h3>
-      <ol>
-        <li>Build raw dataset JSONL from telemetry + radio windows.</li>
-        <li>Filter the dataset to improve label quality and reduce noise.</li>
-        <li>Fine-tune the base model with QLoRA and save adapter weights.</li>
-        <li>Run inference using the base model + adapter to generate advice/analysis.</li>
-      </ol>
-
-      <h3>Data Format (JSONL)</h3>
-      <ul>
-        <li><strong>Race engineer dataset</strong>: <code>{"{ \"prompt\": \"Telemetry: ... Advice:\", \"completion\": \"Box this lap...\" }"}</code></li>
-        <li><strong>Analyst dataset</strong>: <code>{"{ \"input\": \"{...telemetry JSON...}\", \"output\": \"Race debrief...\", \"metadata\": { \"year\": 2024, \"grand_prix\": \"Monaco\" } }"}</code></li>
-      </ul>
-
+      <p>
+        Full model-training methodology (datasets, filtering, QLoRA configuration, experiments,
+        and quantified results) is documented in the Algorithms page to avoid duplicating
+        algorithmic content inside System Design.
+      </p>
       <h2>References</h2>
       <ol className="ref-list">
         <li>Gamma, E., Helm, R., Johnson, R. and Vlissides, J. (1994) <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Reading, MA: Addison-Wesley.</li>

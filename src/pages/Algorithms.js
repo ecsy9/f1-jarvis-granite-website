@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SectionPage from '../components/SectionPage';
 import './Algorithms.css';
 
-const TABS = ['Fine Tuning', 'Telemetry Data', 'AI Pipeline'];
+const TABS = ['Fine Tuning', 'Telemetry Data'];
 
 function Algorithms() {
   const [activeTab, setActiveTab] = useState('Fine Tuning');
@@ -27,7 +27,8 @@ function Algorithms() {
         This section covers the telemetry data pipeline: data gathering from Assetto Corsa's
         shared memory, how raw values are cleaned and normalised before use, the algorithms
         for fuel estimation and event detection, and experimental results. AI model fine-tuning
-        and LLM inference are covered in the other tabs.
+        is covered in the Fine Tuning tab. Runtime AI integration details are documented in the
+        System Design and Implementation pages.
       </p>
 
       <h2>Data Acquisition</h2>
