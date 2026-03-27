@@ -2275,23 +2275,77 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
         character's knowledge base, so slides can be updated without recompiling or repackaging
         the project.
       </p>
-      <pre className="code-block"><code>{`Slide Authoring        Image Hosting          Convai Platform          UE4 VR Scene
-      |                      |                       |                       |
-      |--create slides------->|                       |                       |
-      |                      |--upload to imgbb.com  |                       |
-      |                      |--generate direct URLs |                       |
-      |                      |                       |<--inject image URLs   |
-      |                      |                       |   into Character      |
-      |                      |                       |   knowledge base      |
-      |                      |                       |                       |
-      |                      |                       |--Convai Character ID->|
-      |                      |                       |                       |--link to Blueprint
-      |                      |                       |                       |--bind to screen mesh
-      |                      |                       |                       |
-      |                      |                       |  [at runtime in VR]   |
-      |                      |                       |<--user interacts------|
-      |                      |                       |--fetch slide URLs---->|
-      |                      |                       |--present on screen--->|`}</code></pre>
+      <div className="seq-diagram">
+        <div className="seq-actors">
+          <div className="seq-actor seq-actor--entry">
+            <span className="seq-actor__name">Slide Author</span>
+            <span className="seq-actor__type">external</span>
+          </div>
+          <div className="seq-actor seq-actor--plain">
+            <span className="seq-actor__name">imgbb.com</span>
+            <span className="seq-actor__type">image host</span>
+          </div>
+          <div className="seq-actor seq-actor--ui">
+            <span className="seq-actor__name">Convai Platform</span>
+            <span className="seq-actor__type">cloud AI</span>
+          </div>
+          <div className="seq-actor seq-actor--game">
+            <span className="seq-actor__name">UE4 VR Scene</span>
+            <span className="seq-actor__type">runtime</span>
+          </div>
+        </div>
+        <div className="seq-body">
+          <div className="seq-note">[setup — done once per content update, no recompile needed]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">Slide Author</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--plain">imgbb.com</span>
+            <span className="seq-msg__label">: upload slide images</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--plain">imgbb.com</span>
+            <span className="seq-msg__arrow seq-msg__arrow--back">→</span>
+            <span className="seq-msg__to seq-msg__to--entry">Slide Author</span>
+            <span className="seq-msg__label">: direct-link URLs (no auth, stable)</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">Slide Author</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">Convai Platform</span>
+            <span className="seq-msg__label">: inject image URLs into Character knowledge base</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">Slide Author</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--game">UE4 VR Scene</span>
+            <span className="seq-msg__label">: assign Convai Character ID in Blueprint actor</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--game">UE4 VR Scene</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">bind Character actor to virtual screen mesh</span>
+          </div>
+          <hr className="seq-sep" />
+          <div className="seq-note">[runtime — each user session in VR]</div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--entry">User</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--ui">Convai Platform</span>
+            <span className="seq-msg__label">: interact with AI avatar in VR</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">Convai Platform</span>
+            <span className="seq-msg__arrow seq-msg__arrow--self">↺</span>
+            <span className="seq-msg__label">resolve relevant slide URL from knowledge base</span>
+          </div>
+          <div className="seq-msg">
+            <span className="seq-msg__from seq-msg__from--ui">Convai Platform</span>
+            <span className="seq-msg__arrow seq-msg__arrow--fwd">→</span>
+            <span className="seq-msg__to seq-msg__to--game">UE4 VR Scene</span>
+            <span className="seq-msg__label">: fetch &amp; render slide on virtual screen</span>
+          </div>
+        </div>
+      </div>
 
       <table className="section-table">
         <thead>
@@ -2359,34 +2413,69 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
         refresh simultaneously from one file load. Each actor independently manages its own Kantan
         Charts widget lifecycle, from construction through datasource binding to data population.
       </p>
-      <pre className="code-block"><code>{`
-  Press 'O'
-      |
-      v
-  ATelemetryVisualizer (any instance)
-      |-- GetOpenFileName()  [Win32 commdlg.h]
-      |-- FFileHelper::LoadFileToString()
-      |-- FJsonSerializer::Deserialize()
-      |-- extract "telemetry" object + "elapsed_time" array
-      |
-      v
-  TActorIterator<ATelemetryVisualizer>  (fan-out broadcast)
-      |-- LoadMetricFromJson(JsonObj, ElapsedTime)  --> instance 0
-      |-- LoadMetricFromJson(JsonObj, ElapsedTime)  --> instance 1
-      |-- ...
-      |-- LoadMetricFromJson(JsonObj, ElapsedTime)  --> instance N
-
-  Per instance (LoadMetricFromJson):
-      CreateWidget<UChartContainerWidget>
-          └── WidgetTree->ConstructWidget<USimpleCartesianPlot>
-                  └── set as RootWidget
-      WidgetComp->SetWidget(Container)   <-- binds datasource interface
-      GetSubSeries()  --> TArray<FTelemetrySubSeries>
-      BP_AddSeriesWithId()   (per sub-series)
-      BP_AddDatapoint()      (loop, with optional down-sampling)
-      ConfigureChart()       (axes, range, colours, style)
-      Plot->SynchronizeProperties()
-`}</code></pre>
+      <div className="flow-diagram">
+        <div className="flow-actor flow-actor--thread">
+          <span className="flow-actor__name">Broadcast-on-Load</span>
+          <span className="flow-actor__type">ATelemetryVisualizer · UE4 C++ Actor · triggered by 'O' key</span>
+        </div>
+        <div className="flow-steps">
+          <div className="flow-step">
+            <span className="flow-step__text">User presses 'O' key</span>
+            <span className="flow-step__badge">input</span>
+          </div>
+          <div className="flow-step">
+            <span className="flow-step__text">GetOpenFileName(OFN_NOCHANGEDIR) — Win32 commdlg.h</span>
+            <span className="flow-step__badge">Win32</span>
+          </div>
+          <div className="flow-step flow-step--branch">
+            <span className="flow-step__text">cancel → early return</span>
+            <span className="flow-step__badge flow-step__badge--game">guard</span>
+          </div>
+          <div className="flow-step">
+            <span className="flow-step__text">SetInputMode(GameOnly) — recapture mouse look</span>
+          </div>
+          <div className="flow-step">
+            <span className="flow-step__text">FFileHelper::LoadFileToString()</span>
+          </div>
+          <div className="flow-step">
+            <span className="flow-step__text">FJsonSerializer::Deserialize() — extract "telemetry" object + elapsed_time array</span>
+          </div>
+          <div className="flow-step">
+            <span className="flow-step__text">TActorIterator fan-out → LoadMetricFromJson() on every ATelemetryVisualizer in level</span>
+            <span className="flow-step__badge flow-step__badge--game">broadcast</span>
+          </div>
+        </div>
+        <div className="flow-sub">
+          <div className="flow-sub__label">Per instance — LoadMetricFromJson</div>
+          <div className="flow-rule-grid">
+            <div className="flow-rule">
+              <span className="flow-rule__name">CreateWidget</span>
+              <span className="flow-rule__cond">UChartContainerWidget at runtime</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">ConstructWidget</span>
+              <span className="flow-rule__cond">USimpleCartesianPlot → set as RootWidget</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">SetWidget</span>
+              <span className="flow-rule__cond">WidgetComp → TakeWidget() binds datasource</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">GetSubSeries()</span>
+              <span className="flow-rule__cond">TArray&lt;FTelemetrySubSeries&gt; — 1–5 entries</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">BP_AddDatapoint()</span>
+              <span className="flow-rule__cond">loop per sub-series · down-sample if &gt; 6 000 pts</span>
+            </div>
+            <div className="flow-rule">
+              <span className="flow-rule__name">ConfigureChart()</span>
+              <span className="flow-rule__cond">axes · FixedRange · colours · anti-aliasing</span>
+            </div>
+          </div>
+          <div className="flow-sub__return">Plot→SynchronizeProperties() — flush UPROPERTY changes to Slate</div>
+        </div>
+      </div>
 
       <table className="section-table">
         <thead>
@@ -2732,44 +2821,66 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
         <code>elapsed_time</code>, which the visualizer uses as the shared X-axis across every
         chart instance.
       </p>
-      <pre className="code-block"><code>{`{
-  "version": 1,
-  "metadata": {
-    "game": "ac",
-    "track_name": "monza",
-    "car_model": "lotus_exos_125",
-    "player_name": "...",
-    "total_laps": 6,
-    "best_lap_time": 101.97,
-    "notes": "..."
-  },
-  "laps": [
-    {
-      "lap_number": 0,
-      "lap_time": 159.86,
-      "fuel_start": 55.0,
-      "fuel_end": 51.44,
-      "avg_speed": 147.89,
-      "max_speed": 281.80,
-      "min_speed": 0.0,
-      "valid": 1
-    }
-  ],
-  "telemetry": {
-    "elapsed_time": [0.0, 0.016, 0.033, ...],
-    "speed":        [0.0, 0.5,   1.2,   ...],
-    "rpm":          [800, 820,   850,   ...],
-    "gear":         [0,   0,     1,     ...],
-    "throttle":     [0.0, 0.1,   0.3,   ...],
-    "brake":        [0.0, 0.0,   0.0,   ...],
-    "tyre_pressure_fl": [...],
-    "tyre_pressure_fr": [...],
-    "tyre_pressure_rl": [...],
-    "tyre_pressure_rr": [...],
-    "tyre_temp_fl": [...],
-    "...": "all other metric arrays, same length as elapsed_time"
-  }
-}`}</code></pre>
+      <div className="er-diagram">
+        <div className="er-hub">
+          <div className="er-table er-table--sessions">
+            <div className="er-table__name">.jsession file</div>
+            <div className="er-table__col">
+              <span className="er-table__colname">version</span>
+              <span className="er-table__coltype">integer</span>
+            </div>
+            <div className="er-table__col">
+              <span className="er-table__colname">metadata</span>
+              <span className="er-table__coltype">object</span>
+            </div>
+            <div className="er-table__col">
+              <span className="er-table__colname">laps</span>
+              <span className="er-table__coltype">array</span>
+            </div>
+            <div className="er-table__col">
+              <span className="er-table__colname">telemetry</span>
+              <span className="er-table__coltype">object</span>
+            </div>
+          </div>
+        </div>
+        <div className="er-rel-strip">
+          <span className="er-rel-badge">metadata &#123; &#125;</span>
+          <span className="er-rel-badge">laps [ ]</span>
+          <span className="er-rel-badge">telemetry &#123; &#125;</span>
+        </div>
+        <div className="er-grid er-grid--3">
+          <div className="er-table">
+            <div className="er-table__name">metadata</div>
+            <div className="er-table__col"><span className="er-table__colname">game</span><span className="er-table__coltype">string</span></div>
+            <div className="er-table__col"><span className="er-table__colname">track_name</span><span className="er-table__coltype">string</span></div>
+            <div className="er-table__col"><span className="er-table__colname">car_model</span><span className="er-table__coltype">string</span></div>
+            <div className="er-table__col"><span className="er-table__colname">player_name</span><span className="er-table__coltype">string</span></div>
+            <div className="er-table__col"><span className="er-table__colname">total_laps</span><span className="er-table__coltype">integer</span></div>
+            <div className="er-table__col"><span className="er-table__colname">best_lap_time</span><span className="er-table__coltype">float · seconds</span></div>
+            <div className="er-table__col"><span className="er-table__colname">notes</span><span className="er-table__coltype">string</span></div>
+          </div>
+          <div className="er-table er-table--laps">
+            <div className="er-table__name">laps [ ]</div>
+            <div className="er-table__col"><span className="er-table__colname">lap_number</span><span className="er-table__coltype">integer</span></div>
+            <div className="er-table__col"><span className="er-table__colname">lap_time</span><span className="er-table__coltype">float · seconds</span></div>
+            <div className="er-table__col"><span className="er-table__colname">fuel_start</span><span className="er-table__coltype">float · litres</span></div>
+            <div className="er-table__col"><span className="er-table__colname">fuel_end</span><span className="er-table__coltype">float · litres</span></div>
+            <div className="er-table__col"><span className="er-table__colname">avg_speed</span><span className="er-table__coltype">float · km/h</span></div>
+            <div className="er-table__col"><span className="er-table__colname">max_speed</span><span className="er-table__coltype">float · km/h</span></div>
+            <div className="er-table__col"><span className="er-table__colname">valid</span><span className="er-table__coltype">0 | 1</span></div>
+          </div>
+          <div className="er-table er-table--telemetry">
+            <div className="er-table__name">telemetry &#123; &#125;</div>
+            <div className="er-table__col"><span className="er-table__colname">elapsed_time</span><span className="er-table__coltype">float[ ] · X axis</span></div>
+            <div className="er-table__col"><span className="er-table__colname">speed · rpm · gear</span><span className="er-table__coltype">float[ ]</span></div>
+            <div className="er-table__col"><span className="er-table__colname">throttle · brake · fuel</span><span className="er-table__coltype">float[ ]</span></div>
+            <div className="er-table__col"><span className="er-table__colname">tyre_pressure_fl/fr/rl/rr</span><span className="er-table__coltype">float[ ]</span></div>
+            <div className="er-table__col"><span className="er-table__colname">tyre_temp_fl/fr/rl/rr</span><span className="er-table__coltype">float[ ]</span></div>
+            <div className="er-table__col"><span className="er-table__colname">suspension_fl/fr/rl/rr</span><span className="er-table__coltype">float[ ]</span></div>
+            <div className="er-table__col"><span className="er-table__colname">+ all other metric arrays</span><span className="er-table__coltype">same length</span></div>
+          </div>
+        </div>
+      </div>
 
       <h2>Packages and APIs</h2>
 

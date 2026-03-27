@@ -2,7 +2,7 @@ import SectionPage from '../../components/SectionPage';
 
 function MonthlyVideo() {
   return (
-    <SectionPage title="Monthly Video">
+    <SectionPage title="Videos">
       <p>
         Project videos including the elevator pitch and monthly progress updates.
       </p>

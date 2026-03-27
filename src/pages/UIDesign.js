@@ -585,6 +585,105 @@ function UIDesign() {
         <strong>Conclusion:</strong> All evaluators agreed that the adaptive display issue was the highest priority fix, as it fundamentally affected the interface's usability.
       </div>
 
+      <h2>Final Implemented UI</h2>
+      <p>
+        The following screenshots show the final implemented interfaces across Jarvis Live and Jarvis Post.
+      </p>
+
+      <h3>Launcher — Loading, Main Menu &amp; Settings</h3>
+      <p>
+        On launch, a loading screen sequences through every subsystem — native runtimes, UI stack,
+        telemetry backend, AI pipeline, voice and TTS — displaying a green check as each component
+        becomes ready. The main menu then presents the three entry points: Jarvis Live, Jarvis Post,
+        and the VR download. Setup &amp; Settings exposes voice input configuration (disabled,
+        push-to-talk, or continuous) with assignable keys for both keyboard and wheel/joystick.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', margin: '1rem 0 2rem' }}>
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-loading-screen.png`}
+          alt="Jarvis loading screen showing component initialisation checklist"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-main-menu.png`}
+          alt="Jarvis main menu with Start Jarvis Live, Start Jarvis Post, and Download Jarvis VR"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+        <img
+          src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-settings.png`}
+          alt="Jarvis Setup and Settings panel with voice input configuration"
+          style={{ width: '100%', borderRadius: '4px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+        />
+      </div>
+
+      <h3>Jarvis Live — Dashboard</h3>
+      <p>
+        The full live dashboard during an active session. The left panel shows the track position map,
+        delta to best lap graph, and lap times table. The centre panel displays real-time telemetry
+        graphs — speed, brake, RPM, and tyre temperature — updating continuously from the Assetto
+        Corsa shared memory feed. The right panel shows session metadata and the live AI commentary
+        transcript from the Granite race engineer.
+      </p>
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-live-dashboard.png`}
+        alt="Jarvis Live dashboard showing track map, telemetry graphs, and AI commentary"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
+
+      <h3>Jarvis Post — Session Selection</h3>
+      <p>
+        The session selector dialog on launch. Past sessions are listed with their track, car,
+        mode, duration, lap count, and best lap time. The highlighted row is the most recent
+        session; the "Use Last Recorded Session" button loads it immediately without scrolling.
+        Sessions can also be exported, imported, renamed, or deleted from this screen.
+      </p>
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-post-select-lap.png`}
+        alt="Jarvis Post session selection dialog"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
+
+      <h3>Jarvis Post — Telemetry Graphs</h3>
+      <p>
+        The Lap Render tab with a session loaded. The track map on the left updates a positional
+        cursor as the timeline scrubs. The main area shows six simultaneous graph panels —
+        speed, gear, engine RPM, throttle &amp; brake, tyre temperatures, and tyre pressures —
+        all time-aligned so any point on one graph corresponds to the same moment across all others.
+        Lap info is displayed below the track map.
+      </p>
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-post-data.png`}
+        alt="Jarvis Post telemetry graphs view with track map and six channel panels"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
+
+      <h3>Jarvis Post — Graph Channel Selector</h3>
+      <p>
+        The graph dropdown open, showing the full list of available telemetry channels. In addition
+        to the default set, users can switch any panel to steering angle, G-forces, fuel, tyre wear,
+        wheel slip, suspension travel, ride height, car damage, or delta to best lap. The current
+        view shows steering angle, tyre temperatures, G-forces, and suspension travel selected.
+      </p>
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-post-graph-dropdown.png`}
+        alt="Jarvis Post graph channel selector dropdown with full channel list"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
+
+      <h3>Jarvis Post — AI Analysis</h3>
+      <p>
+        The Analysis tab showing the post-race debrief output from the Granite model. The left
+        Coach panel provides prioritised, actionable feedback for the driver — sector-by-sector
+        observations with specific setup and technique recommendations. The right Analyst panel
+        delivers a more detailed engineering breakdown, flagging anomalies in tyre management,
+        braking stability, and sector consistency, with numbered findings and suggested follow-up actions.
+      </p>
+      <img
+        src={`${process.env.PUBLIC_URL}/images/UI_images/jarvis-post-analysis.png`}
+        alt="Jarvis Post AI analysis tab showing Coach and Analyst debrief panels"
+        style={{ width: '100%', borderRadius: '4px', margin: '1rem 0 2rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+      />
+
       <h2>References</h2>
       <ol className="ref-list">
         <li>[1] Research Consent Form — participant data collected under informed consent.</li>

@@ -663,6 +663,7 @@
   gap: 0.65rem;
 }
 .er-grid--4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.er-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
 .er-grid--2 { grid-template-columns: 1fr 1fr; }
 
 .er-table {

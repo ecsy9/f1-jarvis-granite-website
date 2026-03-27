@@ -24,7 +24,7 @@ const appendicesItems = [
     label: 'Development Blog',
     external: true,
   },
-  { path: '/appendices/monthly-video', label: 'Monthly Video' },
+  { path: '/appendices/monthly-video', label: 'Videos' },
   { path: '/appendices/interviews', label: 'Interviews & Feedback' },
 ];
 
