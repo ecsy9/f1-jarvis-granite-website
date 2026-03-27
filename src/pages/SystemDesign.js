@@ -178,10 +178,9 @@ function SystemDesign() {
 
           <div className="arch-col">
             <div className="arch-drop" />
-            <div className="arch-node arch-node--settings">
+            <div className="arch-node arch-node--viewer">
               <div className="arch-node__header">
-                <span className="arch-node__title">VR Integration</span>
-                <span className="arch-badge arch-badge--ui">Coming Soon</span>
+                <span className="arch-node__title">VR Environment</span>
               </div>
               <ul className="arch-node__bullets">
                 <li>Live telemetry feed</li>
@@ -2133,8 +2132,9 @@ TTSOutputWorker (QThread)
 
       <h2>Vehicle Asset Pipeline</h2>
       <p>
-        Three vehicle assets were brought into the VR environment through different import
-        pipelines, each requiring different levels of pre-processing before Unreal Engine import.
+        The VR asset subsystem uses three ingestion paths (direct import, geometry reduction, and
+        custom conversion) to handle heterogeneous source formats while keeping runtime assets
+        within VR performance constraints.
       </p>
       <table className="section-table">
         <thead>
@@ -2205,9 +2205,9 @@ wheels/openwheel1-1/wheel3d.png     →         wheel3d.png           (copied as
         The <code>.acc</code> format is a TORCS-extended AC3D format: each vertex line carries 6
         values (<code>x y z nx ny nz</code>) and each surface reference line carries 9 values
         (vertex index + 4 UV channels). The script extracts only the base UV channel and applies
-        fan triangulation for quads and n-gons. Output was validated by checking all
-        vertex/UV/normal indices are in-bounds and rendering a matplotlib 3D wireframe preview
-        before UE4 import.
+        fan triangulation for quads and n-gons. Architecture-wise, this stage acts as a schema
+        normalisation boundary: non-standard TORCS geometry is transformed into UE-compatible
+        assets with deterministic validation gates before import.
       </p>
 
       <div className="design-decision">
